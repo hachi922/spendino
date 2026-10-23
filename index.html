@@ -188,7 +188,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 
 /* 画面の切り替え(記録 / 設定) */
 .tabs{display:flex; gap:2px; padding:2px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
-.tabs button{border:0; background:transparent; min-height:30px; padding:1px 14px; border-radius:6px; font-size:.85rem; color:var(--muted)}
+.tabs button{border:0; background:transparent; min-height:30px; padding:1px 12px; border-radius:6px; font-size:.85rem; color:var(--muted)}
 .tabs button:hover{background:var(--surface)}
 .tabs button[aria-current="page"]{background:var(--accent); color:var(--accent-fg)}
 .badge{display:inline-block; margin-left:6px; min-width:1.3em; padding:0 5px; border-radius:999px; background:var(--danger); color:var(--surface); font-size:.68rem; line-height:1.4; text-align:center}
@@ -242,6 +242,20 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .subfold[open] > summary.sub-h::after{transform:rotate(-135deg); margin-bottom:-3px}
 .subfold > summary.sub-h > span:first-child{flex:1; min-width:0}
 .subfold:first-of-type > summary.sub-h{margin-top:0; border-top:0; padding-top:0}
+
+/* 資金メモ */
+.moneyview{max-width:760px; display:grid; gap:10px}
+#acBody,#diBody,#inBody{container-type:inline-size; margin-top:10px}
+.msum{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 12px; margin:0}
+@media (min-width:560px){.msum{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.msum div{min-width:0}
+.msum dt{font-size:.7rem; color:var(--muted)}
+.msum dd{margin:0; font-family:var(--font-num); font-size:1rem; white-space:nowrap}
+.msum .strong dd{font-size:1.2rem; font-weight:500}
+.neg{color:var(--danger)}
+.moneyview .frow .r-sub:not(:empty)::before{content:none}
+
+@media (max-width:430px){.tabs button{padding:1px 8px; font-size:.8rem}}
 
 /* 固定費の期間 */
 .mper{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 6px; font-size:.76rem; color:var(--muted)}
@@ -334,6 +348,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
       <button type="button" id="tabRecords" aria-current="page">記録</button>
       <button type="button" id="tabFixed">固定費</button>
       <button type="button" id="tabChart">グラフ</button>
+      <button type="button" id="tabMoney">資金</button>
       <button type="button" id="tabSettings">設定<span class="badge" id="tabBadge" hidden></span></button>
     </nav>
   </header>
@@ -429,6 +444,60 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
         <button type="button" id="modeMethod" aria-pressed="false">支払方法別</button>
       </div>
       <div id="chartBody"></div>
+    </section>
+  </main>
+
+  <main class="moneyview" id="viewMoney" hidden>
+    <section class="panel" aria-labelledby="h-msum">
+      <h2 id="h-msum">ざっくり残高</h2>
+      <dl class="msum" id="mSum"></dl>
+      <p class="note" id="mNote"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-ac">
+      <h2 id="h-ac">銀行口座の残高 <small id="acCount"></small></h2>
+      <form id="acForm" novalidate autocomplete="off">
+        <div class="fields">
+          <label class="f full">口座名<input type="text" id="aName" maxlength="100" placeholder="○○銀行(普通)"></label>
+          <label class="f">残高(円)<input type="text" id="aBal" inputmode="numeric" placeholder="350000"></label>
+          <label class="f">メモ(任意)<input type="text" id="aMemo" maxlength="200" placeholder="生活費用など"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary" id="aSubmit">口座を追加</button><button type="button" id="aCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="aMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="acBody"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-di">
+      <h2 id="h-di">カード引落予定 <small id="diCount"></small></h2>
+      <form id="diForm" novalidate autocomplete="off">
+        <div class="fields">
+          <label class="f">引落日<input type="date" id="dDate"></label>
+          <label class="f">金額(円)<input type="text" id="dAmount" inputmode="numeric" placeholder="85000"></label>
+          <label class="f full">カード名<input type="text" id="dCard" list="dCards" maxlength="100" placeholder="○○カード"></label>
+          <label class="f">引落口座<select id="dAcct"></select></label>
+          <label class="f">メモ(任意)<input type="text" id="dMemo" maxlength="200" placeholder="10月利用分など"></label>
+        </div>
+        <datalist id="dCards"></datalist>
+        <div class="actions"><button type="submit" class="primary" id="dSubmit">引落予定を追加</button><button type="button" id="dCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="dMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="diBody"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-in">
+      <h2 id="h-in">給与額 <small id="inCount"></small></h2>
+      <form id="inForm" novalidate autocomplete="off">
+        <div class="fields">
+          <label class="f">月分<input type="month" id="iMonth" placeholder="2026-10"></label>
+          <label class="f">金額(円)<input type="text" id="iAmount" inputmode="numeric" placeholder="280000"></label>
+          <label class="f">項目<input type="text" id="iName" maxlength="100" placeholder="給与(賞与・手当など)"></label>
+          <label class="f">メモ(任意)<input type="text" id="iMemo" maxlength="200"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary" id="iSubmit">給与を追加</button><button type="button" id="iCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="iMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="inBody"></div>
     </section>
   </main>
 
@@ -620,6 +689,55 @@ const Core=(function(){
     return {base:base||0,of:of,monthOf:monthOf};
   }
 
+  /* 資金メモ: 給与額・銀行口座(残高)・カード引落予定 */
+  const cleanStr=(v,n)=>String(v==null?"":v).trim().slice(0,n);
+  const idOf=o=>String(o.id==null?"":o.id).trim()||newId();
+  const stampsOf=o=>({createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)});
+  function makeAccount(o){
+    const name=cleanStr(o.name,100), balance=parseAmount(o.balance);
+    if(!name||balance===null) return null;
+    return Object.assign({id:idOf(o),name:name,balance:balance,balanceAt:normDate(o.balanceAt)||ymd(new Date()),memo:cleanStr(o.memo,200)},stampsOf(o));
+  }
+  function makeIncome(o){
+    const month=normMonth(o.month), amount=parseAmount(o.amount);
+    if(!month||amount===null) return null;
+    return Object.assign({id:idOf(o),month:month,name:cleanStr(o.name,100)||"給与",amount:amount,memo:cleanStr(o.memo,200)},stampsOf(o));
+  }
+  function makeDebit(o){
+    const date=normDate(o.date), card=cleanStr(o.card,100), amount=parseAmount(o.amount);
+    if(!date||!card||amount===null) return null;
+    return Object.assign({id:idOf(o),date:date,card:card,amount:amount,account:cleanStr(o.account,60),memo:cleanStr(o.memo,200)},stampsOf(o));
+  }
+  const COL_KEYS={
+    accounts:a=>[a.name,a.balance,a.memo].join("\u0001"),
+    income:i=>[i.month,i.name,i.amount,i.memo].join("\u0001"),
+    debits:d=>[d.date,d.card,d.amount,d.account,d.memo].join("\u0001")
+  };
+  function mergeList(existing,incoming,keyFn){
+    const ids=new Set(existing.map(i=>i.id)), keys=new Set(existing.map(keyFn));
+    const added=[]; let dup=0;
+    incoming.forEach(x=>{
+      if(ids.has(x.id)||keys.has(keyFn(x))){dup++;return;}
+      ids.add(x.id);keys.add(keyFn(x));added.push(x);
+    });
+    return {items:existing.concat(added),added:added.length,dup:dup};
+  }
+  /* 残高の見込み: 今日以降の引落予定を、口座ごと・全体で差し引く */
+  function moneySummary(accounts,debits,income,todayStr,monthKey){
+    const up=debits.filter(d=>d.date>=todayStr);
+    const sum=a=>a.reduce((t,x)=>t+x.amount,0);
+    const ids=new Set(accounts.map(a=>a.id));
+    const byAcct={};
+    accounts.forEach(a=>{byAcct[a.id]=sum(up.filter(d=>d.account===a.id));});
+    const total=accounts.reduce((t,a)=>t+a.balance,0), upTotal=sum(up);
+    return {
+      total:total, upcoming:up, upcomingTotal:upTotal, byAcct:byAcct,
+      unassigned:sum(up.filter(d=>!ids.has(d.account))),
+      projected:total-upTotal,
+      incomeNow:sum(income.filter(i=>i.month===monthKey))
+    };
+  }
+
   /* 固定費: 月ごとの項目(月は YYYY-MM) */
   function normMonth(v){
     const m=String(v==null?"":v).normalize("NFKC").trim().match(/^(\d{4})[-\/年.](\d{1,2})(?:[-\/月.]\d{1,2}日?|月)?$/);
@@ -750,12 +868,15 @@ const Core=(function(){
 
   /* JSON */
   function fixedOut(f){return {id:f.id,month:f.month,name:f.name,amount:f.amount,method:f.method||"",memo:f.memo,createdAt:f.createdAt,updatedAt:f.updatedAt};}
-  function toJSON(items,fixed){
-    fixed=fixed||[];
+  function toJSON(items,fixed,more){
+    fixed=fixed||[]; more=more||{};
     return JSON.stringify({
       app:"kaimono-shukei", version:2, exportedAt:new Date().toISOString(), count:items.length, fixedCount:fixed.length,
       items:sortAsc(items).map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,createdAt:it.createdAt,updatedAt:it.updatedAt})),
-      fixed:fixed.map(fixedOut)
+      fixed:fixed.map(fixedOut),
+      income:(more.income||[]).map(x=>Object.assign({},x)),
+      accounts:(more.accounts||[]).map(x=>Object.assign({},x)),
+      debits:(more.debits||[]).map(x=>Object.assign({},x))
     },null,2);
   }
   function jsonToItems(text){
@@ -763,11 +884,16 @@ const Core=(function(){
     try{o=JSON.parse(String(text).replace(/^﻿/,""));}catch(e){throw new Error("JSONとして読み込めませんでした。");}
     const arr=Array.isArray(o)?o:(o&&o.items);
     const hasFixed=!!(o&&!Array.isArray(o)&&Array.isArray(o.fixed));
-    if(!Array.isArray(arr)&&!hasFixed) throw new Error("「items」の一覧が見つかりません。");
+    const hasMore=!!(o&&!Array.isArray(o)&&(Array.isArray(o.income)||Array.isArray(o.accounts)||Array.isArray(o.debits)));
+    if(!Array.isArray(arr)&&!hasFixed&&!hasMore) throw new Error("「items」の一覧が見つかりません。");
     const items=[], fixed=[]; let skipped=0;
     (Array.isArray(arr)?arr:[]).forEach(x=>{const it=(x&&typeof x==="object")?makeItem(x):null; if(it) items.push(it); else skipped++;});
     if(hasFixed) o.fixed.forEach(x=>{const f=(x&&typeof x==="object")?makeFixed(x):null; if(f) fixed.push(f); else skipped++;});
-    return {items:items,skipped:skipped,fixed:fixed,hasFixed:hasFixed};
+    const more={income:[],accounts:[],debits:[]};
+    if(hasMore) [["income",makeIncome],["accounts",makeAccount],["debits",makeDebit]].forEach(p=>{
+      (Array.isArray(o[p[0]])?o[p[0]]:[]).forEach(x=>{const v=(x&&typeof x==="object")?p[1](x):null; if(v) more[p[0]].push(v); else skipped++;});
+    });
+    return {items:items,skipped:skipped,fixed:fixed,hasFixed:hasFixed,more:more,hasMore:hasMore};
   }
 
   const keyOf=it=>[it.date,it.name,it.amount,it.method||"",it.category,it.memo].join("\u0001");
@@ -859,7 +985,7 @@ const Core=(function(){
     return {list:list,count:count,total:total,days:days,avg:avg,largest:largest,cats:cats,months:months,byMethod:byMethod,periodTotal:periodTotal,periodCount:periodList.length};
   }
 
-  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
+  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
 })();
 </script>
 
@@ -883,13 +1009,17 @@ const Core=(function(){
   function wd(d){const p=d.split("-").map(Number);return WD[new Date(p[0],p[1]-1,p[2]).getDay()];}
   function stamp(iso){const d=new Date(iso);return isNaN(d)?"":Core.ymd(d)+" "+pad(d.getHours())+":"+pad(d.getMinutes());}
 
-  let state={items:[],fixed:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
+  let state={items:[],fixed:[],income:[],accounts:[],debits:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
   let storageOk=true;
-  const ui={fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
+  const ui={acEditing:null,diEditing:null,inEditing:null,mPending:null,mOpen:{},fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
   const timers={};
 
   /* 保存 */
   function validStored(it){return it&&typeof it==="object"&&Core.validDate(String(it.date))&&typeof it.name==="string"&&Number.isFinite(it.amount)&&it.id;}
+  const validAccount=a=>a&&typeof a==="object"&&typeof a.name==="string"&&Number.isFinite(a.balance)&&a.id;
+  const validIncome=i=>i&&typeof i==="object"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(String(i.month))&&Number.isFinite(i.amount)&&i.id;
+  const validDebit=d=>d&&typeof d==="object"&&Core.validDate(String(d.date))&&typeof d.card==="string"&&Number.isFinite(d.amount)&&d.id;
+  const stampFix=x=>{if(typeof x.updatedAt!=="number") x.updatedAt=typeof x.createdAt==="number"?x.createdAt:0; return x;};
   function validFixed(f){return f&&typeof f=="object"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(String(f.month))&&typeof f.name==="string"&&Number.isFinite(f.amount)&&f.id;}
   function load(){
     try{
@@ -906,6 +1036,9 @@ const Core=(function(){
             return f;
           });
           state.items.forEach(it=>{it.method=Core.normMethod(it.method);}); state.fixed.forEach(f=>{f.method=Core.normMethod(f.method);});
+          state.income=(Array.isArray(o.income)?o.income:[]).filter(validIncome).map(stampFix);
+          state.accounts=(Array.isArray(o.accounts)?o.accounts:[]).filter(validAccount).map(stampFix);
+          state.debits=(Array.isArray(o.debits)?o.debits:[]).filter(validDebit).map(stampFix);
           state.deleted=Array.isArray(o.deleted)?o.deleted.filter(t=>t&&t.id&&Number.isFinite(t.at)):[];
           state.meta=Object.assign({lastBackupAt:null,changes:0,lastSyncAt:null,pending:0},o.meta||{});
           return true;
@@ -985,7 +1118,7 @@ const Core=(function(){
   /* 描画 */
   function render(){
     const S=Core.summarize(state.items,ui.from,ui.to,today(),ui.methods);
-    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderPayday(); renderBackup(); renderBanners(); renderCats();
+    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderMoney(); renderPayday(); renderBackup(); renderBanners(); renderCats();
   }
   function renderSummary(S){
     $("sumTotal").textContent=yen(S.total);
@@ -1060,10 +1193,10 @@ const Core=(function(){
   }
   function renderBackup(){
     const m=state.meta, real=realItems().length;
-    $("backupStatus").textContent="記録 "+real+"件"+(state.fixed.length?" / 固定費 "+state.fixed.length+"件":"")+" / 最終バックアップ: "+(m.lastBackupAt?stamp(m.lastBackupAt):"まだありません")+(m.changes?" / それ以降の変更 "+m.changes+"件":"");
+    $("backupStatus").textContent="記録 "+real+"件"+(state.fixed.length?" / 固定費 "+state.fixed.length+"件":"")+(state.accounts.length||state.debits.length||state.income.length?" / 資金メモ "+(state.accounts.length+state.debits.length+state.income.length)+"件":"")+" / 最終バックアップ: "+(m.lastBackupAt?stamp(m.lastBackupAt):"まだありません")+(m.changes?" / それ以降の変更 "+m.changes+"件":"");
     const p=ui.plan;
     if(p){
-      $("importBox").innerHTML='<div class="import"><p><b>'+esc(p.name)+'</b> から '+p.items.length+'件'+(p.fixed&&p.fixed.length?'と固定費'+p.fixed.length+'件':'')+'を読み込めます'+(p.range?'('+p.range+')':'')+'。'+(p.skipped?' 読み取れない行が'+p.skipped+'件ありました。':'')+'</p>'+
+      $("importBox").innerHTML='<div class="import"><p><b>'+esc(p.name)+'</b> から '+p.items.length+'件'+(p.fixed&&p.fixed.length?'と固定費'+p.fixed.length+'件':'')+(p.moreN?'と資金メモ'+p.moreN+'件':'')+'を読み込めます'+(p.range?'('+p.range+')':'')+'。'+(p.skipped?' 読み取れない行が'+p.skipped+'件ありました。':'')+'</p>'+
         '<div class="btns"><button type="button" class="primary" data-act="merge">いまの記録に追加</button>'+
         '<button type="button" class="danger'+(ui.replaceArmed?' armed':'')+'" data-act="replace">'+(ui.replaceArmed?'もう一度押すと、いまの記録をすべて置き換えます':'すべて置き換え')+'</button>'+
         '<button type="button" data-act="cancel-import">やめる</button></div>'+
@@ -1197,6 +1330,114 @@ const Core=(function(){
       say("xMsg","書き出しました。");
     }catch(err){say("xMsg","書き出せませんでした。",true);}
   });
+
+  /* 資金メモ: 口座・カード引落予定・給与 */
+  const dayLabel=d=>(d.slice(0,4)===today().slice(0,4)?d.slice(5).replace("-","/"):fmt(d))+"("+wd(d)+")";
+  const yenS=n=>'<span'+(n<0?' class="neg"':'')+'>'+yen(n)+'</span>';
+  const acctName=id=>{const a=state.accounts.find(x=>x.id===id); return a?a.name:"";};
+  function delBtn(act,id){const armed=ui.mPending===id; return '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="'+act+'" data-id="'+esc(id)+'">'+(armed?'削除する?':'削除')+'</button>';}
+  function renderMoney(){
+    const t=today(), M=Core.moneySummary(state.accounts,state.debits,state.income,t,curYm());
+    // 引落口座の選択肢
+    const sel=$("dAcct"), keep=sel.value;
+    sel.innerHTML='<option value="">未指定</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");
+    if(keep&&state.accounts.some(a=>a.id===keep)) sel.value=keep;
+    $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
+    // まとめ
+    $("mSum").innerHTML='<div class="strong"><dt>銀行残高の合計</dt><dd>'+yenS(M.total)+'</dd></div>'+
+      '<div><dt>これからの引落予定</dt><dd>'+yen(M.upcomingTotal)+'</dd></div>'+
+      '<div class="strong"><dt>引落後の見込み残高</dt><dd>'+yenS(M.projected)+'</dd></div>'+
+      '<div><dt>'+ymLabel(curYm())+'分の給与</dt><dd>'+(M.incomeNow?yen(M.incomeNow):"—")+'</dd></div>';
+    const notes=[];
+    if(M.unassigned>0&&state.accounts.length) notes.push("引落口座が未指定の予定が "+yen(M.unassigned)+" あります");
+    notes.push("引落予定は、今日以降の分だけを差し引いています。給与の入金は見込みに含めていません");
+    $("mNote").textContent=notes.join("。")+"。";
+    // 口座
+    $("acCount").textContent=state.accounts.length?state.accounts.length+"口座":"";
+    $("acBody").innerHTML=state.accounts.length?'<ul class="rows">'+state.accounts.map(a=>{
+      const dbt=M.byAcct[a.id]||0;
+      const sub=["更新 "+dayLabel(a.balanceAt)].concat(a.memo?[a.memo]:[]).concat(dbt?['引落予定 −'+yen(dbt).replace("-","")+' → 見込み '+yen(a.balance-dbt)]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name">'+esc(a.name)+'</div><div class="r-amt">'+yenS(a.balance)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="ac-edit" data-id="'+esc(a.id)+'">編集</button>'+delBtn("ac-del",a.id)+'</div></li>';
+    }).join("")+'</ul>':'<p class="empty">まだ口座がありません。上のフォームから追加できます。口座は、何口座でも追加・削除できます。</p>';
+    // 引落予定
+    const upc=state.debits.filter(d=>d.date>=t).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.createdAt||0)-(b.createdAt||0));
+    const past=state.debits.filter(d=>d.date<t).sort((a,b)=>a.date<b.date?1:-1);
+    $("diCount").textContent=upc.length?"これから "+upc.length+"件 · "+yen(M.upcomingTotal):"";
+    const dRow=d=>{
+      const an=acctName(d.account), sub=[dayLabel(d.date)].concat(an?[an]:[]).concat(d.memo?[d.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name">'+esc(d.card)+'</div><div class="r-amt">'+yen(d.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="di-edit" data-id="'+esc(d.id)+'">編集</button>'+delBtn("di-del",d.id)+'</div></li>';
+    };
+    let h=upc.length?'<ul class="rows">'+upc.map(dRow).join("")+'</ul>':'<p class="empty">これからの引落予定はありません。</p>';
+    if(past.length){
+      const open=ui.mOpen.past===true;
+      h+='<details class="mfold" data-key="past" style="margin-top:8px"'+(open?' open':'')+'><summary><span class="m-name">過去の引落</span><span class="m-meta">'+past.length+'件</span></summary><div class="mbody"><ul class="rows">'+past.map(dRow).join("")+'</ul></div></details>';
+    }
+    $("diBody").innerHTML=h;
+    // 給与
+    const inc=state.income.slice().sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:(b.createdAt||0)-(a.createdAt||0));
+    $("inCount").textContent=inc.length?inc.length+"件":"";
+    $("inBody").innerHTML=inc.length?'<ul class="rows">'+inc.map(i=>{
+      const sub=[ymLabel(i.month)+"分(給料日 "+shortD(periods.of(i.month).from)+")"].concat(i.memo?[i.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name">'+esc(i.name)+'</div><div class="r-amt">'+yen(i.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="in-edit" data-id="'+esc(i.id)+'">編集</button>'+delBtn("in-del",i.id)+'</div></li>';
+    }).join("")+'</ul>':'<p class="empty">まだ給与の記録がありません。</p>';
+  }
+  $("diBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
+
+  const A={name:$("aName"),bal:$("aBal"),memo:$("aMemo")}, D={date:$("dDate"),amount:$("dAmount"),card:$("dCard"),acct:$("dAcct"),memo:$("dMemo")}, I={month:$("iMonth"),amount:$("iAmount"),name:$("iName"),memo:$("iMemo")};
+  function endAc(){ui.acEditing=null;$("aSubmit").textContent="口座を追加";$("aCancel").hidden=true;A.name.value="";A.bal.value="";A.memo.value="";}
+  function endDi(){ui.diEditing=null;$("dSubmit").textContent="引落予定を追加";$("dCancel").hidden=true;D.card.value="";D.amount.value="";D.memo.value="";}
+  function endIn(){ui.inEditing=null;$("iSubmit").textContent="給与を追加";$("iCancel").hidden=true;I.amount.value="";I.name.value="";I.memo.value="";}
+  $("acForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const name=A.name.value.trim(), bal=Core.parseAmount(A.bal.value);
+    if(!name) return say("aMsg","口座名を入力してください。",true);
+    if(bal===null) return say("aMsg","残高は数字で入力してください(マイナスも可)。",true);
+    const memo=A.memo.value.trim(), now=Date.now();
+    if(ui.acEditing){
+      const a=state.accounts.find(x=>x.id===ui.acEditing);
+      if(a){ if(a.balance!==bal) a.balanceAt=today(); a.name=name;a.balance=bal;a.memo=memo;a.updatedAt=now; }
+      endAc(); say("aMsg","更新しました。");
+    } else { state.accounts.push({id:Core.newId(),name:name,balance:bal,balanceAt:today(),memo:memo,createdAt:now,updatedAt:now}); endAc(); say("aMsg","口座を追加しました。"); }
+    changed(1); render(); A.name.focus();
+  });
+  $("aCancel").addEventListener("click",()=>{endAc();say("aMsg","編集をやめました。");});
+  $("diForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const date=Core.normDate(D.date.value), card=D.card.value.trim(), amount=Core.parseAmount(D.amount.value);
+    if(!date) return say("dMsg","引落日を選んでください。",true);
+    if(!card) return say("dMsg","カード名を入力してください。",true);
+    if(amount===null) return say("dMsg","金額は数字で入力してください。",true);
+    const acct=D.acct.value, memo=D.memo.value.trim(), now=Date.now(), wasEdit=!!ui.diEditing;
+    if(ui.diEditing){
+      const d=state.debits.find(x=>x.id===ui.diEditing);
+      if(d){d.date=date;d.card=card;d.amount=amount;d.account=acct;d.memo=memo;d.updatedAt=now;}
+    } else state.debits.push({id:Core.newId(),date:date,card:card,amount:amount,account:acct,memo:memo,createdAt:now,updatedAt:now});
+    endDi(); changed(1); render(); say("dMsg",wasEdit?"更新しました。":"追加しました。"); D.card.focus();
+  });
+  $("dCancel").addEventListener("click",()=>{endDi();say("dMsg","編集をやめました。");});
+  $("inForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const month=Core.normMonth(I.month.value), amount=Core.parseAmount(I.amount.value);
+    if(!month) return say("iMsg","月を選んでください(例 2026-10)。",true);
+    if(amount===null) return say("iMsg","金額は数字で入力してください。",true);
+    const name=I.name.value.trim()||"給与", memo=I.memo.value.trim(), now=Date.now(), wasEdit=!!ui.inEditing;
+    if(ui.inEditing){
+      const i=state.income.find(x=>x.id===ui.inEditing);
+      if(i){i.month=month;i.name=name;i.amount=amount;i.memo=memo;i.updatedAt=now;}
+    } else state.income.push({id:Core.newId(),month:month,name:name,amount:amount,memo:memo,createdAt:now,updatedAt:now});
+    const keepMonth=month; endIn(); I.month.value=keepMonth; changed(1); render(); say("iMsg",wasEdit?"更新しました。":"追加しました。");
+  });
+  $("iCancel").addEventListener("click",()=>{endIn();I.month.value=curYm();say("iMsg","編集をやめました。");});
+  function mDelete(key,list,id,endFn){
+    if(ui.mPending===id){
+      state[list]=state[list].filter(x=>x.id!==id); ui.mPending=null; tombstone(id);
+      if(ui[key]===id) endFn();
+      changed(1); render();
+    } else { ui.mPending=id; render(); clearTimeout(timers.mdel); timers.mdel=setTimeout(()=>{ui.mPending=null;render();},4000); }
+  }
 
   function renderPayday(){
     const inp=$("paydayInput"); if(document.activeElement!==inp) inp.value=cfg.payday?String(cfg.payday):"";
@@ -1359,6 +1600,24 @@ const Core=(function(){
         ui.pendingDelete=id; render();
         clearTimeout(timers.del); timers.del=setTimeout(()=>{ui.pendingDelete=null;render();},4000);
       }
+    } else if(act==="ac-edit"){
+      const a=state.accounts.find(x=>x.id===id); if(!a) return;
+      ui.acEditing=id; A.name.value=a.name; A.bal.value=String(a.balance); A.memo.value=a.memo||"";
+      $("aSubmit").textContent="更新"; $("aCancel").hidden=false; $("acForm").scrollIntoView({block:"nearest",behavior:"smooth"}); A.bal.focus();
+    } else if(act==="ac-del"){
+      const used=state.debits.some(d=>d.account===id);
+      mDelete("acEditing","accounts",id,endAc);
+      if(used&&!ui.mPending) say("aMsg","その口座を引落口座にしていた予定は「未指定」になります。");
+    } else if(act==="di-edit"){
+      const d=state.debits.find(x=>x.id===id); if(!d) return;
+      ui.diEditing=id; D.date.value=d.date; D.card.value=d.card; D.amount.value=String(d.amount); D.acct.value=d.account||""; D.memo.value=d.memo||"";
+      $("dSubmit").textContent="更新"; $("dCancel").hidden=false; $("diForm").scrollIntoView({block:"nearest",behavior:"smooth"}); D.card.focus();
+    } else if(act==="di-del"){ mDelete("diEditing","debits",id,endDi);
+    } else if(act==="in-edit"){
+      const i=state.income.find(x=>x.id===id); if(!i) return;
+      ui.inEditing=id; I.month.value=i.month; I.name.value=i.name; I.amount.value=String(i.amount); I.memo.value=i.memo||"";
+      $("iSubmit").textContent="更新"; $("iCancel").hidden=false; $("inForm").scrollIntoView({block:"nearest",behavior:"smooth"}); I.amount.focus();
+    } else if(act==="in-del"){ mDelete("inEditing","income",id,endIn);
     } else if(act==="fx-view"){
       const p=periods.of(b.dataset.key); setRange(p.from,p.to); showView("records",true);
     } else if(act==="fx-per"){
@@ -1423,8 +1682,8 @@ const Core=(function(){
   });
   $("btnJson").addEventListener("click",()=>{
     const items=realItems();
-    if(!items.length&&!state.fixed.length) return say("backupMsg","書き出す記録がありません。",true);
-    deliver("kaimono_"+today()+".json",Core.toJSON(items,state.fixed),"application/json",true);
+    if(!items.length&&!state.fixed.length&&!state.accounts.length&&!state.debits.length&&!state.income.length) return say("backupMsg","書き出す記録がありません。",true);
+    deliver("kaimono_"+today()+".json",Core.toJSON(items,state.fixed,{income:state.income,accounts:state.accounts,debits:state.debits}),"application/json",true);
   });
 
   /* 読み込み */
@@ -1439,10 +1698,11 @@ const Core=(function(){
       const text=await readText(file);
       const isJson=/\.json$/i.test(file.name)||/^\s*[\[{]/.test(text);
       const r=isJson?Core.jsonToItems(text):Core.csvToItems(text);
-      const fx=r.fixed||[];
-      if(!r.items.length&&!fx.length) throw new Error("取り込める記録が見つかりませんでした。");
+      const fx=r.fixed||[], mo=r.more||{income:[],accounts:[],debits:[]};
+      const moreN=mo.income.length+mo.accounts.length+mo.debits.length;
+      if(!r.items.length&&!fx.length&&!moreN) throw new Error("取り込める記録が見つかりませんでした。");
       const ds=r.items.map(i=>i.date).sort();
-      ui.plan={name:file.name,items:r.items,fixed:fx,hasFixed:!!r.hasFixed,skipped:r.skipped,range:ds.length?fmt(ds[0])+" 〜 "+fmt(ds[ds.length-1]):""};
+      ui.plan={name:file.name,items:r.items,fixed:fx,hasFixed:!!r.hasFixed,more:mo,hasMore:!!r.hasMore,moreN:moreN,skipped:r.skipped,range:ds.length?fmt(ds[0])+" 〜 "+fmt(ds[ds.length-1]):""};
       ui.replaceArmed=false; renderBackup();
     }catch(err){
       ui.plan=null; renderBackup(); say("backupMsg",err.message||"読み込めませんでした。",true);
@@ -1461,15 +1721,23 @@ const Core=(function(){
         state.deleted=state.deleted.filter(t=>!keepF.has(t.id));
         state.fixed=nf;
       }
+      if(p.hasMore) ["income","accounts","debits"].forEach(k=>{
+        const nl=Core.uniqueIds(p.more[k]), keepK=new Set(nl.map(i=>i.id));
+        state[k].filter(i=>!keepK.has(i.id)).forEach(i=>state.deleted.push({id:i.id,at:now}));
+        state.deleted=state.deleted.filter(t=>!keepK.has(t.id));
+        state[k]=nl;
+      });
       state.items=next; state.meta.changes=0; changed(1); state.meta.changes=0; save();
       say("backupMsg",p.items.length+"件"+(p.hasFixed?"と固定費"+p.fixed.length+"件":"")+"で置き換えました。");
     } else {
       const r=Core.mergeItems(realItems(),p.items);
       const rf=Core.mergeFixed(state.fixed,p.fixed||[]);
       state.items=r.items; state.fixed=rf.items;
-      const addedAll=r.added+rf.added;
+      let moreAdded=0;
+      if(p.hasMore) ["income","accounts","debits"].forEach(k=>{const rm=Core.mergeList(state[k],p.more[k],Core.COL_KEYS[k]); state[k]=rm.items; moreAdded+=rm.added;});
+      const addedAll=r.added+rf.added+moreAdded;
       if(addedAll) changed(addedAll); else save();
-      say("backupMsg",r.added+"件"+(rf.added?"と固定費"+rf.added+"件":"")+"を追加しました"+((r.dup+rf.dup)?"("+(r.dup+rf.dup)+"件は重複のため取り込みませんでした)":"")+"。");
+      say("backupMsg",r.added+"件"+(rf.added?"と固定費"+rf.added+"件":"")+(moreAdded?"と資金メモ"+moreAdded+"件":"")+"を追加しました"+((r.dup+rf.dup)?"("+(r.dup+rf.dup)+"件は重複のため取り込みませんでした)":"")+"。");
     }
     ui.plan=null; ui.replaceArmed=false; render();
   }
@@ -1543,18 +1811,20 @@ const Core=(function(){
   async function downloadRemote(id){
     const r=await drive("/drive/v3/files/"+id+"?alt=media");
     const t=await r.text();
-    if(!t.trim()) return {items:[],fixed:[],deleted:[]};
+    if(!t.trim()) return {items:[],fixed:[],income:[],accounts:[],debits:[],deleted:[]};
     let j; try{j=JSON.parse(t);}catch(e){throw new Error("ドライブ上のデータを読み取れませんでした。");}
     const items=(Array.isArray(j.items)?j.items:[]).map(x=>(x&&typeof x==="object")?Core.makeItem(x):null).filter(Boolean);
     const deleted=(Array.isArray(j.deleted)?j.deleted:[]).filter(t=>t&&t.id&&Number.isFinite(t.at));
     const fixed=(Array.isArray(j.fixed)?j.fixed:[]).map(x=>(x&&typeof x==="object")?Core.makeFixed(x):null).filter(Boolean);
-    return {items:items,fixed:fixed,deleted:deleted};
+    const rd=(k,mk)=>(Array.isArray(j[k])?j[k]:[]).map(x=>(x&&typeof x==="object")?mk(x):null).filter(Boolean);
+    return {items:items,fixed:fixed,income:rd("income",Core.makeIncome),accounts:rd("accounts",Core.makeAccount),debits:rd("debits",Core.makeDebit),deleted:deleted};
   }
   async function uploadRemote(id,m){
     const body=JSON.stringify({
       app:"kaimono-shukei",version:2,updatedAt:new Date().toISOString(),
       items:m.items.map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,createdAt:it.createdAt,updatedAt:it.updatedAt})),
       fixed:m.fixed.map(Core.fixedOut),
+      income:m.income, accounts:m.accounts, debits:m.debits,
       deleted:m.deleted
     });
     if(id){
@@ -1588,17 +1858,22 @@ const Core=(function(){
       for(let attempt=0;attempt<2&&!remote;attempt++){
         try{
           if(!fileId) fileId=await findFile();
-          remote=fileId?await downloadRemote(fileId):{items:[],fixed:[],deleted:[]};
+          remote=fileId?await downloadRemote(fileId):{items:[],fixed:[],income:[],accounts:[],debits:[],deleted:[]};
         }catch(e){
           if(e.status===404&&attempt===0){fileId=null;continue;}
           throw e;
         }
       }
-      const m1=Core.mergeSync(realItems(),state.deleted,remote.items,remote.deleted,Date.now());
-      const m2=Core.mergeSync(state.fixed,m1.deleted,remote.fixed,remote.deleted,Date.now());
-      const m={items:m1.items,fixed:m2.items,deleted:m2.deleted,pulled:m1.pulled+m2.pulled,removed:m1.removed+m2.removed};
-      state.items=m.items.concat(state.items.filter(i=>i.sample)); state.fixed=m.fixed; state.deleted=m.deleted;
-      if(!fileId||Core.signature(m.items.concat(m.fixed),m.deleted)!==Core.signature(remote.items.concat(remote.fixed),remote.deleted)){
+      const now=Date.now(), m1=Core.mergeSync(realItems(),state.deleted,remote.items,remote.deleted,now);
+      const m={items:m1.items,deleted:m1.deleted,pulled:m1.pulled,removed:m1.removed};
+      ["fixed","income","accounts","debits"].forEach(k=>{
+        const mm=Core.mergeSync(state[k],m.deleted,remote[k]||[],remote.deleted,now);
+        m[k]=mm.items; m.deleted=mm.deleted; m.pulled+=mm.pulled; m.removed+=mm.removed;
+      });
+      state.items=m.items.concat(state.items.filter(i=>i.sample)); state.deleted=m.deleted;
+      ["fixed","income","accounts","debits"].forEach(k=>{state[k]=m[k];});
+      const allOf=o=>o.items.concat(o.fixed||[],o.income||[],o.accounts||[],o.debits||[]);
+      if(!fileId||Core.signature(allOf(m),m.deleted)!==Core.signature(allOf(remote),remote.deleted)){
         fileId=await uploadRemote(fileId,m);
       }
       cfg.connected=true; saveCfg();
@@ -1643,7 +1918,7 @@ const Core=(function(){
   });
 
   /* 画面の切り替え(記録 / グラフ / 設定)。期間・支払方法の欄は、記録とグラフで共有 */
-  const VIEWS={records:["viewRecords","tabRecords"],fixed:["viewFixed","tabFixed"],chart:["viewChart","tabChart"],settings:["viewSettings","tabSettings"]};
+  const VIEWS={records:["viewRecords","tabRecords"],fixed:["viewFixed","tabFixed"],chart:["viewChart","tabChart"],money:["viewMoney","tabMoney"],settings:["viewSettings","tabSettings"]};
   const viewFromHash=()=>{const h=location.hash.slice(1);return VIEWS[h]?h:"records";};
   function showView(v,fromUser){
     Object.keys(VIEWS).forEach(k=>{
@@ -1651,7 +1926,7 @@ const Core=(function(){
       const t=$(VIEWS[k][1]);
       if(k===v) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current");
     });
-    $("period").hidden=(v==="settings"||v==="fixed");
+    $("period").hidden=(v==="settings"||v==="fixed"||v==="money");
     if(v==="settings"&&!cfg.clientId) $("syncDetails").open=true;
     if(fromUser){
       try{history.replaceState(null,"","#"+v);}catch(e){}
@@ -1665,7 +1940,7 @@ const Core=(function(){
   const had=load();
   if(!had){state.items=makeSamples();save();}
   loadCfg();
-  F.date.value=today(); X.month.value=curYm();
+  F.date.value=today(); X.month.value=curYm(); D.date.value=today(); I.month.value=curYm();
   const r0=presetRange("month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
   render();
   $("originText").textContent=location.origin;
