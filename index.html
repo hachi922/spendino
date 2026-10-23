@@ -55,7 +55,7 @@ body{
   margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:14px; line-height:1.45;
   padding-left:max(12px, env(safe-area-inset-left, 0px));
   padding-right:max(12px, env(safe-area-inset-right, 0px));
-  padding-block:12px 40px;
+  padding-block:12px calc(76px + env(safe-area-inset-bottom,0px));
 }
 .app{max-width:1040px; margin:0 auto}
 .top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
@@ -187,10 +187,18 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .note{color:var(--muted); font-size:.76rem; margin:8px 0 0}
 
 /* 画面の切り替え(記録 / 設定) */
-.tabs{display:flex; gap:2px; padding:2px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
-.tabs button{border:0; background:transparent; min-height:30px; padding:1px 12px; border-radius:6px; font-size:.85rem; color:var(--muted)}
-.tabs button:hover{background:var(--surface)}
-.tabs button[aria-current="page"]{background:var(--accent); color:var(--accent-fg)}
+/* 画面の切り替え: 下に固定したアイコンのタブ */
+.btabs{position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; justify-content:center; gap:2px; padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px)); background:var(--surface); border-top:1px solid var(--line)}
+.btabs button{position:relative; flex:1 1 0; max-width:130px; min-width:0; min-height:50px; padding:5px 2px 4px; border:0; border-radius:10px; background:transparent; color:var(--muted); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px}
+.btabs button:hover{background:var(--surface-2)}
+.btabs button[aria-current="page"]{color:var(--accent); background:var(--accent-soft)}
+.btabs .ic{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.btabs .tl{font-size:.66rem; line-height:1.2; white-space:nowrap}
+.btabs button[aria-current="page"] .tl{font-weight:700}
+.gear{position:relative; flex:none; width:40px; height:40px; padding:0; border-radius:50%; background:var(--surface); color:var(--muted)}
+.gear .ic{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+.gear[aria-current="page"]{color:var(--accent); background:var(--accent-soft); border-color:var(--accent)}
+.gear .badge{position:absolute; top:-3px; right:-3px; margin:0; min-width:1.25em; padding:0 4px; font-size:.62rem}
 .badge{display:inline-block; margin-left:6px; min-width:1.3em; padding:0 5px; border-radius:999px; background:var(--danger); color:var(--surface); font-size:.68rem; line-height:1.4; text-align:center}
 .settings{display:grid; gap:10px; max-width:640px}
 
@@ -267,8 +275,6 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .mdim{color:var(--muted)}
 .neg{color:var(--danger)}
 .moneyview .frow .r-sub:not(:empty)::before{content:none}
-
-@media (max-width:430px){.tabs button{padding:1px 8px; font-size:.8rem}}
 
 /* 固定費の期間 */
 .mper{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 6px; font-size:.76rem; color:var(--muted)}
@@ -357,13 +363,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 <div class="app">
   <header class="top">
     <h1>Spendino</h1>
-    <nav class="tabs" aria-label="画面の切り替え">
-      <button type="button" id="tabRecords" aria-current="page">記録</button>
-      <button type="button" id="tabFixed">固定費</button>
-      <button type="button" id="tabChart">グラフ</button>
-      <button type="button" id="tabMoney">資金</button>
-      <button type="button" id="tabSettings">設定<span class="badge" id="tabBadge" hidden></span></button>
-    </nav>
+    <button type="button" class="gear" id="tabSettings" aria-label="設定" title="設定"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="badge" id="tabBadge" hidden></span></button>
   </header>
 
   <div id="banners"></div>
@@ -586,6 +586,12 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
       <p class="msg" id="backupMsg" role="status" aria-live="polite"></p>
     </section>
   </main>
+  <nav class="btabs" aria-label="画面の切り替え">
+    <button type="button" id="tabRecords" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
+    <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
+    <button type="button" id="tabChart"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
+    <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">資金</span></button>
+  </nav>
 </div>
 
 <script id="core">
@@ -1383,7 +1389,7 @@ const Core=(function(){
       const sub=[a.memo].filter(Boolean).concat(["更新 "+shortD(a.balanceAt)]).concat(dbt?['引落 −'+yen(dbt).replace("-","")+' → '+yen(a.balance-dbt)]:[]).join(" · ");
       return '<li class="frow'+(a.inTotal===false?' off':'')+'"><div class="r-name"><label class="ck" title="残高合計に含める"><input type="checkbox" data-ac-sel="'+esc(a.id)+'"'+(a.inTotal===false?'':' checked')+' aria-label="'+esc(a.name)+'を残高合計に含める"></label>'+esc(a.name)+'</div><div class="r-amt">'+yenS(a.balance)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
         '<div class="r-act"><button type="button" class="small" data-act="ac-edit" data-id="'+esc(a.id)+'">編集</button>'+delBtn("ac-del",a.id)+'</div></li>';
-    }).join("")+'</ul>':'<p class="empty">まだ口座がありません。上のフォームから追加できます。口座は、何口座でも追加・削除できます。</p>';
+    }).join("")+'</ul>':'<p class="empty">まだ口座がありません。「＋ 追加」から登録できます。口座は何口座でも追加・削除できます。</p>';
     // 引落予定
     const upc=state.debits.filter(d=>d.date>=t).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.createdAt||0)-(b.createdAt||0));
     const past=state.debits.filter(d=>d.date<t).sort((a,b)=>a.date<b.date?1:-1);
