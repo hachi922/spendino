@@ -243,6 +243,16 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .subfold > summary.sub-h > span:first-child{flex:1; min-width:0}
 .subfold:first-of-type > summary.sub-h{margin-top:0; border-top:0; padding-top:0}
 
+/* 固定費の未払分 */
+.fxsum{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 10px; margin:0 0 10px; padding:8px 10px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
+.fxsum div{min-width:0}
+.fxsum dt{font-size:.7rem; color:var(--muted)}
+.fxsum dd{margin:0; font-family:var(--font-num); font-size:.92rem; white-space:nowrap}
+.fxsum .unpaid dd{font-size:1.05rem; font-weight:500}
+.fxsum .unpaid.zero dd{color:var(--muted); font-weight:400}
+.fxsum .prior{grid-column:1/-1; font-size:.76rem; color:var(--muted); margin:0}
+.unpaid-amt{white-space:nowrap}
+
 /* 固定費 */
 .fixedview{max-width:760px; display:grid; gap:10px}
 #fxBody{container-type:inline-size}
@@ -397,6 +407,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
     </form>
     <section class="panel" aria-labelledby="h-fx">
       <h2 id="h-fx">月ごとの固定費 <small id="fxCount"></small></h2>
+      <dl class="fxsum" id="fxSummary" hidden></dl>
       <div id="fxBody"></div>
       <div class="actions"><button type="button" id="btnFixedCsv" class="small">固定費をCSVで書き出す</button></div>
       <p class="note">ここの金額は「記録」や「グラフ」の集計には含まれません。JSONバックアップとGoogleドライブ同期には含まれます。</p>
@@ -993,7 +1004,8 @@ const Core=(function(){
         '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="fx-del" data-id="'+esc(f.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
     }).join("");
     const np=g.items.filter(f=>paid.has(f.id)).length;
-    const meta=(np?"支払済 "+np+"/":"")+g.items.length+"件"+(g.delta===null?"":'<span class="delta"> · 前月比 '+sgn(g.delta)+'</span>');
+    const unpaidAmt=g.items.reduce((a,f)=>a+(paid.has(f.id)?0:f.amount),0);
+    const meta=(np?"支払済 "+np+"/":"")+g.items.length+"件"+(g.items.length>np?'<span class="unpaid-amt"> · 未払分 '+yen(unpaidAmt)+'</span>':' · すべて支払済')+(g.delta===null?"":'<span class="delta"> · 前月比 '+sgn(g.delta)+'</span>');
     return '<details class="mfold" data-key="'+g.ym+'"'+(open?' open':'')+'><summary><span class="m-name">'+Number(g.ym.slice(5,7))+'月</span><span class="m-meta">'+meta+'</span><span class="m-total">'+yen(g.total)+'</span></summary><div class="mbody"><ul class="rows">'+rows+'</ul></div></details>';
   }
   function renderFixed(){
@@ -1002,6 +1014,18 @@ const Core=(function(){
     const groups=Core.fixedGroups(state.fixed,curYm()), cur=curYm();
     const paid=Core.matchPaid(state.fixed,realItems());
     const open0=curYm();
+    const monthItems=state.fixed.filter(f=>f.month===open0);
+    const sumAll=a=>a.reduce((t,f)=>t+f.amount,0);
+    const unpaidNow=monthItems.filter(f=>!paid.has(f.id)), priorUnpaid=state.fixed.filter(f=>f.month<open0&&!paid.has(f.id));
+    const sm=$("fxSummary");
+    if(!monthItems.length&&!priorUnpaid.length) sm.hidden=true;
+    else {
+      sm.hidden=false;
+      sm.innerHTML=(monthItems.length?'<div><dt>'+ymLabel(open0)+'の固定費</dt><dd>'+yen(sumAll(monthItems))+'</dd></div>'+
+        '<div><dt>支払済</dt><dd>'+yen(sumAll(monthItems)-sumAll(unpaidNow))+'</dd></div>'+
+        '<div class="unpaid'+(unpaidNow.length?'':' zero')+'"><dt>未払分</dt><dd>'+yen(sumAll(unpaidNow))+'</dd></div>':'<div class="unpaid zero"><dt>'+ymLabel(open0)+'の未払分</dt><dd>'+yen(0)+'</dd></div>')+
+        (priorUnpaid.length?'<p class="prior">以前の月の未払分 '+yen(sumAll(priorUnpaid))+'('+priorUnpaid.length+'件)。記録に支払いがない月が含まれます。</p>':'');
+    }
     $("fxPick").innerHTML=Array.from(new Set(state.fixed.filter(f=>f.month===open0&&!paid.has(f.id)).map(f=>f.name))).map(n=>'<option value="'+esc(n)+'">').join("");
     $("fxCount").textContent=state.fixed.length?state.fixed.length+"件":"";
     $("btnFixedCsv").hidden=!state.fixed.length;
