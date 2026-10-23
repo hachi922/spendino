@@ -246,12 +246,19 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 /* 資金メモ */
 .moneyview{max-width:760px; display:grid; gap:10px}
 #acBody,#diBody,#inBody{container-type:inline-size; margin-top:10px}
-.msum{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 12px; margin:0}
-@media (min-width:560px){.msum{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.msum div{min-width:0}
-.msum dt{font-size:.7rem; color:var(--muted)}
-.msum dd{margin:0; font-family:var(--font-num); font-size:1rem; white-space:nowrap}
-.msum .strong dd{font-size:1.2rem; font-weight:500}
+.mhero .lbl{font-size:.74rem; color:var(--muted)}
+.mhero .big{display:block}
+.msum3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 10px; margin:10px 0 0; padding-top:10px; border-top:1px solid var(--line)}
+.msum3 div{min-width:0}
+.msum3 dt{font-size:.7rem; color:var(--muted)}
+.msum3 dd{margin:0; font-family:var(--font-num); font-size:.92rem; white-space:nowrap}
+.msum3 .hl dd{font-weight:500}
+.mform{margin:0 0 4px; padding:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
+.mform[hidden]{display:none}
+.tg{flex:none}
+.dchip{display:inline-block; font-family:var(--font-num); font-size:.7rem; line-height:1.5; padding:0 6px; margin-right:6px; border-radius:4px; background:var(--accent-soft); color:var(--accent); white-space:nowrap; vertical-align:1px}
+.dchip.soon{background:var(--accent); color:var(--accent-fg)}
+.mdim{color:var(--muted)}
 .neg{color:var(--danger)}
 .moneyview .frow .r-sub:not(:empty)::before{content:none}
 
@@ -450,13 +457,13 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
   <main class="moneyview" id="viewMoney" hidden>
     <section class="panel" aria-labelledby="h-msum">
       <h2 id="h-msum">ざっくり残高</h2>
-      <dl class="msum" id="mSum"></dl>
+      <div id="mSum"></div>
       <p class="note" id="mNote"></p>
     </section>
 
     <section class="panel" aria-labelledby="h-ac">
-      <h2 id="h-ac">銀行口座の残高 <small id="acCount"></small></h2>
-      <form id="acForm" novalidate autocomplete="off">
+      <h2 id="h-ac"><span>銀行口座の残高 <small id="acCount"></small></span><button type="button" class="small tg" data-form="ac" id="acToggle" aria-expanded="false">＋ 追加</button></h2>
+      <form id="acForm" class="mform" novalidate autocomplete="off" hidden>
         <div class="fields">
           <label class="f full">口座名<input type="text" id="aName" maxlength="100" placeholder="○○銀行(普通)"></label>
           <label class="f">残高(円)<input type="text" id="aBal" inputmode="numeric" placeholder="350000"></label>
@@ -469,8 +476,8 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
     </section>
 
     <section class="panel" aria-labelledby="h-di">
-      <h2 id="h-di">カード引落予定 <small id="diCount"></small></h2>
-      <form id="diForm" novalidate autocomplete="off">
+      <h2 id="h-di"><span>カード引落予定 <small id="diCount"></small></span><button type="button" class="small tg" data-form="di" id="diToggle" aria-expanded="false">＋ 追加</button></h2>
+      <form id="diForm" class="mform" novalidate autocomplete="off" hidden>
         <div class="fields">
           <label class="f">引落日<input type="date" id="dDate"></label>
           <label class="f">金額(円)<input type="text" id="dAmount" inputmode="numeric" placeholder="85000"></label>
@@ -486,8 +493,8 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
     </section>
 
     <section class="panel" aria-labelledby="h-in">
-      <h2 id="h-in">給与額 <small id="inCount"></small></h2>
-      <form id="inForm" novalidate autocomplete="off">
+      <h2 id="h-in"><span>給与額 <small id="inCount"></small></span><button type="button" class="small tg" data-form="in" id="inToggle" aria-expanded="false">＋ 追加</button></h2>
+      <form id="inForm" class="mform" novalidate autocomplete="off" hidden>
         <div class="fields">
           <label class="f">月分<input type="month" id="iMonth" placeholder="2026-10"></label>
           <label class="f">金額(円)<input type="text" id="iAmount" inputmode="numeric" placeholder="280000"></label>
@@ -1344,19 +1351,19 @@ const Core=(function(){
     if(keep&&state.accounts.some(a=>a.id===keep)) sel.value=keep;
     $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
     // まとめ
-    $("mSum").innerHTML='<div class="strong"><dt>銀行残高の合計</dt><dd>'+yenS(M.total)+'</dd></div>'+
-      '<div><dt>これからの引落予定</dt><dd>'+yen(M.upcomingTotal)+'</dd></div>'+
-      '<div class="strong"><dt>引落後の見込み残高</dt><dd>'+yenS(M.projected)+'</dd></div>'+
-      '<div><dt>'+ymLabel(curYm())+'分の給与</dt><dd>'+(M.incomeNow?yen(M.incomeNow):"—")+'</dd></div>';
+    $("mSum").innerHTML='<div class="mhero"><span class="lbl">銀行残高の合計</span><span class="big">'+yenS(M.total)+'</span></div>'+
+      '<dl class="msum3"><div><dt>これからの引落</dt><dd>'+(M.upcomingTotal?"−"+yen(M.upcomingTotal):yen(0))+'</dd></div>'+
+      '<div class="hl"><dt>引落後の見込み</dt><dd>'+yenS(M.projected)+'</dd></div>'+
+      '<div><dt>'+Number(curYm().slice(5,7))+'月分の給与</dt><dd>'+(M.incomeNow?yen(M.incomeNow):"—")+'</dd></div></dl>';
     const notes=[];
     if(M.unassigned>0&&state.accounts.length) notes.push("引落口座が未指定の予定が "+yen(M.unassigned)+" あります");
-    notes.push("引落予定は、今日以降の分だけを差し引いています。給与の入金は見込みに含めていません");
+    notes.push("引落予定は今日以降の分のみ。給与の入金は含みません");
     $("mNote").textContent=notes.join("。")+"。";
     // 口座
     $("acCount").textContent=state.accounts.length?state.accounts.length+"口座":"";
     $("acBody").innerHTML=state.accounts.length?'<ul class="rows">'+state.accounts.map(a=>{
       const dbt=M.byAcct[a.id]||0;
-      const sub=["更新 "+dayLabel(a.balanceAt)].concat(a.memo?[a.memo]:[]).concat(dbt?['引落予定 −'+yen(dbt).replace("-","")+' → 見込み '+yen(a.balance-dbt)]:[]).join(" · ");
+      const sub=[a.memo].filter(Boolean).concat(["更新 "+shortD(a.balanceAt)]).concat(dbt?['引落 −'+yen(dbt).replace("-","")+' → '+yen(a.balance-dbt)]:[]).join(" · ");
       return '<li class="frow"><div class="r-name">'+esc(a.name)+'</div><div class="r-amt">'+yenS(a.balance)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
         '<div class="r-act"><button type="button" class="small" data-act="ac-edit" data-id="'+esc(a.id)+'">編集</button>'+delBtn("ac-del",a.id)+'</div></li>';
     }).join("")+'</ul>':'<p class="empty">まだ口座がありません。上のフォームから追加できます。口座は、何口座でも追加・削除できます。</p>';
@@ -1365,8 +1372,10 @@ const Core=(function(){
     const past=state.debits.filter(d=>d.date<t).sort((a,b)=>a.date<b.date?1:-1);
     $("diCount").textContent=upc.length?"これから "+upc.length+"件 · "+yen(M.upcomingTotal):"";
     const dRow=d=>{
-      const an=acctName(d.account), sub=[dayLabel(d.date)].concat(an?[an]:[]).concat(d.memo?[d.memo]:[]).join(" · ");
-      return '<li class="frow"><div class="r-name">'+esc(d.card)+'</div><div class="r-amt">'+yen(d.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+      const an=acctName(d.account), days=Math.round((new Date(d.date+"T00:00:00")-new Date(t+"T00:00:00"))/86400000);
+      const rel=days===0?"今日":(days>0?"あと"+days+"日":Math.abs(days)+"日前");
+      const sub=[rel].concat(an?[an]:[]).concat(d.memo?[d.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name"><span class="dchip'+(days>=0&&days<=3?' soon':'')+'">'+esc(dayLabel(d.date))+'</span>'+esc(d.card)+'</div><div class="r-amt">'+yen(d.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
         '<div class="r-act"><button type="button" class="small" data-act="di-edit" data-id="'+esc(d.id)+'">編集</button>'+delBtn("di-del",d.id)+'</div></li>';
     };
     let h=upc.length?'<ul class="rows">'+upc.map(dRow).join("")+'</ul>':'<p class="empty">これからの引落予定はありません。</p>';
@@ -1379,14 +1388,23 @@ const Core=(function(){
     const inc=state.income.slice().sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:(b.createdAt||0)-(a.createdAt||0));
     $("inCount").textContent=inc.length?inc.length+"件":"";
     $("inBody").innerHTML=inc.length?'<ul class="rows">'+inc.map(i=>{
-      const sub=[ymLabel(i.month)+"分(給料日 "+shortD(periods.of(i.month).from)+")"].concat(i.memo?[i.memo]:[]).join(" · ");
-      return '<li class="frow"><div class="r-name">'+esc(i.name)+'</div><div class="r-amt">'+yen(i.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+      const sub=["給料日 "+shortD(periods.of(i.month).from)].concat(i.memo?[i.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name"><span class="dchip">'+Number(i.month.slice(5,7))+'月分</span>'+esc(i.name)+'</div><div class="r-amt">'+yen(i.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
         '<div class="r-act"><button type="button" class="small" data-act="in-edit" data-id="'+esc(i.id)+'">編集</button>'+delBtn("in-del",i.id)+'</div></li>';
     }).join("")+'</ul>':'<p class="empty">まだ給与の記録がありません。</p>';
   }
   $("diBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
 
   const A={name:$("aName"),bal:$("aBal"),memo:$("aMemo")}, D={date:$("dDate"),amount:$("dAmount"),card:$("dCard"),acct:$("dAcct"),memo:$("dMemo")}, I={month:$("iMonth"),amount:$("iAmount"),name:$("iName"),memo:$("iMemo")};
+  function showForm(k,on){
+    const f=$({ac:"acForm",di:"diForm","in":"inForm"}[k]), b=$(k+"Toggle");
+    f.hidden=!on; b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));
+  }
+  document.querySelectorAll(".tg[data-form]").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.form, f=$({ac:"acForm",di:"diForm","in":"inForm"}[k]), on=f.hidden;
+    showForm(k,on);
+    if(on) f.querySelector("input").focus();
+  }));
   function endAc(){ui.acEditing=null;$("aSubmit").textContent="口座を追加";$("aCancel").hidden=true;A.name.value="";A.bal.value="";A.memo.value="";}
   function endDi(){ui.diEditing=null;$("dSubmit").textContent="引落予定を追加";$("dCancel").hidden=true;D.card.value="";D.amount.value="";D.memo.value="";}
   function endIn(){ui.inEditing=null;$("iSubmit").textContent="給与を追加";$("iCancel").hidden=true;I.amount.value="";I.name.value="";I.memo.value="";}
@@ -1603,7 +1621,7 @@ const Core=(function(){
     } else if(act==="ac-edit"){
       const a=state.accounts.find(x=>x.id===id); if(!a) return;
       ui.acEditing=id; A.name.value=a.name; A.bal.value=String(a.balance); A.memo.value=a.memo||"";
-      $("aSubmit").textContent="更新"; $("aCancel").hidden=false; $("acForm").scrollIntoView({block:"nearest",behavior:"smooth"}); A.bal.focus();
+      $("aSubmit").textContent="更新"; $("aCancel").hidden=false; showForm("ac",true); $("acForm").scrollIntoView({block:"nearest",behavior:"smooth"}); A.bal.focus();
     } else if(act==="ac-del"){
       const used=state.debits.some(d=>d.account===id);
       mDelete("acEditing","accounts",id,endAc);
@@ -1611,12 +1629,12 @@ const Core=(function(){
     } else if(act==="di-edit"){
       const d=state.debits.find(x=>x.id===id); if(!d) return;
       ui.diEditing=id; D.date.value=d.date; D.card.value=d.card; D.amount.value=String(d.amount); D.acct.value=d.account||""; D.memo.value=d.memo||"";
-      $("dSubmit").textContent="更新"; $("dCancel").hidden=false; $("diForm").scrollIntoView({block:"nearest",behavior:"smooth"}); D.card.focus();
+      $("dSubmit").textContent="更新"; $("dCancel").hidden=false; showForm("di",true); $("diForm").scrollIntoView({block:"nearest",behavior:"smooth"}); D.card.focus();
     } else if(act==="di-del"){ mDelete("diEditing","debits",id,endDi);
     } else if(act==="in-edit"){
       const i=state.income.find(x=>x.id===id); if(!i) return;
       ui.inEditing=id; I.month.value=i.month; I.name.value=i.name; I.amount.value=String(i.amount); I.memo.value=i.memo||"";
-      $("iSubmit").textContent="更新"; $("iCancel").hidden=false; $("inForm").scrollIntoView({block:"nearest",behavior:"smooth"}); I.amount.focus();
+      $("iSubmit").textContent="更新"; $("iCancel").hidden=false; showForm("in",true); $("inForm").scrollIntoView({block:"nearest",behavior:"smooth"}); I.amount.focus();
     } else if(act==="in-del"){ mDelete("inEditing","income",id,endIn);
     } else if(act==="fx-view"){
       const p=periods.of(b.dataset.key); setRange(p.from,p.to); showView("records",true);
