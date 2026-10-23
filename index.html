@@ -235,6 +235,14 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .tv th{font-weight:500; color:var(--muted)}
 .tv .n{text-align:right; font-family:var(--font-num)}
 
+/* 内訳の折り畳み(支払方法別・カテゴリ別・月別) */
+.subfold > summary.sub-h{cursor:pointer; list-style:none; min-height:30px; align-items:center}
+.subfold > summary::-webkit-details-marker{display:none}
+.subfold > summary.sub-h::after{content:""; flex:none; width:7px; height:7px; margin:0 4px 3px 4px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg)}
+.subfold[open] > summary.sub-h::after{transform:rotate(-135deg); margin-bottom:-3px}
+.subfold > summary.sub-h > span:first-child{flex:1; min-width:0}
+.subfold:first-of-type > summary.sub-h{margin-top:0; border-top:0; padding-top:0}
+
 /* 固定費 */
 .fixedview{max-width:760px; display:grid; gap:10px}
 #fxBody{container-type:inline-size}
@@ -776,7 +784,7 @@ const Core=(function(){
 
   let state={items:[],fixed:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
   let storageOk=true;
-  const ui={fxEditing:null,fxEditingBlank:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
+  const ui={brkOpen:{},fxEditing:null,fxEditingBlank:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
   const timers={};
 
   /* 保存 */
@@ -888,33 +896,37 @@ const Core=(function(){
   function bar(w,cls){return '<div class="track"><i class="'+(cls||"")+'" style="width:'+w+'%"></i></div>';}
   function renderBreakdown(S){
     if(!S.periodCount){$("breakBody").innerHTML='<p class="empty">この期間の記録がありません。</p>';return;}
+    const sec=(key,title,note,inner)=>'<details class="subfold" data-key="'+key+'"'+(ui.brkOpen[key]===false?'':' open')+'><summary class="sub-h"><span>'+title+(note?' <small>'+note+'</small>':'')+'</span></summary>'+inner+'</details>';
     const pmMax=Math.max.apply(null,S.byMethod.map(m=>m.total).concat([1]));
     const base=S.periodTotal>0?S.periodTotal:0;
-    let h='<h3 class="sub-h first">支払方法別 <small>期間内のすべて</small></h3><ul class="bars">'+S.byMethod.map(m=>{
+    let h=sec("method","支払方法別","期間内のすべて",'<ul class="bars">'+S.byMethod.map(m=>{
       const w=m.total>0?Math.max(2,Math.round(m.total/pmMax*100)):0;
       const pct=base&&m.total>0?Math.round(m.total/base*100)+"%":"";
       return '<li class="'+pmClass(m.key)+'"><div class="bar-top"><span class="nm">'+tagHtml(m.key)+'<span class="pct">'+m.count+'件</span></span><span class="v">'+yen(m.total)+(pct?'<span class="pct">'+pct+'</span>':'')+'</span></div>'+bar(w,"pmfill")+'</li>';
-    }).join("")+'</ul>';
+    }).join("")+'</ul>');
     if(!S.count){
-      h+='<h3 class="sub-h">カテゴリ別</h3><p class="empty">この条件の記録がありません。</p>';
+      h+=sec("cat","カテゴリ別","",'<p class="empty">この条件の記録がありません。</p>');
     } else {
       const maxC=Math.max.apply(null,S.cats.map(c=>c.total).concat([1]));
       const pctBase=S.total>0?S.total:0;
-      h+='<h3 class="sub-h">カテゴリ別'+(ui.methods.length?' <small>選んだ支払方法のみ</small>':'')+'</h3><ul class="bars">'+S.cats.map(c=>{
+      h+=sec("cat","カテゴリ別",ui.methods.length?"選んだ支払方法のみ":"",'<ul class="bars">'+S.cats.map(c=>{
         const w=c.total>0?Math.max(2,Math.round(c.total/maxC*100)):0;
         const pct=pctBase&&c.total>0?Math.round(c.total/pctBase*100)+"%":"";
         return '<li><div class="bar-top"><span class="nm">'+esc(c.name)+' <span class="pct">'+c.count+'件</span></span><span class="v">'+yen(c.total)+(pct?'<span class="pct">'+pct+'</span>':'')+'</span></div>'+bar(w)+'</li>';
-      }).join("")+'</ul>';
+      }).join("")+'</ul>');
       if(S.months.length>=2){
         const maxM=Math.max.apply(null,S.months.map(m=>m.total).concat([1]));
-        h+='<h3 class="sub-h">月別</h3><ul class="bars">'+S.months.map(m=>{
+        h+=sec("month","月別","",'<ul class="bars">'+S.months.map(m=>{
           const w=m.total>0?Math.max(2,Math.round(m.total/maxM*100)):0;
           return '<li><div class="bar-top"><span class="nm">'+m.key.slice(0,4)+'年'+Number(m.key.slice(5))+'月</span><span class="v">'+yen(m.total)+'</span></div>'+bar(w)+'</li>';
-        }).join("")+'</ul>';
+        }).join("")+'</ul>');
       }
     }
     $("breakBody").innerHTML=h;
   }
+  $("breakBody").addEventListener("toggle",e=>{
+    const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.brkOpen[d.dataset.key]=d.open;
+  },true);
   const LIMIT=300;
   function renderList(S){
     $("listCount").textContent=S.count?S.count+"件":"";
