@@ -20,7 +20,7 @@
   --pm1-bg:#e3edfa; --pm1-fill:#2a78d6;   /* クレカ */
   --pm2-bg:#fce8df; --pm2-fill:#eb6834;   /* 現金 */
   --pm3-bg:#dcf4ea; --pm3-fill:#1baf7a;   /* 生計費用クレカ */
-  --pm4-bg:#fdf0cf; --pm4-fill:#eda100; --pm5-bg:#fbe6ee; --pm5-fill:#e87ba4; --pm6-bg:#dcefdc; --pm6-fill:#008300; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --on4:#0b0b0b; --other:#898781;   /* デビッドカード */
+  --pm4-bg:#fdf0cf; --pm4-fill:#eda100; --pm5-bg:#fbe6ee; --pm5-fill:#e87ba4; --pm6-bg:#dcefdc; --pm6-fill:#008300; --pm7-bg:#e6e2f8; --pm7-fill:#6250d6; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --on4:#0b0b0b; --other:#898781;   /* デビッドカード */
   --font-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
   --font-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
   --font-num:"DM Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
@@ -34,7 +34,7 @@
     --pm1-bg:#1d2f47; --pm1-fill:#3987e5;
     --pm2-bg:#432618; --pm2-fill:#d95926;
     --pm3-bg:#17372c; --pm3-fill:#199e70;
-    --pm4-bg:#3d3012; --pm4-fill:#c98500; --pm5-bg:#42222f; --pm5-fill:#d55181; --pm6-bg:#14301a; --pm6-fill:#008300; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --on4:#ffffff; --other:#898781;
+    --pm4-bg:#3d3012; --pm4-fill:#c98500; --pm5-bg:#42222f; --pm5-fill:#d55181; --pm6-bg:#14301a; --pm6-fill:#008300; --pm7-bg:#25204a; --pm7-fill:#9085e9; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --on4:#ffffff; --other:#898781;
   }
 }
 :root[data-theme="dark"]{
@@ -45,7 +45,7 @@
   --pm1-bg:#1d2f47; --pm1-fill:#3987e5;
   --pm2-bg:#432618; --pm2-fill:#d95926;
   --pm3-bg:#17372c; --pm3-fill:#199e70;
-  --pm4-bg:#3d3012; --pm4-fill:#c98500; --pm5-bg:#42222f; --pm5-fill:#d55181; --pm6-bg:#14301a; --pm6-fill:#008300; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --on4:#ffffff; --other:#898781;
+  --pm4-bg:#3d3012; --pm4-fill:#c98500; --pm5-bg:#42222f; --pm5-fill:#d55181; --pm6-bg:#14301a; --pm6-fill:#008300; --pm7-bg:#25204a; --pm7-fill:#9085e9; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --on4:#ffffff; --other:#898781;
 }
 
 *{box-sizing:border-box}
@@ -111,6 +111,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .pm4{--t-bg:var(--pm4-bg); --t-fill:var(--pm4-fill)}
 .pm5{--t-bg:var(--pm5-bg); --t-fill:var(--pm5-fill)}
 .pm6{--t-bg:var(--pm6-bg); --t-fill:var(--pm6-fill)}
+.pm7{--t-bg:var(--pm7-bg); --t-fill:var(--pm7-fill)}
 .pm{display:inline-block; font-size:.68rem; line-height:1.5; padding:0 7px; margin-left:6px; border-radius:999px; background:var(--t-bg); color:var(--fg); vertical-align:1px; white-space:nowrap}
 .pm::before{content:""; display:inline-block; width:6px; height:6px; margin:0 4px 1px 0; border-radius:50%; background:var(--t-fill)}
 .nm .pm{margin-left:0; margin-right:4px}
@@ -211,6 +212,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .km4{--seg:var(--pm4-fill); --on:var(--on4)}
 .km5{--seg:var(--pm5-fill); --on:#fff}
 .km6{--seg:var(--pm6-fill); --on:#fff}
+.km7{--seg:var(--pm7-fill); --on:#fff}
 .pie-wrap{display:flex; flex-wrap:wrap; align-items:center; gap:12px 28px}
 .pie{width:200px; height:200px; flex:none; max-width:100%}
 .slice{fill:var(--seg); stroke:var(--surface); stroke-width:2; transition:opacity .15s}
@@ -755,8 +757,8 @@ const Core=(function(){
   const $=id=>document.getElementById(id);
   const KEY="kaimono-shukei:v1";
   const DEFAULT_CATS=["食費","外食","日用品","衣類","趣味","ゲーム","本","サブスク","固定費","交通","医療","その他"];
-  const PM_DEFAULTS=["クレカ","現金","生計費用クレカ","デビッドカード","銀行振込","振替"];
-  const PM_CLASS={"クレカ":"pm1","現金":"pm2","生計費用クレカ":"pm3","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6"};
+  const PM_DEFAULTS=["クレカ","現金","生計費用クレカ","デビッドカード","銀行振込","振替","銀行引き落とし"];
+  const PM_CLASS={"クレカ":"pm1","現金":"pm2","生計費用クレカ":"pm3","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6","銀行引き落とし":"pm7"};
   const WD="日月火水木金土";
   const pad=n=>String(n).padStart(2,"0");
   const today=()=>Core.ymd(new Date());
