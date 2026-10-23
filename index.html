@@ -491,6 +491,9 @@ const Core=(function(){
     return Math.round(Number(s));
   }
   let seq=0;
+  /* 呼び名の変更。古い名前で保存された支払方法は新しい名前に読み替える */
+  const METHOD_ALIAS={"銀行引き落とし":"銀行引落"};
+  const normMethod=v=>{const t=String(v==null?"":v).trim().slice(0,50);return METHOD_ALIAS[t]||t;};
   function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)+(seq++).toString(36);}
 
   function makeItem(o){
@@ -501,7 +504,7 @@ const Core=(function(){
     return {
       id:String(o.id==null?"":o.id).trim()||newId(),
       date:date, name:name, amount:amount,
-      method:String(o.method==null?"":o.method).trim().slice(0,50),
+      method:normMethod(o.method),
       category:String(o.category==null?"":o.category).trim().slice(0,50),
       memo:String(o.memo==null?"":o.memo).trim().slice(0,200),
       createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),
@@ -524,7 +527,7 @@ const Core=(function(){
     return {
       id:String(o.id==null?"":o.id).trim()||newId(),
       month:month, name:name, amount:amount,
-      method:String(o.method==null?"":o.method).trim().slice(0,50),
+      method:normMethod(o.method),
       memo:String(o.memo==null?"":o.memo).trim().slice(0,200),
       createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),
       updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)
@@ -747,7 +750,7 @@ const Core=(function(){
     return {list:list,count:count,total:total,days:days,avg:avg,largest:largest,cats:cats,months:months,byMethod:byMethod,periodTotal:periodTotal,periodCount:periodList.length};
   }
 
-  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,normMonth,matchPaid,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
+  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,normMethod,normMonth,matchPaid,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
 })();
 </script>
 
@@ -757,8 +760,8 @@ const Core=(function(){
   const $=id=>document.getElementById(id);
   const KEY="kaimono-shukei:v1";
   const DEFAULT_CATS=["食費","外食","日用品","衣類","趣味","ゲーム","本","サブスク","固定費","交通","医療","その他"];
-  const PM_DEFAULTS=["クレカ","現金","生計費用クレカ","デビッドカード","銀行振込","振替","銀行引き落とし"];
-  const PM_CLASS={"クレカ":"pm1","現金":"pm2","生計費用クレカ":"pm3","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6","銀行引き落とし":"pm7"};
+  const PM_DEFAULTS=["クレカ","現金","生計費用クレカ","デビッドカード","銀行振込","振替","銀行引落"];
+  const PM_CLASS={"クレカ":"pm1","現金":"pm2","生計費用クレカ":"pm3","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6","銀行引落":"pm7"};
   const WD="日月火水木金土";
   const pad=n=>String(n).padStart(2,"0");
   const today=()=>Core.ymd(new Date());
@@ -793,6 +796,7 @@ const Core=(function(){
             if(typeof f.updatedAt!=="number") f.updatedAt=typeof f.createdAt==="number"?f.createdAt:0;
             return f;
           });
+          state.items.forEach(it=>{it.method=Core.normMethod(it.method);}); state.fixed.forEach(f=>{f.method=Core.normMethod(f.method);});
           state.deleted=Array.isArray(o.deleted)?o.deleted.filter(t=>t&&t.id&&Number.isFinite(t.at)):[];
           state.meta=Object.assign({lastBackupAt:null,changes:0,lastSyncAt:null,pending:0},o.meta||{});
           return true;
