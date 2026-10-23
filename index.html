@@ -256,6 +256,12 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .mform{margin:0 0 4px; padding:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
 .mform[hidden]{display:none}
 .tg{flex:none}
+.moneyview .fold > summary h2{font-size:.92rem}
+.moneyview .secbody .mform{margin-top:0}
+.ck{display:inline-flex; align-items:center; margin-right:6px; vertical-align:-2px}
+.ck input{width:16px; height:16px; margin:0; accent-color:var(--accent); cursor:pointer}
+.frow.off .r-name,.frow.off .r-amt{color:var(--muted)}
+.frow.off .r-amt{text-decoration:line-through; text-decoration-color:var(--line)}
 .dchip{display:inline-block; font-family:var(--font-num); font-size:.7rem; line-height:1.5; padding:0 6px; margin-right:6px; border-radius:4px; background:var(--accent-soft); color:var(--accent); white-space:nowrap; vertical-align:1px}
 .dchip.soon{background:var(--accent); color:var(--accent-fg)}
 .mdim{color:var(--muted)}
@@ -461,8 +467,9 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
       <p class="note" id="mNote"></p>
     </section>
 
-    <section class="panel" aria-labelledby="h-ac">
-      <h2 id="h-ac"><span>銀行口座の残高 <small id="acCount"></small></span><button type="button" class="small tg" data-form="ac" id="acToggle" aria-expanded="false">＋ 追加</button></h2>
+    <details class="panel fold" open>
+      <summary><h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span><button type="button" class="small tg" data-form="ac" id="acToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
       <form id="acForm" class="mform" novalidate autocomplete="off" hidden>
         <div class="fields">
           <label class="f full">口座名<input type="text" id="aName" maxlength="100" placeholder="○○銀行(普通)"></label>
@@ -473,10 +480,12 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
         <p class="msg" id="aMsg" role="status" aria-live="polite"></p>
       </form>
       <div id="acBody"></div>
-    </section>
+      </div>
+    </details>
 
-    <section class="panel" aria-labelledby="h-di">
-      <h2 id="h-di"><span>カード引落予定 <small id="diCount"></small></span><button type="button" class="small tg" data-form="di" id="diToggle" aria-expanded="false">＋ 追加</button></h2>
+    <details class="panel fold" open>
+      <summary><h2 id="h-di"><span>カード引落予定 <small id="diCount"></small></span><button type="button" class="small tg" data-form="di" id="diToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
       <form id="diForm" class="mform" novalidate autocomplete="off" hidden>
         <div class="fields">
           <label class="f">引落日<input type="date" id="dDate"></label>
@@ -490,10 +499,12 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
         <p class="msg" id="dMsg" role="status" aria-live="polite"></p>
       </form>
       <div id="diBody"></div>
-    </section>
+      </div>
+    </details>
 
-    <section class="panel" aria-labelledby="h-in">
-      <h2 id="h-in"><span>給与額 <small id="inCount"></small></span><button type="button" class="small tg" data-form="in" id="inToggle" aria-expanded="false">＋ 追加</button></h2>
+    <details class="panel fold" open>
+      <summary><h2 id="h-in"><span>給与額 <small id="inCount"></small></span><button type="button" class="small tg" data-form="in" id="inToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
       <form id="inForm" class="mform" novalidate autocomplete="off" hidden>
         <div class="fields">
           <label class="f">月分<input type="month" id="iMonth" placeholder="2026-10"></label>
@@ -505,7 +516,8 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
         <p class="msg" id="iMsg" role="status" aria-live="polite"></p>
       </form>
       <div id="inBody"></div>
-    </section>
+      </div>
+    </details>
   </main>
 
   <main class="settings" id="viewSettings" hidden>
@@ -703,7 +715,7 @@ const Core=(function(){
   function makeAccount(o){
     const name=cleanStr(o.name,100), balance=parseAmount(o.balance);
     if(!name||balance===null) return null;
-    return Object.assign({id:idOf(o),name:name,balance:balance,balanceAt:normDate(o.balanceAt)||ymd(new Date()),memo:cleanStr(o.memo,200)},stampsOf(o));
+    return Object.assign({id:idOf(o),name:name,balance:balance,balanceAt:normDate(o.balanceAt)||ymd(new Date()),memo:cleanStr(o.memo,200),inTotal:o.inTotal!==false},stampsOf(o));
   }
   function makeIncome(o){
     const month=normMonth(o.month), amount=parseAmount(o.amount);
@@ -729,18 +741,22 @@ const Core=(function(){
     });
     return {items:existing.concat(added),added:added.length,dup:dup};
   }
-  /* 残高の見込み: 今日以降の引落予定を、口座ごと・全体で差し引く */
+  /* 残高の見込み: 今日以降の引落予定を、口座ごと・全体で差し引く。
+     合計に入れるのは、チェック(inTotal)した口座だけ。引落は、その口座の分と、口座が未指定の分を差し引く */
   function moneySummary(accounts,debits,income,todayStr,monthKey){
     const up=debits.filter(d=>d.date>=todayStr);
     const sum=a=>a.reduce((t,x)=>t+x.amount,0);
     const ids=new Set(accounts.map(a=>a.id));
+    const sel=accounts.filter(a=>a.inTotal!==false), selIds=new Set(sel.map(a=>a.id));
     const byAcct={};
     accounts.forEach(a=>{byAcct[a.id]=sum(up.filter(d=>d.account===a.id));});
-    const total=accounts.reduce((t,a)=>t+a.balance,0), upTotal=sum(up);
+    const relevant=up.filter(d=>selIds.has(d.account)||!ids.has(d.account));
+    const total=sel.reduce((t,a)=>t+a.balance,0), relTotal=sum(relevant);
     return {
-      total:total, upcoming:up, upcomingTotal:upTotal, byAcct:byAcct,
+      total:total, selectedCount:sel.length, accountCount:accounts.length,
+      upcoming:up, upcomingAllTotal:sum(up), upcomingTotal:relTotal, byAcct:byAcct,
       unassigned:sum(up.filter(d=>!ids.has(d.account))),
-      projected:total-upTotal,
+      projected:total-relTotal,
       incomeNow:sum(income.filter(i=>i.month===monthKey))
     };
   }
@@ -1351,26 +1367,27 @@ const Core=(function(){
     if(keep&&state.accounts.some(a=>a.id===keep)) sel.value=keep;
     $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
     // まとめ
-    $("mSum").innerHTML='<div class="mhero"><span class="lbl">銀行残高の合計</span><span class="big">'+yenS(M.total)+'</span></div>'+
+    $("mSum").innerHTML='<div class="mhero"><span class="lbl">銀行口座残高の合計'+(M.accountCount&&M.selectedCount<M.accountCount?'(選んだ'+M.selectedCount+'口座 / 全'+M.accountCount+'口座)':'')+'</span><span class="big">'+yenS(M.total)+'</span></div>'+
       '<dl class="msum3"><div><dt>これからの引落</dt><dd>'+(M.upcomingTotal?"−"+yen(M.upcomingTotal):yen(0))+'</dd></div>'+
       '<div class="hl"><dt>引落後の見込み</dt><dd>'+yenS(M.projected)+'</dd></div>'+
       '<div><dt>'+Number(curYm().slice(5,7))+'月分の給与</dt><dd>'+(M.incomeNow?yen(M.incomeNow):"—")+'</dd></div></dl>';
     const notes=[];
+    if(state.accounts.length&&M.selectedCount===0) notes.push("合計に含める口座にチェックを入れてください");
     if(M.unassigned>0&&state.accounts.length) notes.push("引落口座が未指定の予定が "+yen(M.unassigned)+" あります");
     notes.push("引落予定は今日以降の分のみ。給与の入金は含みません");
     $("mNote").textContent=notes.join("。")+"。";
     // 口座
-    $("acCount").textContent=state.accounts.length?state.accounts.length+"口座":"";
+    $("acCount").textContent=state.accounts.length?(M.selectedCount<M.accountCount?"合計に含む "+M.selectedCount+" / ":"")+state.accounts.length+"口座":"";
     $("acBody").innerHTML=state.accounts.length?'<ul class="rows">'+state.accounts.map(a=>{
       const dbt=M.byAcct[a.id]||0;
       const sub=[a.memo].filter(Boolean).concat(["更新 "+shortD(a.balanceAt)]).concat(dbt?['引落 −'+yen(dbt).replace("-","")+' → '+yen(a.balance-dbt)]:[]).join(" · ");
-      return '<li class="frow"><div class="r-name">'+esc(a.name)+'</div><div class="r-amt">'+yenS(a.balance)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+      return '<li class="frow'+(a.inTotal===false?' off':'')+'"><div class="r-name"><label class="ck" title="残高合計に含める"><input type="checkbox" data-ac-sel="'+esc(a.id)+'"'+(a.inTotal===false?'':' checked')+' aria-label="'+esc(a.name)+'を残高合計に含める"></label>'+esc(a.name)+'</div><div class="r-amt">'+yenS(a.balance)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
         '<div class="r-act"><button type="button" class="small" data-act="ac-edit" data-id="'+esc(a.id)+'">編集</button>'+delBtn("ac-del",a.id)+'</div></li>';
     }).join("")+'</ul>':'<p class="empty">まだ口座がありません。上のフォームから追加できます。口座は、何口座でも追加・削除できます。</p>';
     // 引落予定
     const upc=state.debits.filter(d=>d.date>=t).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.createdAt||0)-(b.createdAt||0));
     const past=state.debits.filter(d=>d.date<t).sort((a,b)=>a.date<b.date?1:-1);
-    $("diCount").textContent=upc.length?"これから "+upc.length+"件 · "+yen(M.upcomingTotal):"";
+    $("diCount").textContent=upc.length?"これから "+upc.length+"件 · "+yen(M.upcomingAllTotal):"";
     const dRow=d=>{
       const an=acctName(d.account), days=Math.round((new Date(d.date+"T00:00:00")-new Date(t+"T00:00:00"))/86400000);
       const rel=days===0?"今日":(days>0?"あと"+days+"日":Math.abs(days)+"日前");
@@ -1393,6 +1410,11 @@ const Core=(function(){
         '<div class="r-act"><button type="button" class="small" data-act="in-edit" data-id="'+esc(i.id)+'">編集</button>'+delBtn("in-del",i.id)+'</div></li>';
     }).join("")+'</ul>':'<p class="empty">まだ給与の記録がありません。</p>';
   }
+  $("acBody").addEventListener("change",e=>{
+    const c=e.target.closest("[data-ac-sel]"); if(!c) return;
+    const a=state.accounts.find(x=>x.id===c.dataset.acSel); if(!a) return;
+    a.inTotal=c.checked; a.updatedAt=Date.now(); changed(1); render();
+  });
   $("diBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
 
   const A={name:$("aName"),bal:$("aBal"),memo:$("aMemo")}, D={date:$("dDate"),amount:$("dAmount"),card:$("dCard"),acct:$("dAcct"),memo:$("dMemo")}, I={month:$("iMonth"),amount:$("iAmount"),name:$("iName"),memo:$("iMemo")};
@@ -1400,7 +1422,8 @@ const Core=(function(){
     const f=$({ac:"acForm",di:"diForm","in":"inForm"}[k]), b=$(k+"Toggle");
     f.hidden=!on; b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));
   }
-  document.querySelectorAll(".tg[data-form]").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".tg[data-form]").forEach(b=>b.addEventListener("click",e=>{
+    e.preventDefault(); e.stopPropagation();
     const k=b.dataset.form, f=$({ac:"acForm",di:"diForm","in":"inForm"}[k]), on=f.hidden;
     showForm(k,on);
     if(on) f.querySelector("input").focus();
