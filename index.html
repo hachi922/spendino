@@ -243,6 +243,13 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .subfold > summary.sub-h > span:first-child{flex:1; min-width:0}
 .subfold:first-of-type > summary.sub-h{margin-top:0; border-top:0; padding-top:0}
 
+/* 固定費の期間 */
+.mper{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 6px; font-size:.76rem; color:var(--muted)}
+.mper .pt{flex:1 1 12rem; min-width:0}
+.perform{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 8px}
+.perform input{width:auto; flex:1 1 9rem}
+.m-per{white-space:nowrap}
+
 /* 固定費の未払分 */
 .fxsum{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 10px; margin:0 0 10px; padding:8px 10px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
 .fxsum div{min-width:0}
@@ -451,6 +458,16 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
       </div>
     </section>
 
+    <section class="panel" aria-labelledby="h-payday">
+      <h2 id="h-payday">給料日と集計期間</h2>
+      <p class="hint">毎月の給料日(土日・祝日のときは直前の平日に前倒し)から、次の給料日の前日までを「1か月分」として、固定費と記録をひもづけます。空欄にすると、1日〜月末の暦の月になります。祝日は、このアプリの中で計算しています(通信は不要です)。</p>
+      <div class="fields">
+        <label class="f">給料日の基準日(1〜31)<input type="text" id="paydayInput" inputmode="numeric" maxlength="2" placeholder="25"></label>
+      </div>
+      <div class="status" id="paydayStatus"></div>
+      <p class="hint" style="margin-top:8px">月末払いは 31 と入れます。この設定は、この端末のブラウザに保存されます(同期はされません)。ほかの端末でも入れてください。</p>
+    </section>
+
     <section class="panel" aria-labelledby="h-backup">
       <h2 id="h-backup">バックアップ</h2>
       <div class="status" id="backupStatus"></div>
@@ -531,6 +548,78 @@ const Core=(function(){
     };
   }
 
+  /* 日本の祝日(内蔵の計算。通信は不要)。国民の祝日に関する法律にもとづく。1990〜2099年に対応 */
+  const dowOf=(y,m,d)=>new Date(y,m-1,d).getDay();
+  const nthMonday=(y,m,n)=>1+((1-dowOf(y,m,1)+7)%7)+(n-1)*7;
+  const equinox=(y,m)=>Math.floor((m===3?20.8431:23.2488)+0.242194*(y-1980)-Math.floor((y-1980)/4));
+  function baseHoliday(y,m,d){
+    if(y<1990||y>2099) return false;
+    switch(m){
+      case 1: return d===1||(y>=2000&&d===nthMonday(y,1,2));
+      case 2: return d===11||(y>=2020&&d===23);
+      case 3: return d===equinox(y,3);
+      case 4: return d===29;
+      case 5: return d===3||d===4||d===5||(y===2019&&d===1);
+      case 7:
+        if(y===2020) return d===23||d===24;
+        if(y===2021) return d===22||d===23;
+        return y>=2003&&d===nthMonday(y,7,3);
+      case 8: return y>=2016&&d===(y===2020?10:y===2021?8:11);
+      case 9: return (y>=2003&&d===nthMonday(y,9,3))||d===equinox(y,9);
+      case 10:
+        if(y===2019&&d===22) return true;
+        if(y===2020||y===2021) return false;
+        return y>=2000&&d===nthMonday(y,10,2);
+      case 11: return d===3||d===23;
+      case 12: return y<=2018&&d===23;
+    }
+    return false;
+  }
+  function isHoliday(y,m,d){
+    if(baseHoliday(y,m,d)) return true;
+    const dt=new Date(y,m-1,d), wd=dt.getDay();
+    if(y>=2007&&wd!==0){
+      // 日曜が祝日のとき、そのあとの祝日でない最初の日が振替休日
+      let j=new Date(y,m-1,d-1);
+      while(baseHoliday(j.getFullYear(),j.getMonth()+1,j.getDate())){
+        if(j.getDay()===0) return true;
+        j=new Date(j.getFullYear(),j.getMonth(),j.getDate()-1);
+      }
+    }
+    if(wd!==0){
+      // 前後が祝日にはさまれた平日は国民の休日
+      const a=new Date(y,m-1,d-1), b=new Date(y,m-1,d+1);
+      if(baseHoliday(a.getFullYear(),a.getMonth()+1,a.getDate())&&baseHoliday(b.getFullYear(),b.getMonth()+1,b.getDate())) return true;
+    }
+    return false;
+  }
+  const isOffDay=dt=>dt.getDay()===0||dt.getDay()===6||isHoliday(dt.getFullYear(),dt.getMonth()+1,dt.getDate());
+  /* 給料日。基準日(1〜31。月に無い日は月末)が土日・祝日なら、直前の平日に前倒し */
+  function payday(y,m,base){
+    let dt=new Date(y,m-1,Math.min(base,new Date(y,m,0).getDate()));
+    while(isOffDay(dt)) dt=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()-1);
+    return ymd(dt);
+  }
+  function ymAdd(ym,n){const d=new Date(Number(ym.slice(0,4)),Number(ym.slice(5,7))-1+n,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");}
+  /* 月(YYYY-MM)ごとの期間。base が 0 なら暦の月。over は月ごとの手動の期間 {ym:{from,to}} */
+  function makePeriods(base,over){
+    over=over||{};
+    const of=ym=>{
+      const o=over[ym];
+      if(o&&o.from&&o.to) return {from:o.from,to:o.to,custom:true};
+      const y=Number(ym.slice(0,4)), m=Number(ym.slice(5,7));
+      if(!base) return {from:ym+"-01",to:ymd(new Date(y,m,0))};
+      const nx=ymAdd(ym,1);
+      return {from:payday(y,m,base),to:addDays(payday(Number(nx.slice(0,4)),Number(nx.slice(5,7)),base),-1)};
+    };
+    const monthOf=date=>{
+      const ym=date.slice(0,7);
+      for(const c of [ym,ymAdd(ym,-1),ymAdd(ym,1)]){const p=of(c); if(date>=p.from&&date<=p.to) return c;}
+      return ym;
+    };
+    return {base:base||0,of:of,monthOf:monthOf};
+  }
+
   /* 固定費: 月ごとの項目(月は YYYY-MM) */
   function normMonth(v){
     const m=String(v==null?"":v).normalize("NFKC").trim().match(/^(\d{4})[-\/年.](\d{1,2})(?:[-\/月.]\d{1,2}日?|月)?$/);
@@ -564,9 +653,10 @@ const Core=(function(){
   }
   /* 記録(購入一覧)に同じ月・同じ名前の支払いがあれば、その固定費は支払済。同名が複数あるときは件数ぶんだけ数える */
   const nameKey=s=>String(s==null?"":s).normalize("NFKC").replace(/\s+/g,"").toLowerCase();
-  function matchPaid(fixed,items){
+  function matchPaid(fixed,items,per){
+    per=per||makePeriods(0);
     const pool=new Map();
-    items.forEach(it=>{const k=it.date.slice(0,7)+"\u0001"+nameKey(it.name); pool.set(k,(pool.get(k)||0)+1);});
+    items.forEach(it=>{const k=per.monthOf(it.date)+"\u0001"+nameKey(it.name); pool.set(k,(pool.get(k)||0)+1);});
     const paid=new Set();
     fixed.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(f=>{
       const k=f.month+"\u0001"+nameKey(f.name), n=pool.get(k)||0;
@@ -769,7 +859,7 @@ const Core=(function(){
     return {list:list,count:count,total:total,days:days,avg:avg,largest:largest,cats:cats,months:months,byMethod:byMethod,periodTotal:periodTotal,periodCount:periodList.length};
   }
 
-  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,normMethod,normMonth,matchPaid,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
+  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
 })();
 </script>
 
@@ -795,7 +885,7 @@ const Core=(function(){
 
   let state={items:[],fixed:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
   let storageOk=true;
-  const ui={brkOpen:{},fxEditing:null,fxEditingBlank:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
+  const ui={fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
   const timers={};
 
   /* 保存 */
@@ -851,8 +941,11 @@ const Core=(function(){
 
   /* 期間 */
   const PRESETS=[["month","今月"],["prev","先月"],["d30","直近30日"],["year","今年"],["all","全期間"]];
+  const PAY_PRESETS=[["pay","今期間"],["payprev","前期間"]];
+  const presetList=()=>(cfg.payday?PAY_PRESETS:[]).concat(PRESETS);
   function presetRange(k){
     const t=today(), p=t.split("-").map(Number), y=p[0], m=p[1];
+    if(k==="pay"||k==="payprev"){const c=periods.monthOf(t), p=periods.of(k==="pay"?c:Core.ymAdd(c,-1)); return [p.from,p.to];}
     if(k==="month") return [y+"-"+pad(m)+"-01",Core.ymd(new Date(y,m,0))];
     if(k==="prev") return [Core.ymd(new Date(y,m-2,1)),Core.ymd(new Date(y,m-1,0))];
     if(k==="d30") return [Core.addDays(t,-29),t];
@@ -860,7 +953,7 @@ const Core=(function(){
     return ["",""];
   }
   function renderPresets(){
-    $("presets").innerHTML=PRESETS.map(p=>{
+    $("presets").innerHTML=presetList().map(p=>{
       const r=presetRange(p[0]); const on=r[0]===ui.from&&r[1]===ui.to;
       return '<button type="button" class="chip" data-preset="'+p[0]+'" aria-pressed="'+on+'">'+p[1]+'</button>';
     }).join("");
@@ -892,7 +985,7 @@ const Core=(function(){
   /* 描画 */
   function render(){
     const S=Core.summarize(state.items,ui.from,ui.to,today(),ui.methods);
-    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderBackup(); renderBanners(); renderCats();
+    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderPayday(); renderBackup(); renderBanners(); renderCats();
   }
   function renderSummary(S){
     $("sumTotal").textContent=yen(S.total);
@@ -980,7 +1073,8 @@ const Core=(function(){
   }
 
   /* 固定費 */
-  const curYm=()=>today().slice(0,7);
+  const curYm=()=>periods.monthOf(today());
+  const shortD=d=>Number(d.slice(5,7))+"/"+Number(d.slice(8,10));
   const ymLabel=ym=>ym.slice(0,4)+"年"+Number(ym.slice(5,7))+"月";
   const sgn=n=>(n>0?"+":n<0?"−":"±")+yen(Math.abs(n)).replace("-","");
   function fxMethodKeys(){
@@ -994,6 +1088,19 @@ const Core=(function(){
     if(keys.indexOf(keep)>=0) sel.value=keep;
   }
   function isOpen(key,def){return Object.prototype.hasOwnProperty.call(ui.fxOpen,key)?ui.fxOpen[key]:def;}
+  function perHtml(ym){
+    const p=periods.of(ym);
+    let h='<div class="mper"><span class="pt">期間 '+fmt(p.from)+' 〜 '+fmt(p.to)+(p.custom?'(手動)':(cfg.payday?'(給料日から)':'(暦の月)'))+'</span>'+
+      '<button type="button" class="small" data-act="fx-view" data-key="'+ym+'">記録で見る</button>'+
+      '<button type="button" class="small" data-act="fx-per" data-key="'+ym+'">期間を変更</button></div>';
+    if(ui.fxPerEdit===ym){
+      h+='<div class="perform"><input type="date" class="per-from" value="'+p.from+'" aria-label="開始日"><span class="sep">〜</span><input type="date" class="per-to" value="'+p.to+'" aria-label="終了日">'+
+        '<button type="button" class="small primary" data-act="fx-per-save" data-key="'+ym+'">保存</button>'+
+        (p.custom?'<button type="button" class="small" data-act="fx-per-reset" data-key="'+ym+'">自動に戻す</button>':'')+
+        '<button type="button" class="small" data-act="fx-per-close">閉じる</button></div>';
+    }
+    return h;
+  }
   function fxMonthHtml(g,cur,paid){
     const open=isOpen(g.ym,g.ym===cur);
     const rows=g.items.map(f=>{
@@ -1005,14 +1112,15 @@ const Core=(function(){
     }).join("");
     const np=g.items.filter(f=>paid.has(f.id)).length;
     const unpaidAmt=g.items.reduce((a,f)=>a+(paid.has(f.id)?0:f.amount),0);
-    const meta=(np?"支払済 "+np+"/":"")+g.items.length+"件"+(g.items.length>np?'<span class="unpaid-amt"> · 未払分 '+yen(unpaidAmt)+'</span>':' · すべて支払済')+(g.delta===null?"":'<span class="delta"> · 前月比 '+sgn(g.delta)+'</span>');
-    return '<details class="mfold" data-key="'+g.ym+'"'+(open?' open':'')+'><summary><span class="m-name">'+Number(g.ym.slice(5,7))+'月</span><span class="m-meta">'+meta+'</span><span class="m-total">'+yen(g.total)+'</span></summary><div class="mbody"><ul class="rows">'+rows+'</ul></div></details>';
+    const per=periods.of(g.ym), perTxt=(cfg.payday||per.custom)?'<span class="m-per">'+shortD(per.from)+'〜'+shortD(per.to)+(per.custom?'(手動)':'')+' · </span>':"";
+    const meta=perTxt+(np?"支払済 "+np+"/":"")+g.items.length+"件"+(g.items.length>np?'<span class="unpaid-amt"> · 未払分 '+yen(unpaidAmt)+'</span>':' · すべて支払済')+(g.delta===null?"":'<span class="delta"> · 前月比 '+sgn(g.delta)+'</span>');
+    return '<details class="mfold" data-key="'+g.ym+'"'+(open?' open':'')+'><summary><span class="m-name">'+Number(g.ym.slice(5,7))+'月</span><span class="m-meta">'+meta+'</span><span class="m-total">'+yen(g.total)+'</span></summary><div class="mbody">'+perHtml(g.ym)+'<ul class="rows">'+rows+'</ul></div></details>';
   }
   function renderFixed(){
     renderFxSelect();
     $("fxNames").innerHTML=Array.from(new Set(state.fixed.map(f=>f.name))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
     const groups=Core.fixedGroups(state.fixed,curYm()), cur=curYm();
-    const paid=Core.matchPaid(state.fixed,realItems());
+    const paid=Core.matchPaid(state.fixed,realItems(),periods);
     const open0=curYm();
     const monthItems=state.fixed.filter(f=>f.month===open0);
     const sumAll=a=>a.reduce((t,f)=>t+f.amount,0);
@@ -1088,6 +1196,22 @@ const Core=(function(){
       setTimeout(()=>URL.revokeObjectURL(url),2000);
       say("xMsg","書き出しました。");
     }catch(err){say("xMsg","書き出せませんでした。",true);}
+  });
+
+  function renderPayday(){
+    const inp=$("paydayInput"); if(document.activeElement!==inp) inp.value=cfg.payday?String(cfg.payday):"";
+    const c=periods.monthOf(today()), p=periods.of(c), nx=periods.of(Core.ymAdd(c,1));
+    $("paydayStatus").textContent="いまは "+ymLabel(c)+"分: "+fmt(p.from)+" 〜 "+fmt(p.to)+(cfg.payday?" / 次の給料日: "+fmt(nx.from):"");
+  }
+  $("paydayInput").addEventListener("change",e=>{
+    const v=e.target.value.normalize("NFKC").trim();
+    if(v===""){cfg.payday=0;}
+    else {
+      const n=Number(v);
+      if(!/^\d{1,2}$/.test(v)||n<1||n>31){e.target.value=cfg.payday?String(cfg.payday):""; return;}
+      cfg.payday=n;
+    }
+    saveCfg(); rebuildPeriods(); X.month.value=curYm(); render();
   });
 
   /* グラフ(円グラフ)。項目は最大6つ(5つ+ほか)。カテゴリは大きい順に色を割り当て、支払方法は固定の色 */
@@ -1189,7 +1313,7 @@ const Core=(function(){
   });
   F.name.addEventListener("change",()=>{
     if(ui.editingId||F.amount.value.trim()) return;
-    const ym=(Core.normDate(F.date.value)||today()).slice(0,7), paid=Core.matchPaid(state.fixed,realItems());
+    const ym=periods.monthOf(Core.normDate(F.date.value)||today()), paid=Core.matchPaid(state.fixed,realItems(),periods);
     const f=state.fixed.find(x=>x.month===ym&&!paid.has(x.id)&&x.name.replace(/\s+/g,"")===F.name.value.trim().replace(/\s+/g,""));
     if(!f) return;
     F.amount.value=String(f.amount); F.method.value=f.method||""; if(!F.cat.value.trim()) F.cat.value="固定費";
@@ -1235,10 +1359,23 @@ const Core=(function(){
         ui.pendingDelete=id; render();
         clearTimeout(timers.del); timers.del=setTimeout(()=>{ui.pendingDelete=null;render();},4000);
       }
+    } else if(act==="fx-view"){
+      const p=periods.of(b.dataset.key); setRange(p.from,p.to); showView("records",true);
+    } else if(act==="fx-per"){
+      ui.fxPerEdit=ui.fxPerEdit===b.dataset.key?null:b.dataset.key; ui.fxOpen[b.dataset.key]=true; renderFixed();
+    } else if(act==="fx-per-close"){
+      ui.fxPerEdit=null; renderFixed();
+    } else if(act==="fx-per-save"){
+      const box=b.closest(".mbody"), from=Core.normDate(box.querySelector(".per-from").value), to=Core.normDate(box.querySelector(".per-to").value);
+      if(!from||!to||from>to) return say("xMsg","開始日と終了日を正しく入れてください(開始日は終了日より前)。",true);
+      cfg.pOver[b.dataset.key]={from:from,to:to}; saveCfg(); rebuildPeriods(); ui.fxPerEdit=null; render();
+      say("xMsg",ymLabel(b.dataset.key)+"分の期間を "+fmt(from)+" 〜 "+fmt(to)+" にしました。");
+    } else if(act==="fx-per-reset"){
+      delete cfg.pOver[b.dataset.key]; saveCfg(); rebuildPeriods(); ui.fxPerEdit=null; render();
     } else if(act==="fx-pay"){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
-      const t=today(), tm=t.slice(0,7);
-      const date=f.month===tm?t:(f.month<tm?Core.ymd(new Date(Number(f.month.slice(0,4)),Number(f.month.slice(5,7)),0)):f.month+"-01");
+      const t=today(), pp=periods.of(f.month);
+      const date=t<pp.from?pp.from:(t>pp.to?pp.to:t);
       const now=Date.now();
       state.items.push({id:Core.newId(),date:date,name:f.name,amount:f.amount,method:f.method||"",category:"固定費",memo:f.memo||"",createdAt:now,updatedAt:now});
       changed(1); render();
@@ -1342,7 +1479,9 @@ const Core=(function(){
   const PRESET_CLIENT_ID=""; // ここにクライアントIDを貼っておくと、スマホとPCで入力しなくて済みます
   const SYNC_FILE="kaimono-shukei.json";
   const SCOPE="https://www.googleapis.com/auth/drive.appdata";
-  let cfg={clientId:"",connected:false};
+  let cfg={clientId:"",connected:false,payday:25,pOver:{}};
+  let periods=Core.makePeriods(25,{});
+  function rebuildPeriods(){periods=Core.makePeriods(cfg.payday,cfg.pOver);}
   let token=null, tokenExp=0, syncing=false, fileId=null, syncTimer=null;
 
   function loadCfg(){
@@ -1350,6 +1489,11 @@ const Core=(function(){
     try{o=JSON.parse(localStorage.getItem(CFG_KEY)||"{}")||{};}catch(e){}
     cfg.clientId=PRESET_CLIENT_ID||String(o.clientId||"").trim();
     cfg.connected=!!o.connected;
+    const pd=Number(o.payday);
+    cfg.payday=(o.payday===undefined||o.payday===null||!Number.isFinite(pd)||pd<0||pd>31)?25:Math.floor(pd);
+    cfg.pOver={};
+    if(o.pOver&&typeof o.pOver==="object") Object.keys(o.pOver).forEach(k=>{const v=o.pOver[k]; if(/^\d{4}-\d{2}$/.test(k)&&v&&Core.validDate(String(v.from))&&Core.validDate(String(v.to))&&v.from<=v.to) cfg.pOver[k]={from:v.from,to:v.to};});
+    rebuildPeriods();
   }
   function saveCfg(){try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}catch(e){}}
   const tokenOk=()=>!!token&&Date.now()<tokenExp-60000;
