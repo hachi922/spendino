@@ -260,6 +260,13 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 #acBody,#diBody,#inBody{container-type:inline-size; margin-top:10px}
 .mhero .lbl{font-size:.74rem; color:var(--muted)}
 .mhero .big{display:block}
+.mtop{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:10px}
+.mcell{min-width:0}
+.mcell .lbl{display:block; font-size:.72rem; color:var(--muted)}
+.mcell .big{display:block; white-space:nowrap}
+.mcell .big.muted{color:var(--muted)}
+.mcell .sub{display:block; font-size:.68rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.mtop .mcell + .mcell{border-left:1px solid var(--line); padding-left:10px}
 .msum3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 10px; margin:10px 0 0; padding-top:10px; border-top:1px solid var(--line)}
 .msum3 div{min-width:0}
 .msum3 dt{font-size:.7rem; color:var(--muted)}
@@ -477,10 +484,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <p class="note" id="mNote"></p>
     </section>
 
-    <section class="panel" aria-labelledby="h-fc">
-      <h2 id="h-fc">固定費を引いた残高</h2>
-      <div id="fcBody"></div>
-    </section>
 
     <details class="panel fold" id="acFold">
       <summary><h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span><button type="button" class="small tg" data-form="ac" id="acToggle" aria-expanded="false">＋ 追加</button></h2></summary>
@@ -1389,21 +1392,17 @@ const Core=(function(){
     const sel=$("dAcct"), keep=sel.value;
     sel.innerHTML='<option value="">未指定</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");
     if(keep&&state.accounts.some(a=>a.id===keep)) sel.value=keep;
-    // チェックを入れた口座の残高合計 − 未払いの固定費(今月と以前の月)
-    {
-      if(!state.accounts.length||!M.selectedCount){ $("fcBody").innerHTML='<p class="empty">'+(state.accounts.length?'「銀行口座残高」で、引く対象の口座にチェックを入れてください。':'先に「銀行口座残高」に口座を追加してください。')+'</p>'; }
-      else{
-        const paidSet=Core.matchPaid(state.fixed,realItems(),periods), cy=curYm(), sm=a=>a.reduce((t,f)=>t+f.amount,0);
-        const now=state.fixed.filter(f=>f.month===cy&&!paidSet.has(f.id)), prior=state.fixed.filter(f=>f.month<cy&&!paidSet.has(f.id));
-        const rest=M.total-sm(now)-sm(prior);
-        $("fcBody").innerHTML='<div class="mhero"><span class="lbl">チェックした'+M.selectedCount+'口座の残高 − 未払いの固定費</span><span class="big">'+yenS(rest)+'</span></div>'+
-          '<dl class="msum3"><div><dt>口座残高の合計</dt><dd>'+yenS(M.total)+'</dd></div><div><dt>'+ymLabel(cy)+'の未払分</dt><dd>'+yen(sm(now))+'</dd></div><div><dt>以前の月の未払分</dt><dd>'+yen(sm(prior))+'</dd></div></dl>'+
-          '<p class="note">対象は、「銀行口座残高」でチェックを入れた口座です。未来の月の固定費は含みません。「固定費」タブで支払済になったものは引きません。</p>';
-      }
+    // 小遣い = チェックを入れた口座の残高合計 − 未払いの固定費(今月と以前の月)
+    let allow;
+    if(!state.accounts.length||!M.selectedCount) allow='<div class="mcell"><span class="lbl">小遣い</span><span class="big muted">—</span><span class="sub">'+(state.accounts.length?'口座にチェックを':'口座を追加すると出ます')+'</span></div>';
+    else{
+      const paidSet=Core.matchPaid(state.fixed,realItems(),periods), cy=curYm(), sm=a=>a.reduce((t,f)=>t+f.amount,0);
+      const un=sm(state.fixed.filter(f=>f.month<=cy&&!paidSet.has(f.id)));
+      allow='<div class="mcell" title="チェックした口座の残高 '+yen(M.total)+' − 未払いの固定費 '+yen(un)+'(今月と以前の月。未来の月は含みません)"><span class="lbl">小遣い</span><span class="big">'+yenS(M.total-un)+'</span><span class="sub">未払いの固定費 −'+yen(un).replace("-","")+'</span></div>';
     }
     $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
     // まとめ
-    $("mSum").innerHTML='<div class="mhero"><span class="lbl">銀行口座残高の合計'+(M.accountCount&&M.selectedCount<M.accountCount?'(選んだ'+M.selectedCount+'口座 / 全'+M.accountCount+'口座)':'')+'</span><span class="big">'+yenS(M.total)+'</span></div>'+
+    $("mSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">銀行口座残高の合計'+(M.accountCount&&M.selectedCount<M.accountCount?'(選んだ'+M.selectedCount+'口座 / 全'+M.accountCount+'口座)':'')+'</span><span class="big">'+yenS(M.total)+'</span></div>'+allow+'</div>'+
       '<dl class="msum3"><div><dt>これからの引落</dt><dd>'+(M.upcomingTotal?"−"+yen(M.upcomingTotal):yen(0))+'</dd></div>'+
       '<div class="hl"><dt>引落後の見込み</dt><dd>'+yenS(M.projected)+'</dd></div>'+
       '<div><dt>'+Number(curYm().slice(5,7))+'月分の給与</dt><dd>'+(M.incomeNow?yen(M.incomeNow):"—")+'</dd></div></dl>';
