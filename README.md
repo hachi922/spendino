@@ -1,163 +1,2423 @@
-# Spendino(スペンディーノ)
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Spendino</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2064%2064%22%3E%3Crect%20width=%2264%22%20height=%2264%22%20rx=%2214%22%20fill=%22%23e8762c%22/%3E%3Cpath%20d=%22M11%2031H53C57%2042%2051%2054%2038%2054H26C13%2054%207%2042%2011%2031Z%22%20fill=%22%23fff3df%22/%3E%3Cpath%20d=%22M12%2031C12%2014%2052%2014%2052%2031%22%20fill=%22none%22%20stroke=%22%23fff3df%22%20stroke-width=%225.5%22%20stroke-linecap=%22round%22/%3E%3Cpath%20d=%22M18%2029C20%2022%2044%2022%2046%2029Z%22%20fill=%22%23e8762c%22/%3E%3Ccircle%20cx=%2227.5%22%20cy=%2215%22%20r=%223.6%22%20fill=%22%23fff3df%22%20stroke=%22%23e8762c%22%20stroke-width=%221.6%22/%3E%3Ccircle%20cx=%2236.5%22%20cy=%2215%22%20r=%223.6%22%20fill=%22%23fff3df%22%20stroke=%22%23e8762c%22%20stroke-width=%221.6%22/%3E%3Cpath%20d=%22M17%2040Q32%2046%2047%2040%22%20fill=%22none%22%20stroke=%22%23e8762c%22%20stroke-width=%222%22%20stroke-linecap=%22round%22/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="apple-mobile-web-app-title" content="Spendino">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Pacifico&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* レイアウト: 広い画面は左に 集計・内訳・一覧、右に 入力・同期。狭い画面は 集計 → 入力 → 内訳 → 一覧 → 同期 の縦積み。内訳と同期は折りたたみ */
+:root{
+  color-scheme:light;
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f5f7fa; --fg:#1b2430; --muted:#5b6676; --line:#d9dfe8;
+  --accent:#1c6b64; --accent-fg:#ffffff; --accent-soft:#dcefec;
+  --danger:#b3362f; --warn-bg:#fff3d6; --warn-fg:#6b4a00; --track:#e3e8ef;
+  /* 支払方法の色(文字でも区別できるよう、必ずラベルと一緒に使う) */
+  --pm1-bg:#e3edfa; --pm1-fill:#2a78d6;   /* クレカ */
+  --pm2-bg:#fce8df; --pm2-fill:#eb6834;   /* 現金 */
+  --pm3-bg:#dcf4ea; --pm3-fill:#1baf7a;   /* 生計費用クレカ */
+  --pm4-bg:#fdf0cf; --pm4-fill:#eda100; --pm5-bg:#fbe6ee; --pm5-fill:#e87ba4; --pm6-bg:#dcefdc; --pm6-fill:#008300; --pm7-bg:#e6e2f8; --pm7-fill:#6250d6; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --on4:#0b0b0b; --other:#898781;   /* デビッドカード */
+  --font-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+  --font-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  --font-num:"DM Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#11161d; --surface:#181f28; --surface-2:#1e2630; --fg:#e6ebf2; --muted:#98a3b3; --line:#2b3541;
+    --accent:#5cc2b6; --accent-fg:#08201d; --accent-soft:#1b3633;
+    --danger:#f08a82; --warn-bg:#3a2f12; --warn-fg:#f1d28a; --track:#263140;
+    --pm1-bg:#1d2f47; --pm1-fill:#3987e5;
+    --pm2-bg:#432618; --pm2-fill:#d95926;
+    --pm3-bg:#17372c; --pm3-fill:#199e70;
+    --pm4-bg:#3d3012; --pm4-fill:#c98500; --pm5-bg:#42222f; --pm5-fill:#d55181; --pm6-bg:#14301a; --pm6-fill:#008300; --pm7-bg:#25204a; --pm7-fill:#9085e9; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --on4:#ffffff; --other:#898781;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#11161d; --surface:#181f28; --surface-2:#1e2630; --fg:#e6ebf2; --muted:#98a3b3; --line:#2b3541;
+  --accent:#5cc2b6; --accent-fg:#08201d; --accent-soft:#1b3633;
+  --danger:#f08a82; --warn-bg:#3a2f12; --warn-fg:#f1d28a; --track:#263140;
+  --pm1-bg:#1d2f47; --pm1-fill:#3987e5;
+  --pm2-bg:#432618; --pm2-fill:#d95926;
+  --pm3-bg:#17372c; --pm3-fill:#199e70;
+  --pm4-bg:#3d3012; --pm4-fill:#c98500; --pm5-bg:#42222f; --pm5-fill:#d55181; --pm6-bg:#14301a; --pm6-fill:#008300; --pm7-bg:#25204a; --pm7-fill:#9085e9; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --on4:#ffffff; --other:#898781;
+}
 
-買ったものと毎月の固定費を記録して、期間ごとに集計する自分用のウェブアプリです。
-スマホでもPCでも使えます。Googleドライブで端末間を同期できます。
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); -webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:14px; line-height:1.45;
+  padding-left:max(12px, env(safe-area-inset-left, 0px));
+  padding-right:max(12px, env(safe-area-inset-right, 0px));
+  padding-block:12px calc(76px + env(safe-area-inset-bottom,0px));
+}
+.app{max-width:1040px; margin:0 auto}
+.top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
+.top h1{font-family:Pacifico,var(--font-display),cursive; font-weight:400; font-size:1.45rem; line-height:1.3; margin:0; letter-spacing:.01em}
 
-`index.html` の1ファイルだけで動きます(サーバーやビルドは不要)。GitHub Pages で公開して使います。
+.layout{display:grid; gap:10px; grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr) 320px; align-items:start}
+  #breakdown{grid-column:1; grid-row:1}
+  #listPanel{grid-column:1; grid-row:2}
+  #form{grid-column:2; grid-row:1 / span 2}
+}
 
-## できること
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:10px 12px; min-width:0}
+.panel h2{font-family:var(--font-display); font-size:.92rem; margin:0 0 8px; display:flex; align-items:baseline; justify-content:space-between; gap:8px}
+.panel h2 small{font-family:var(--font-body); font-weight:400; font-size:.76rem; color:var(--muted)}
 
-### 記録
-- 購入品・支払済サービスを、日付・品名・金額・支払方法・カテゴリ・メモで記録します
-- 期間を選んで集計します(今月 / 先月 / 直近30日 / 今年 / 全期間、または日付を直接指定)
-- 合計、件数、1日あたり、最高額を表示します
-- 支払方法で絞り込みます(複数選択できます)
-- カテゴリ別・支払方法別の内訳を表示します
+/* 折りたたみの見出し */
+.fold{padding:0}
+.fold > summary{display:flex; align-items:center; gap:8px; padding:8px 12px; min-height:38px; cursor:pointer; list-style:none}
+.fold > summary::-webkit-details-marker{display:none}
+.fold > summary h2{margin:0; flex:1; min-width:0}
+.fold > summary::after{content:""; flex:none; width:7px; height:7px; margin:0 4px 3px 0; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg)}
+.fold[open] > summary::after{transform:rotate(-135deg); margin-bottom:-3px}
+.fold > div{padding:0 12px 12px}
 
-### 固定費
-- 毎月の固定費を、月ごとに登録・編集・削除します。月によって項目が増えても減っても大丈夫です
-- 月ごとに折り畳んで表示します(今月だけ最初から開いています)
-- 「前の月からコピー」で、前月の項目を引き継げます
-- 年が過ぎると、その年は「○年のまとめ」にまとまります(項目ごとの年間合計、月平均、月ごとの内訳)
-- 「記録」に同じ月・同じ品名の支払いがあると、その固定費はグレーアウトして「支払済」になります
-- 「支払った」ボタンで、記録に支払いを追加できます(カテゴリは「固定費」)
-- 固定費の金額は「記録」や「グラフ」の集計には含まれません
-- 固定費の未払分(今月の合計・支払済・未払分、以前の月の未払分)を表示します
-- 月ごとの固定費の合計の下に、小さく「小遣い」(その月の給与 − その月の固定費の合計)を表示します。「資金」タブにその月の給与が入っている月だけ出ます
+button,.btn{
+  font:inherit; cursor:pointer; border:1px solid var(--line); background:var(--surface); color:var(--fg);
+  border-radius:6px; padding:4px 12px; min-height:34px; display:inline-flex; align-items:center; justify-content:center; text-align:center;
+}
+button:hover,.btn:hover{background:var(--surface-2)}
+.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-fg)}
+.primary:hover{background:var(--accent); filter:brightness(1.08)}
+.danger{color:var(--danger); border-color:var(--danger)}
+.danger.armed{background:var(--danger); color:var(--surface)}
+.small{min-height:28px; padding:1px 8px; font-size:.78rem}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 
-#### 給料日の期間とひもづける
-- 「設定」の「給料日と集計期間」に、毎月の給料日の基準日(初期値は25日)を入れます。空欄にすると、1日〜月末の暦の月になります
-- 基準日が土日・祝日のときは、直前の平日に前倒しします。祝日は、アプリの中で計算しています(1990〜2099年、振替休日・国民の休日・春分/秋分を含みます)
-- 給料日から次の給料日の前日までを「1か月分」とし、開始日の月の名前で呼びます(例: 1/23〜2/24 は「1月分」)
-- 固定費の月は、その期間と結びつきます。固定費の月の見出しに期間が出ます
-- 「記録で見る」を押すと、その月の期間が「記録」の期間に入ります。「記録」の期間ボタンにも「今期間」「前期間」が出ます
-- 支払済の判定も、その期間内の記録と照合します
-- 祝日の扱いが実際と違う月などは、月ごとの「期間を変更」で期間を手動で直せます
-- 給料日の設定は、その端末のブラウザに保存されます(同期されません)。ほかの端末にも入れてください
+input[type=text],input[type=date],input[type=month],select{
+  width:100%; font:inherit; font-size:16px; padding:5px 8px; border:1px solid var(--line); border-radius:6px;
+  background:var(--surface); color:var(--fg); min-height:38px; min-width:0;
+}
+@media (hover:hover) and (pointer:fine){
+  input[type=text],input[type=date],input[type=month],select{font-size:14px; min-height:32px}
+}
+input[type=date],input[type=month]{-webkit-appearance:none; appearance:none; display:block; box-sizing:border-box; max-width:100%; height:38px; line-height:1.2; text-align:center}
+input[type=date]::-webkit-date-and-time-value,input[type=month]::-webkit-date-and-time-value{text-align:center; min-height:1.2em; margin:0}
+@media (hover:hover) and (pointer:fine){input[type=date],input[type=month]{height:32px}}
+.fields{align-items:end}
+label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0}
 
-### 資金
-- お金まわりの数字を控えておくタブです
-- **銀行口座残高:** 口座を何口座でも追加・編集・削除できます。残高を変えると、更新日が自動で今日になります。口座ごとのチェックで、残高の合計に含める口座を選べます(チェックを外した口座は、合計と引落後の見込みに入りません)
-- **カード引落予定:** 引落日・カード名・金額・引落口座を控えます。今日以降の分は「これから」、過ぎた分は「過去の引落」(折り畳み)に分かれます
-- **給与額:** 月分(給料日の期間の月)ごとに、給与や賞与などの金額を控えます
-- **ざっくり残高:** 銀行残高の合計、これからの引落予定の合計、引落後の見込み残高、今期間の給与を表示します。口座の行にも、その口座から引き落とされる予定と、引落後の見込みを出します
-- 引落後の見込みには、給与の入金は含めません
-- **小遣い:** 「ざっくり残高」の銀行口座残高の合計の右に表示します。チェックを入れた口座の残高の合計から、未払いの固定費(今月の未払分と以前の月の未払分)を引いた額です。未来の月の固定費は含みません
-- 「銀行口座残高」「カード引落予定」「給与額」の各欄は、見出しの右の矢印で折りたためます
-- 「記録」「固定費」「グラフ」の集計には含まれません
+/* 支払方法の色 */
+.pm0{--t-bg:var(--surface-2); --t-fill:var(--muted)}
+.pm1{--t-bg:var(--pm1-bg); --t-fill:var(--pm1-fill)}
+.pm2{--t-bg:var(--pm2-bg); --t-fill:var(--pm2-fill)}
+.pm3{--t-bg:var(--pm3-bg); --t-fill:var(--pm3-fill)}
+.pm4{--t-bg:var(--pm4-bg); --t-fill:var(--pm4-fill)}
+.pm5{--t-bg:var(--pm5-bg); --t-fill:var(--pm5-fill)}
+.pm6{--t-bg:var(--pm6-bg); --t-fill:var(--pm6-fill)}
+.pm7{--t-bg:var(--pm7-bg); --t-fill:var(--pm7-fill)}
+.pm{display:inline-block; font-size:.68rem; line-height:1.5; padding:0 7px; margin-left:6px; border-radius:999px; background:var(--t-bg); color:var(--fg); vertical-align:1px; white-space:nowrap}
+.pm::before{content:""; display:inline-block; width:6px; height:6px; margin:0 4px 1px 0; border-radius:50%; background:var(--t-fill)}
+.nm .pm{margin-left:0; margin-right:4px}
+.dot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--t-fill); margin-right:6px; flex:none}
 
-### 資産
-- つみたてNISA・iDeCo・銀行預金の推移を、毎月記録して、将来のイメージを作るタブです
-- **月次の記録:** 月ごとに、種類・元本(積み立てた累計)・評価額を入れます。同じ月・同じ種類は上書きされます。種類ごとに折り畳まれ、過去の分は閉じたままです
-- **運用益:** 評価額 − 元本です。割合も出ます
-- **試算の設定(折り畳み):** つみたてNISAとiDeCoについて、元手(開始月の金額)・毎月の積立・想定年利(%)・投資期間(開始月と終了月)を入れます。期間は手動で指定します。あまり変えないので、最初は閉じています
-- **銀行預金:** 試算の設定は要りません。最新の記録の金額のまま、合計に足します
-- **試算のしかた:** 開始月に元手があり、積立は翌月から数えます。年利は月ごとの複利で計算します。評価額 = 元本 + 運用益です。将来を保証するものではありません
-- **NISAの追加投資・取り崩し:** 月と金額を入れると、つみたてNISAの試算に反映します。取り崩しでは、元本も同じ割合で減らします。設定した期間の外の分は反映されません
-- **グラフ:** 合計と種類ごとに切り替えます。実線が評価額(試算)、点線が元本(試算)、オレンジの点が記録した評価額です。指でなぞると各月の金額が出ます。グラフの下の表に、年末ごとの元本・評価額・運用益を出します(最初から開いています)
-- 記録・設定は、Googleドライブの同期とJSONのバックアップにも入ります
-- 「記録」「固定費」「グラフ」の集計には含まれません
+/* 期間・支払方法・合計 */
+.presets,.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chips{margin-top:8px}
+.chip{border-radius:999px; min-height:30px; padding:1px 11px; font-size:.82rem; background:var(--surface-2); align-items:center}
+.chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-fg)}
+.chip[aria-pressed="true"] .dot{background:var(--accent-fg)}
+.range{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:6px; margin-top:8px}
+.range .sep{color:var(--muted)}
+.summary{margin-top:10px; padding-top:8px; border-top:1px solid var(--line)}
+.total{display:flex; flex-wrap:wrap; align-items:baseline; gap:0 8px}
+.total .lbl{font-size:.74rem; color:var(--muted)}
+.big{font-family:var(--font-num); font-size:clamp(1.6rem,6vw,2rem); font-weight:500; letter-spacing:-0.02em; line-height:1.25}
+.range-text{font-size:.76rem; color:var(--muted); overflow-wrap:anywhere}
+.stats{display:flex; flex-wrap:wrap; gap:2px 16px; margin:4px 0 0}
+.stats div{display:flex; align-items:baseline; gap:6px; min-width:0}
+.stats .max{flex:1 1 180px}
+.stats dt{font-size:.74rem; color:var(--muted); white-space:nowrap}
+.stats dd{margin:0; font-family:var(--font-num); font-size:.9rem; white-space:nowrap}
+.stats dd.sub{font-family:var(--font-body); font-size:.74rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; min-width:0}
 
-### グラフ
-- 指定した期間の出費の割合を円グラフで表示します
-- 「カテゴリ別」と「支払方法別」を切り替えられます
-- 凡例には金額と割合を表示し、表でも確認できます
+#period{margin-bottom:10px}
+@media (min-width:760px){
+  #period{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); align-items:start}
+  #period > :not(.summary){grid-column:1; margin-right:20px}
+  #period > .summary{grid-column:2; grid-row:1 / span 3; margin-top:0; padding:0 0 0 20px; border-top:0; border-left:1px solid var(--line)}
+}
 
-### 設定(同期とバックアップ)
-- Googleドライブで同期します(下の手順を参照)
-- CSV と JSON でバックアップ・復元します
+/* 入力フォーム */
+.fields{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px}
+.fields .full{grid-column:1 / -1}
+.actions{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+.msg{margin:6px 0 0; font-size:.8rem; color:var(--accent); overflow-wrap:anywhere}
+.msg:empty{margin:0}
+.msg.err{color:var(--danger)}
 
-## 支払方法
+/* 内訳 */
+.bars{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.bar-top{display:flex; justify-content:space-between; gap:10px; font-size:.85rem}
+.bar-top .nm{min-width:0; overflow-wrap:anywhere}
+.bar-top .v{font-family:var(--font-num); white-space:nowrap}
+.bar-top .pct{color:var(--muted); font-family:var(--font-body); font-size:.74rem; margin-left:6px}
+.track{height:6px; background:var(--track); border-radius:3px; margin-top:3px; overflow:hidden}
+.track i{display:block; height:100%; background:var(--accent); border-radius:3px}
+.track i.pmfill{background:var(--t-fill)}
+.sub-h{font-family:var(--font-display); font-size:.85rem; margin:14px 0 8px; padding-top:10px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:8px; align-items:baseline}
+.sub-h.first{margin-top:0; padding-top:0; border-top:0}
+.sub-h small{font-family:var(--font-body); font-weight:400; font-size:.72rem; color:var(--muted)}
 
-クレカ / 現金 / 生計費用クレカ / デビッドカード / 銀行振込 / 振替 / 銀行引落
+/* 一覧: 狭いときは2行、広いときは1行 */
+#listBody{container-type:inline-size}
+.rows{list-style:none; margin:0; padding:0}
+.row{display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"name amt" "meta act"; gap:0 10px; align-items:center; padding:5px 0; border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.r-name{grid-area:name; overflow-wrap:anywhere}
+.r-amt{grid-area:amt; font-family:var(--font-num); text-align:right; white-space:nowrap}
+.r-meta{grid-area:meta; font-size:.74rem; color:var(--muted); overflow-wrap:anywhere; min-width:0}
+.r-sub:not(:empty)::before{content:" · "}
+.r-act{grid-area:act; display:flex; gap:4px; justify-content:flex-end; align-items:center}
+@container (min-width:560px){
+  .row{grid-template-columns:5.6rem minmax(0,2fr) minmax(0,1.2fr) 5.4rem auto; grid-template-areas:"date name sub amt act"; gap:0 10px; padding:3px 0}
+  .r-meta{display:contents}
+  .r-date{grid-area:date; font-size:.78rem; color:var(--muted); white-space:nowrap}
+  .r-sub{grid-area:sub; font-size:.78rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .r-sub::before{content:none!important}
+}
+.tag{display:inline-block; font-size:.66rem; padding:0 6px; margin-left:6px; border-radius:4px; background:var(--accent-soft); color:var(--accent); vertical-align:1px}
+.empty{color:var(--muted); margin:2px 0}
+.note{color:var(--muted); font-size:.76rem; margin:8px 0 0}
 
-## カテゴリ
+/* 画面の切り替え(記録 / 設定) */
+/* 画面の切り替え: 下に固定したアイコンのタブ */
+.btabs{position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; justify-content:center; gap:2px; padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px)); background:var(--surface); border-top:1px solid var(--line)}
+.btabs button{position:relative; flex:1 1 0; max-width:130px; min-width:0; min-height:50px; padding:5px 2px 4px; border:0; border-radius:10px; background:transparent; color:var(--muted); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px}
+.btabs button:hover{background:var(--surface-2)}
+.btabs button[aria-current="page"]{color:var(--accent); background:var(--accent-soft)}
+.btabs .ic{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.btabs .tl{font-size:.66rem; line-height:1.2; white-space:nowrap}
+.btabs button[aria-current="page"] .tl{font-weight:700}
+.gear{position:relative; flex:none; width:40px; height:40px; padding:0; border-radius:50%; background:var(--surface); color:var(--muted)}
+.gear .ic{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+.gear[aria-current="page"]{color:var(--accent); background:var(--accent-soft); border-color:var(--accent)}
+.gear .badge{position:absolute; top:-3px; right:-3px; margin:0; min-width:1.25em; padding:0 4px; font-size:.62rem}
+.badge{display:inline-block; margin-left:6px; min-width:1.3em; padding:0 5px; border-radius:999px; background:var(--danger); color:var(--surface); font-size:.68rem; line-height:1.4; text-align:center}
+.settings{display:grid; gap:10px; max-width:640px}
 
-食費 / 外食 / 日用品 / 衣類 / 趣味 / ゲーム / 本 / サブスク / 固定費 / 貯金類 / 交通 / 医療 / その他
-(自由に入力することもできます)
+/* グラフ(円グラフ)。色はパレットのスロット1〜6を大きい順に。支払方法は固定色 */
+.chartview{max-width:760px}
+.seg{display:inline-flex; gap:2px; padding:2px; margin-bottom:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
+.seg button{border:0; background:transparent; min-height:30px; padding:1px 12px; border-radius:6px; font-size:.82rem; color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-fg)}
+.k0{--seg:var(--other); --on:#fff}
+.k1{--seg:var(--s1); --on:#fff}
+.k2{--seg:var(--s2); --on:#fff}
+.k3{--seg:var(--s3); --on:#fff}
+.k4{--seg:var(--s4); --on:var(--on4)}
+.k5{--seg:var(--s5); --on:#fff}
+.k6{--seg:var(--s6); --on:#fff}
+.km1{--seg:var(--pm1-fill); --on:#fff}
+.km2{--seg:var(--pm2-fill); --on:#fff}
+.km3{--seg:var(--pm3-fill); --on:#fff}
+.km4{--seg:var(--pm4-fill); --on:var(--on4)}
+.km5{--seg:var(--pm5-fill); --on:#fff}
+.km6{--seg:var(--pm6-fill); --on:#fff}
+.km7{--seg:var(--pm7-fill); --on:#fff}
+.pie-wrap{display:flex; flex-wrap:wrap; align-items:center; gap:12px 28px}
+.pie{width:200px; height:200px; flex:none; max-width:100%}
+.slice{fill:var(--seg); stroke:var(--surface); stroke-width:2; transition:opacity .15s}
+.pie:hover .slice:not(:hover), .pie:focus-within .slice:not(:focus){opacity:.55}
+.slice:focus{outline:none; stroke:var(--fg)}
+.slice-label{fill:var(--on); font-family:var(--font-num); font-size:11px; text-anchor:middle; dominant-baseline:middle; pointer-events:none}
+.legend{list-style:none; margin:0; padding:0; flex:1 1 220px; min-width:0; display:grid; gap:6px}
+.legend li{display:grid; grid-template-columns:10px minmax(0,1fr) auto 3.9em; gap:0 8px; align-items:center; font-size:.85rem}
+.sw{width:10px; height:10px; border-radius:2px; background:var(--seg)}
+.legend .nm{overflow-wrap:anywhere}
+.legend .v,.legend .p{font-family:var(--font-num); text-align:right; white-space:nowrap}
+.legend .p{color:var(--muted); font-size:.8rem}
+.stackbar{display:flex; gap:2px; height:22px; margin-bottom:10px}
+.stackbar i{display:block; min-width:4px; border-radius:3px; background:var(--seg)}
+.tv{margin-top:12px; font-size:.82rem}
+.tv summary{cursor:pointer; color:var(--muted); min-height:28px; display:flex; align-items:center}
+.wrapx{overflow-x:auto}
+.tv table{width:100%; border-collapse:collapse; margin-top:4px}
+.tv th,.tv td{text-align:left; padding:3px 6px; border-top:1px solid var(--line); white-space:nowrap}
+.tv th{font-weight:500; color:var(--muted)}
+.tv .n{text-align:right; font-family:var(--font-num)}
 
-## 公開のしかた(GitHub Pages)
+/* 内訳の折り畳み(支払方法別・カテゴリ別・月別) */
+.subfold > summary.sub-h{cursor:pointer; list-style:none; min-height:30px; align-items:center}
+.subfold > summary::-webkit-details-marker{display:none}
+.subfold > summary.sub-h::after{content:""; flex:none; width:7px; height:7px; margin:0 4px 3px 4px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg)}
+.subfold[open] > summary.sub-h::after{transform:rotate(-135deg); margin-bottom:-3px}
+.subfold > summary.sub-h > span:first-child{flex:1; min-width:0}
+.subfold:first-of-type > summary.sub-h{margin-top:0; border-top:0; padding-top:0}
 
-1. GitHub で新しいリポジトリを作ります(Public)
-2. `index.html` を、リポジトリの一番上(ルート)にアップロードします。ファイル名は `index.html` のままにします
-3. Settings → Pages で、Source を「Deploy from a branch」、Branch を `main`、フォルダを `/ (root)` にして保存します
-4. 数分後に `https://ユーザー名.github.io/リポジトリ名/` で開けます
+/* 資金メモ */
+/* 資産運用 */
+#rcBody,#flBody{container-type:inline-size; margin-top:10px}
+.alegend{display:flex; flex-wrap:wrap; gap:2px 14px; font-size:.72rem; color:var(--muted); margin:2px 0 6px}
+.alegend i{display:inline-block; width:16px; height:0; border-top:2.5px solid; vertical-align:middle; margin-right:5px}
+.alegend i.dash{border-top-style:dashed}
+.alegend i.dot{width:8px; height:8px; border:0; border-radius:50%; background:var(--s2)}
+.achart{position:relative}
+.achart svg{display:block; width:100%; height:auto; touch-action:pan-y}
+.achart text{font-family:var(--font-num); font-size:9.5px; fill:var(--muted)}
+.achart .grid{stroke:var(--line); stroke-width:1}
+.achart .tip{position:absolute; top:0; pointer-events:none; background:var(--surface); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:5px 8px; font-size:.72rem; line-height:1.45; box-shadow:0 2px 8px rgba(0,0,0,.14); white-space:nowrap; z-index:2}
+.achart .tip b{display:block; font-weight:700}
+.plk{border-top:1px solid var(--line); padding-top:10px; margin-top:10px}
+.plk h3{margin:0 0 6px; font-size:.9rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.atbl{width:100%; table-layout:fixed; border-collapse:collapse; font-size:.72rem; font-family:var(--font-num)}
+.atbl th:first-child,.atbl td:first-child{width:24%}
+.atbl tr.dr{cursor:pointer}
+.atbl tr.dr.on td{background:var(--surface-2)}
+.atbl tr.gr{display:none}
+.atbl tr.gr td{text-align:left; border-top:0; padding:0 3px 5px; color:var(--muted); background:var(--surface-2)}
+.atbl tr.dr.on + tr.gr{display:table-row}
+@media (hover:hover){.atbl tr.dr:hover + tr.gr{display:table-row}.atbl tr.dr:hover td{background:var(--surface-2)}}
+.assetview .panel{position:relative}
+.info{display:inline-block; font-size:.85rem; font-weight:400; color:var(--muted); cursor:help; padding:0 4px; border-radius:6px}
+.info:hover,.info:focus-visible,.info.on{color:var(--accent)}
+.info .ibox{display:none; position:absolute; left:12px; right:12px; top:2.6rem; z-index:6; padding:8px 10px; background:var(--surface); color:var(--fg); border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.18); font-size:.76rem; line-height:1.55; font-weight:400; text-align:left; white-space:normal; cursor:default}
+.info:hover .ibox,.info:focus .ibox,.info.on .ibox{display:block}
+.atbl th,.atbl td{padding:4px 3px; text-align:right; border-top:1px solid var(--line); white-space:nowrap}
+.atbl th{white-space:normal; font-family:var(--font-body); font-weight:500; color:var(--muted); font-size:.7rem}
+.atbl th:first-child,.atbl td:first-child{text-align:left}
+.assetview .fields{grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:6px 8px}
+.assetview .fields .full{grid-column:1 / -1}
+.assetview .plk .fields{grid-template-columns:repeat(3,minmax(0,1fr))}
+.assetview .plk .fields.two{grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:6px}
+.assetview .plk input[type=text]{padding-left:6px; padding-right:6px}
+.assetview .plk{padding-top:6px; margin-top:6px}
+.assetview .plk h3{margin-bottom:4px}
+.assetview .mform .actions{margin-top:6px}
+.assetview .seg{flex-wrap:wrap}
+.assetview .seg button{padding:1px 9px}
+.moneyview{max-width:760px; display:grid; gap:10px}
+#acBody,#diBody,#inBody{container-type:inline-size; margin-top:10px}
+.mhero .lbl{font-size:.74rem; color:var(--muted)}
+.mhero .big{display:block}
+.mtop{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:10px}
+.mcell{min-width:0}
+.mcell .lbl{display:block; font-size:.72rem; color:var(--muted)}
+.mcell .big{display:block; white-space:nowrap; font-size:clamp(1.15rem,5.6vw,2rem)}
+.mcell .big.muted{color:var(--muted)}
+.mcell .sub{display:block; font-size:.68rem; color:var(--muted); overflow-wrap:anywhere}
+.mtop .mcell + .mcell{border-left:1px solid var(--line); padding-left:10px}
+.msum3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 10px; margin:10px 0 0; padding-top:10px; border-top:1px solid var(--line)}
+.msum3 div{min-width:0}
+.msum3 dt{font-size:.7rem; color:var(--muted)}
+.msum3 dd{margin:0; font-family:var(--font-num); font-size:.92rem; white-space:nowrap}
+.msum3 .hl dd{font-weight:500}
+.mform{margin:0 0 4px; padding:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
+.mform[hidden]{display:none}
+.tg{flex:none}
+form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
+.moneyview .fold > summary h2{font-size:.92rem}
+.moneyview .secbody .mform{margin-top:0}
+.ck{display:inline-flex; align-items:center; margin-right:6px; vertical-align:-2px}
+.ck input{width:16px; height:16px; margin:0; accent-color:var(--accent); cursor:pointer}
+.frow.off .r-name,.frow.off .r-amt{color:var(--muted)}
+.frow.off .r-amt{text-decoration:line-through; text-decoration-color:var(--line)}
+.dchip{display:inline-block; font-family:var(--font-num); font-size:.7rem; line-height:1.5; padding:0 6px; margin-right:6px; border-radius:4px; background:var(--accent-soft); color:var(--accent); white-space:nowrap; vertical-align:1px}
+.dchip.soon{background:var(--accent); color:var(--accent-fg)}
+.mdim{color:var(--muted)}
+.neg{color:var(--danger)}
+.moneyview .frow .r-sub:not(:empty)::before{content:none}
 
-更新するときは、同じ名前の `index.html` を上書きアップロードします。ブラウザに保存されたデータは消えません。
+/* 固定費の期間 */
+.mper{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 6px; font-size:.76rem; color:var(--muted)}
+.mper .pt{flex:1 1 12rem; min-width:0}
+.perform{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 8px}
+.perform input{width:auto; flex:1 1 9rem}
+.m-per{white-space:nowrap}
 
-### スマホのホーム画面に追加する
-- iPhone: Safari で開き、共有ボタンから「ホーム画面に追加」を選びます
-- Android: Chrome のメニューから「ホーム画面に追加」を選びます
+/* 固定費の未払分 */
+.fxsum{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 10px; margin:0 0 10px; padding:8px 10px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
+.fxsum div{min-width:0}
+.fxsum dt{font-size:.7rem; color:var(--muted)}
+.fxsum dd{margin:0; font-family:var(--font-num); font-size:.92rem; white-space:nowrap}
+.fxsum .unpaid dd{font-size:1.05rem; font-weight:500}
+.fxsum .unpaid.zero dd{color:var(--muted); font-weight:400}
+.fxsum .prior{grid-column:1/-1; font-size:.76rem; color:var(--muted); margin:0}
+.unpaid-amt{white-space:nowrap}
 
-## Googleドライブで同期する
+/* 固定費 */
+.fixedview{max-width:760px; display:grid; gap:10px}
+#fxBody{container-type:inline-size}
+.yh{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin:14px 0 6px; font-family:var(--font-display); font-size:.9rem}
+.yh:first-child{margin-top:0}
+.yh small{font-family:var(--font-body); font-weight:400; font-size:.74rem; color:var(--muted); text-align:right}
+.mfold{border:1px solid var(--line); border-radius:8px; margin:0 0 6px; background:var(--surface)}
+.mfold > summary,.yfold > summary{display:flex; align-items:center; gap:8px; padding:7px 10px; cursor:pointer; list-style:none; min-height:36px}
+.mfold > summary::-webkit-details-marker,.yfold > summary::-webkit-details-marker{display:none}
+.mfold > summary::after,.yfold > summary::after{content:""; flex:none; width:7px; height:7px; margin:0 2px 3px 4px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg)}
+.mfold[open] > summary::after,.yfold[open] > summary::after{transform:rotate(-135deg); margin-bottom:-3px}
+.m-name{font-family:var(--font-display); font-weight:700; flex:none}
+.m-meta{flex:1; min-width:0; color:var(--muted); font-size:.74rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.m-total{font-family:var(--font-num); white-space:nowrap; display:flex; flex-direction:column; align-items:flex-end; line-height:1.25}
+.m-total .allow{font-family:var(--font-body); font-size:.66rem; color:var(--muted); font-weight:400}
+.mfold > .mbody,.yfold > .ybody{padding:0 10px 8px}
+.yfold{border:1px solid var(--line); border-radius:8px; margin:0 0 8px; background:var(--surface-2)}
+.yfold > summary .m-name{font-size:.95rem}
+.ybody .sub-h:first-child{margin-top:2px; border-top:0; padding-top:0}
+.ybody .mfold{background:var(--surface)}
+.frow{display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"name amt" "sub act"; gap:0 10px; align-items:center; padding:5px 0; border-top:1px solid var(--line)}
+.frow:first-child{border-top:0}
+.frow .r-meta{grid-area:sub}
+.frow .r-sub::before{content:none}
+@container (min-width:480px){
+  .frow{grid-template-columns:minmax(0,2fr) minmax(0,1.2fr) 5.4rem auto; grid-template-areas:"name sub amt act"; padding:3px 0}
+  .frow .r-sub{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.78rem; color:var(--muted)}
+}
+.frow.paid{opacity:.55}
+.frow.paid .r-name,.frow.paid .r-amt{color:var(--muted)}
+.paid-tag{display:inline-block; font-size:.66rem; padding:0 6px; margin-left:6px; border-radius:4px; border:1px solid var(--line); color:var(--muted); vertical-align:1px}
+.ytable{width:100%; border-collapse:collapse; font-size:.82rem}
+.ytable th,.ytable td{text-align:left; padding:3px 4px; border-top:1px solid var(--line)}
+.ytable th{font-weight:500; color:var(--muted); border-top:0}
+.ytable .n{text-align:right; font-family:var(--font-num); white-space:nowrap}
+.delta{white-space:nowrap}
 
-同期するデータは、購入の記録、固定費、資金メモ(口座・引落予定・給与)、資産運用の記録と設定です。
-データは、Googleドライブ内のこのアプリ専用の隠しフォルダ(`drive.appdata`)に、`kaimono-shukei.json` として保存されます。ドライブの画面には出ず、他のアプリからは見えません。
+/* 同期とバックアップ(設定画面) */
+.hint{color:var(--muted); font-size:.78rem; margin:0 0 10px}
+.status{font-size:.8rem; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:5px 9px; margin-bottom:10px}
+.group{display:grid; gap:6px; margin-bottom:12px}
+.group h3{font-size:.82rem; margin:0; font-weight:700}
+.group .status{margin-bottom:0}
+.radios{display:flex; flex-wrap:wrap; gap:2px 14px; font-size:.82rem}
+.radios label{display:inline-flex; align-items:center; gap:6px; min-height:26px}
+.btns{display:flex; flex-wrap:wrap; gap:6px}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+#file:focus-visible + label{outline:2px solid var(--accent); outline-offset:2px}
+.import{border:1px solid var(--line); background:var(--surface-2); border-radius:6px; padding:10px; margin-top:4px}
+.import p{margin:0 0 8px; font-size:.82rem; overflow-wrap:anywhere}
+.setup{border:1px solid var(--line); border-radius:6px; padding:2px 10px 10px; background:var(--surface-2)}
+.setup summary{cursor:pointer; font-size:.82rem; min-height:30px; display:flex; align-items:center}
+.setup ol{margin:4px 0 10px; padding-left:1.3em; font-size:.78rem; color:var(--muted)}
+.setup li{margin-bottom:3px}
+.setup code{font-family:var(--font-num); font-size:.74rem; color:var(--fg); overflow-wrap:anywhere}
+.setup .btns{margin-top:6px}
 
-### 初めて設定するとき(1回だけ)
-1. [Google Cloud Console](https://console.cloud.google.com/) でプロジェクトを作ります
-2. 「API とサービス」→「ライブラリ」で **Google Drive API** を有効にします
-3. 「OAuth 同意画面」で、ユーザーの種類を「外部」にして、アプリ名とメールアドレスを入力します
-4. 「データアクセス」(スコープ)に `https://www.googleapis.com/auth/drive.appdata` を追加します
-5. 「テストユーザー」に自分の Google アカウントを追加します
-6. 「認証情報」→「OAuth クライアント ID」を、種類「ウェブ アプリケーション」で作ります
-7. 「承認済みの JavaScript 生成元」に `https://ユーザー名.github.io` を追加します(`/` やリポジトリ名は付けません)
-8. 表示された「クライアント ID」をコピーします
+.banner{border-radius:6px; padding:7px 10px; margin-bottom:10px; font-size:.82rem; display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; background:var(--warn-bg); color:var(--warn-fg)}
+.banner span{flex:1 1 220px; min-width:0}
+.banner button{background:transparent; color:inherit; border-color:currentColor}
 
-同じ Google Cloud プロジェクトとクライアント ID は、同じ `https://ユーザー名.github.io` で公開している別のアプリでも使えます。
+@media (prefers-reduced-motion:no-preference){
+  .track i{transition:width .25s ease}
+}
+</style>
+</head>
+<body>
 
-### 各端末で
-1. アプリの「設定」タブを開き、「同期」の欄にクライアント ID を貼り付けて保存します
-2. 「同期する」を押し、Google のログインと許可の画面で承認します
-3. 2台目以降も同じ手順で行います
+<div class="app">
+  <header class="top">
+    <h1>Spendino</h1>
+    <button type="button" class="gear" id="tabSettings" aria-label="設定" title="設定"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="badge" id="tabBadge" hidden></span></button>
+  </header>
 
-### 使い方
-- ログイン後に記録を変更すると、1〜2秒後に自動で同期されます
-- アプリを開き直したときは、最初に「同期する」を1回押します
-- 同じ記録を両方の端末で編集したときは、あとから編集したほうが残ります
-- 削除も他の端末に反映されます
-- ログインの状態は、ページを開き直すと切れます。アクセスのための情報は、ブラウザのメモリ上だけに持ち、保存しません
-- 同意画面が「テスト」のままだと、ログインが頻繁に求められます。「アプリを公開」にすると減ります
+  <div id="banners"></div>
 
-## バックアップと復元
+  <section class="panel" id="period" aria-label="期間・支払方法・合計">
+    <div class="presets" id="presets" role="group" aria-label="期間のえらび方"></div>
+    <div class="range">
+      <input type="date" id="from" aria-label="開始日">
+      <span class="sep" aria-hidden="true">〜</span>
+      <input type="date" id="to" aria-label="終了日">
+    </div>
+    <div class="chips" id="methodChips" role="group" aria-label="支払方法で絞り込む(複数えらべます)"></div>
+    <div class="summary">
+      <div class="total">
+        <span class="lbl">合計</span>
+        <span class="big" id="sumTotal">¥0</span>
+        <span class="range-text" id="rangeText"></span>
+      </div>
+      <dl class="stats">
+        <div><dt>件数</dt><dd id="sCount">0件</dd></div>
+        <div><dt>1日あたり</dt><dd id="sAvg">—</dd></div>
+        <div class="max"><dt>最高</dt><dd id="sMax">—</dd><dd class="sub" id="sMaxName"></dd></div>
+      </dl>
+    </div>
+  </section>
 
-「設定」タブから行います。
+  <main class="layout" id="viewRecords">
+    <form class="panel" id="form" novalidate autocomplete="off" aria-labelledby="formTitle">
+      <h2><span id="formTitle">購入品・支払済サービスを追加</span><button type="button" class="small tg" id="fToggle" aria-expanded="false" aria-controls="fBody">＋ 追加</button></h2>
+      <div class="fbody" id="fBody" hidden>
+      <div class="fields">
+        <label class="f">日付<input type="date" id="fDate"></label>
+        <label class="f">金額(円)<input type="text" id="fAmount" inputmode="numeric" placeholder="1280"></label>
+        <label class="f full">品名<input type="text" id="fName" list="fxPick" maxlength="200" placeholder="コーヒー豆"></label>
+        <label class="f">支払方法<select id="fMethod"></select></label>
+        <label class="f">カテゴリ<input type="text" id="fCat" list="cats" maxlength="50" placeholder="食費"></label>
+        <label class="f full">メモ(任意)<input type="text" id="fMemo" maxlength="200" placeholder="お店の名前など"></label>
+      </div>
+      <datalist id="cats"></datalist>
+      <datalist id="fxPick"></datalist>
+      <div class="actions">
+        <button type="submit" class="primary" id="fSubmit">追加</button>
+        <button type="button" id="fCancel" hidden>編集をやめる</button>
+      </div>
+      <p class="msg" id="formMsg" role="status" aria-live="polite"></p>
+      </div>
+    </form>
 
-### 書き出し
-- **CSV**: 購入の記録を、Excel などで開ける形式で書き出します(「すべて」か「いまの期間・絞り込み」を選べます)
-  - 見出し: `日付,品名,金額,支払方法,カテゴリ,メモ,ID`
-- **JSON**: 購入の記録、固定費、資金メモ(口座・引落予定・給与)、資産運用の記録と設定を、まとめて書き出します(完全なバックアップ用)
-- **固定費のCSV**: 「固定費」タブの下にあるボタンで書き出します
+    <details class="panel fold" id="breakdown" open>
+      <summary><h2 id="h-break">内訳</h2></summary>
+      <div id="breakBody"></div>
+    </details>
 
-### 読み込み
-- CSV または JSON を選ぶと、内容を確認してから取り込めます
-- 「いまの記録に追加」では、同じ ID または同じ内容の記録は取り込みません
-- 「すべて置き換え」は、確認のため2回押す必要があります
-- 固定費・資金メモ・資産運用の復元には JSON を使います(これらの CSV の取り込みはありません)
-- 文字コードは、UTF-8 と Shift_JIS に対応しています
+    <section class="panel" id="listPanel" aria-labelledby="h-list">
+      <h2 id="h-list">購入一覧 <small id="listCount"></small></h2>
+      <div id="listBody"></div>
+    </section>
 
-## データの保存場所とプライバシー
+  </main>
 
-- 記録はブラウザの localStorage(その端末のブラウザの中)に保存されます
-- 同期を使わなければ、データは端末の外に出ません
-- 同期を使う場合のデータの送信先は、自分の Google ドライブだけです
-- ブラウザの閲覧データを消すと、その端末の記録は消えます。同期かバックアップを取っておくと安心です
-- 初めて開くと、「例」の付いたサンプルが入っています。「サンプルを消す」で消せます(書き出しには含まれません)
+  <main class="fixedview" id="viewFixed" hidden>
+    <form class="panel" id="fxForm" novalidate autocomplete="off" aria-labelledby="fxTitle">
+      <h2><span id="fxTitle">固定費を追加</span><button type="button" class="small tg" id="xToggle" aria-expanded="false" aria-controls="xBody">＋ 追加</button></h2>
+      <div class="fbody" id="xBody" hidden>
+      <div class="fields">
+        <label class="f">月<input type="month" id="xMonth" placeholder="2026-10"></label>
+        <label class="f">金額(円)<input type="text" id="xAmount" inputmode="numeric" placeholder="7800"></label>
+        <label class="f full">項目<input type="text" id="xName" list="fxNames" maxlength="200" placeholder="家賃・電気・スマホ代など"></label>
+        <label class="f">支払方法<select id="xMethod"></select></label>
+        <label class="f">メモ(任意)<input type="text" id="xMemo" maxlength="200" placeholder="契約先など"></label>
+      </div>
+      <datalist id="fxNames"></datalist>
+      <div class="actions">
+        <button type="submit" class="primary" id="xSubmit">追加</button>
+        <button type="button" id="xCancel" hidden>編集をやめる</button>
+        <button type="button" id="xCopy" title="選んだ月より前の、直近の月の項目をコピーします">前の月からコピー</button>
+      </div>
+      <p class="msg" id="xMsg" role="status" aria-live="polite"></p>
+      </div>
+    </form>
+    <section class="panel" aria-labelledby="h-fx">
+      <h2 id="h-fx">月ごとの固定費 <small id="fxCount"></small></h2>
+      <dl class="fxsum" id="fxSummary" hidden></dl>
+      <div id="fxBody"></div>
+      <div class="actions"><button type="button" id="btnFixedCsv" class="small">固定費をCSVで書き出す</button></div>
+      <p class="note">ここの金額は「記録」や「グラフ」の集計には含まれません。JSONバックアップとGoogleドライブ同期には含まれます。</p>
+    </section>
+  </main>
 
-## こんなときは
+  <main class="chartview" id="viewChart" hidden>
+    <section class="panel" aria-labelledby="h-chart">
+      <h2 id="h-chart">出費の割合 <small id="chartScope"></small></h2>
+      <div class="seg" role="group" aria-label="グラフの分け方">
+        <button type="button" id="modeCat" aria-pressed="true">カテゴリ別</button>
+        <button type="button" id="modeMethod" aria-pressed="false">支払方法別</button>
+      </div>
+      <div id="chartBody"></div>
+    </section>
+  </main>
 
-| 症状 | 確認すること |
-|---|---|
-| 公開した URL が 404 になる | `index.html` がリポジトリのルートにあるか、Pages の Branch が `main` / `/ (root)` か、リポジトリが Public か |
-| 同期の画面で「アクセスできません」 | Google Drive API が有効か、スコープ `drive.appdata` を追加したか |
-| ログインで承認の画面が出ない | JavaScript 生成元が `https://ユーザー名.github.io` と一致しているか、テストユーザーに自分のアカウントを追加したか |
-| 他の端末の記録が反映されない | 両方の端末で最新の `index.html` を使っているか、「同期する」を押したか |
-| アイコンが変わらない | ブラウザを開き直す。ホーム画面のアイコンは一度削除して追加し直す |
+  <main class="moneyview" id="viewMoney" hidden>
+    <section class="panel" aria-labelledby="h-msum">
+      <h2 id="h-msum">ざっくり残高</h2>
+      <div id="mSum"></div>
+      <p class="note" id="mNote"></p>
+    </section>
 
-## 技術メモ
+    <details class="panel fold" id="acFold">
+      <summary><h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span><button type="button" class="small tg" data-form="ac" id="acToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
+      <form id="acForm" class="mform" novalidate autocomplete="off" hidden>
+        <div class="fields">
+          <label class="f full">口座名<input type="text" id="aName" maxlength="100" placeholder="○○銀行(普通)"></label>
+          <label class="f">残高(円)<input type="text" id="aBal" inputmode="numeric" placeholder="350000"></label>
+          <label class="f">メモ(任意)<input type="text" id="aMemo" maxlength="200" placeholder="生活費用など"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary" id="aSubmit">口座を追加</button><button type="button" id="aCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="aMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="acBody"></div>
+      </div>
+    </details>
 
-- 1ファイル(HTML / CSS / JavaScript)で、外部のライブラリは使っていません
-- 外部から読み込むのは、Google Fonts と、Google のログイン用スクリプト(同期を使うときだけ)です
-- ログイン: Google Identity Services(トークン方式)、Google Drive API v3(`drive.appdata` のみ)
-- 同期の合体ルール: 同じ ID は更新時刻が新しいほうが残り、削除は「削除の印」で伝えます(180日で整理)
-- 一覧の表示は、新しい順に300件までです(合計と内訳はすべての記録を含みます)
+    <details class="panel fold" open>
+      <summary><h2 id="h-di"><span>カード引落予定 <small id="diCount"></small></span><button type="button" class="small tg" data-form="di" id="diToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
+      <form id="diForm" class="mform" novalidate autocomplete="off" hidden>
+        <div class="fields">
+          <label class="f">引落日<input type="date" id="dDate"></label>
+          <label class="f">金額(円)<input type="text" id="dAmount" inputmode="numeric" placeholder="85000"></label>
+          <label class="f full">カード名<input type="text" id="dCard" list="dCards" maxlength="100" placeholder="○○カード"></label>
+          <label class="f">引落口座<select id="dAcct"></select></label>
+          <label class="f">メモ(任意)<input type="text" id="dMemo" maxlength="200" placeholder="10月利用分など"></label>
+        </div>
+        <datalist id="dCards"></datalist>
+        <div class="actions"><button type="submit" class="primary" id="dSubmit">引落予定を追加</button><button type="button" id="dCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="dMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="diBody"></div>
+      </div>
+    </details>
+
+    <details class="panel fold" open>
+      <summary><h2 id="h-in"><span>給与額 <small id="inCount"></small></span><button type="button" class="small tg" data-form="in" id="inToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
+      <form id="inForm" class="mform" novalidate autocomplete="off" hidden>
+        <div class="fields">
+          <label class="f">月分<input type="month" id="iMonth" placeholder="2026-10"></label>
+          <label class="f">金額(円)<input type="text" id="iAmount" inputmode="numeric" placeholder="280000"></label>
+          <label class="f">項目<input type="text" id="iName" maxlength="100" placeholder="給与(賞与・手当など)"></label>
+          <label class="f">メモ(任意)<input type="text" id="iMemo" maxlength="200"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary" id="iSubmit">給与を追加</button><button type="button" id="iCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="iMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="inBody"></div>
+      </div>
+    </details>
+  </main>
+
+  <main class="moneyview assetview" id="viewAssets" hidden>
+    <section class="panel" aria-labelledby="h-asum">
+      <h2 id="h-asum">資産のイメージ <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">元本は積み立てた額、運用益は評価額から元本を引いた額です。試算は、想定年利で月ごとに複利計算した見込みで、将来を保証するものではありません。銀行預金は試算せず、最新の記録の金額のまま合計に足します。</span></span></h2>
+      <div id="asSum"></div>
+    </section>
+
+    <details class="panel fold" id="plFold">
+      <summary><h2 id="h-pl"><span>試算の設定 <small id="plCount"></small> <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">元手は「開始月」の時点の金額です。積立は開始月の翌月から数えます。投資期間(開始月〜終了月)は手動で指定します。</span></span></span></h2></summary>
+      <div class="secbody">
+      <form id="plForm" novalidate autocomplete="off">
+        <div id="plFields"></div>
+        <div class="actions"><button type="submit" class="primary">保存</button></div>
+        <p class="msg" id="plMsg" role="status" aria-live="polite"></p>
+      </form>
+      </div>
+    </details>
+
+    <details class="panel fold" open>
+      <summary><h2 id="h-rc"><span>月次の記録 <small id="rcCount"></small></span><button type="button" class="small tg" data-form="rc" id="rcToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
+      <form id="rcForm" class="mform" novalidate autocomplete="off" hidden>
+        <div class="fields">
+          <label class="f">種類<select id="rKind"><option value="nisa">つみたてNISA</option><option value="ideco">iDeCo</option><option value="cash">銀行預金</option></select></label>
+          <label class="f">月<input type="month" id="rMonth" placeholder="2026-10"></label>
+          <label class="f">元本(円)<input type="text" id="rPrin" inputmode="numeric" placeholder="積み立てた累計"></label>
+          <label class="f">評価額(円)<input type="text" id="rVal" inputmode="numeric" placeholder="いまの金額"></label>
+          <label class="f full">メモ(任意)<input type="text" id="rMemo" maxlength="200"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary" id="rSubmit">記録する</button><button type="button" id="rCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="rMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="rcBody"></div>
+      </div>
+    </details>
+
+    <details class="panel fold" open>
+      <summary><h2 id="h-fl"><span>NISAの追加投資・取り崩し <small id="flCount"></small> <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">試算の設定の期間内の分だけ、つみたてNISAの試算に反映します。取り崩しでは、元本も同じ割合で減らします。</span></span></span><button type="button" class="small tg" data-form="fl" id="flToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
+      <form id="flForm" class="mform" novalidate autocomplete="off" hidden>
+        <div class="fields">
+          <label class="f">月<input type="month" id="wMonth" placeholder="2026-10"></label>
+          <label class="f">種別<select id="wType"><option value="add">追加投資</option><option value="out">取り崩し</option></select></label>
+          <label class="f">金額(円)<input type="text" id="wAmt" inputmode="numeric" placeholder="500000"></label>
+          <label class="f">メモ(任意)<input type="text" id="wMemo" maxlength="200"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary" id="wSubmit">追加する</button><button type="button" id="wCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="wMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="flBody"></div>
+      </div>
+    </details>
+
+    <section class="panel" aria-labelledby="h-achart">
+      <h2 id="h-achart">推移と試算</h2>
+      <div class="seg" id="asKinds" role="group" aria-label="表示する資産"></div>
+      <div class="alegend" aria-hidden="true"><span><i style="border-color:var(--s1)"></i>評価額(試算)</span><span><i class="dash" style="border-color:var(--other)"></i>元本(試算)</span><span><i class="dot"></i>評価額(記録)</span></div>
+      <div id="asChart" class="achart"></div>
+      <details class="mfold" id="asTbl" open style="margin-top:8px"><summary><span class="m-name">推移表</span><span class="m-meta">年末ごと · 行にタッチで運用益</span></summary><div class="mbody" style="overflow-x:auto"><table class="atbl"><thead><tr><th>年月</th><th>元本(円)</th><th>評価額(円)</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
+    </section>
+  </main>
+
+  <main class="settings" id="viewSettings" hidden>
+    <section class="panel" aria-labelledby="h-sync">
+      <h2 id="h-sync">Googleドライブで同期</h2>
+      <p class="hint">記録は、いま使っているブラウザに自動で保存されます。Googleドライブと同期すると、スマホとPCで同じ記録を使えます。</p>
+      <div class="group">
+        <div class="status" id="syncStatus"></div>
+        <div class="btns">
+          <button type="button" class="primary" id="btnSync">同期する</button>
+          <button type="button" id="btnDisconnect" hidden>連携を解除</button>
+        </div>
+        <details id="syncDetails" class="setup">
+          <summary>初回の設定(クライアントID)</summary>
+          <ol>
+            <li>Google Cloud Console で新しいプロジェクトを作ります。</li>
+            <li>「APIとサービス」→「ライブラリ」で <b>Google Drive API</b> を有効にします。</li>
+            <li>OAuth同意画面(Google Auth Platform)を、対象「外部」で作り、テストユーザーに自分のGoogleアカウントを追加します。データアクセスに <code>drive.appdata</code> を追加します。</li>
+            <li>「認証情報」で「OAuthクライアントID」(ウェブアプリケーション)を作り、承認済みのJavaScript生成元に <code id="originText"></code> を入れます。</li>
+            <li>できたクライアントIDを下の欄に貼って保存し、「同期する」を押します。</li>
+          </ol>
+          <label class="f">クライアントID<input type="text" id="clientIdInput" placeholder="…apps.googleusercontent.com" autocomplete="off" spellcheck="false"></label>
+          <div class="btns"><button type="button" id="btnSaveClient">保存</button></div>
+        </details>
+        <p class="msg" id="syncMsg" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-payday">
+      <h2 id="h-payday">給料日と集計期間</h2>
+      <p class="hint">毎月の給料日(土日・祝日のときは直前の平日に前倒し)から、次の給料日の前日までを「1か月分」として、固定費と記録をひもづけます。空欄にすると、1日〜月末の暦の月になります。祝日は、このアプリの中で計算しています(通信は不要です)。</p>
+      <div class="fields">
+        <label class="f">給料日の基準日(1〜31)<input type="text" id="paydayInput" inputmode="numeric" maxlength="2" placeholder="25"></label>
+      </div>
+      <div class="status" id="paydayStatus"></div>
+      <p class="hint" style="margin-top:8px">月末払いは 31 と入れます。この設定は、この端末のブラウザに保存されます(同期はされません)。ほかの端末でも入れてください。</p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-backup">
+      <h2 id="h-backup">バックアップ</h2>
+      <div class="status" id="backupStatus"></div>
+
+      <div class="group">
+        <h3>CSVで書き出す(Excelで開けます)</h3>
+        <div class="radios" role="radiogroup" aria-label="CSVの範囲">
+          <label><input type="radio" name="scope" value="all" checked> すべての記録</label>
+          <label><input type="radio" name="scope" value="period"> いま表示している条件だけ</label>
+        </div>
+        <div class="btns"><button type="button" id="btnCsv">CSVを書き出す</button></div>
+      </div>
+
+      <div class="group">
+        <h3>JSONで書き出す(すべての記録)</h3>
+        <div class="btns"><button type="button" id="btnJson">JSONを書き出す</button></div>
+      </div>
+
+      <div class="group">
+        <h3>ファイルから読み込む</h3>
+        <div class="btns">
+          <input type="file" id="file" class="sr" accept=".csv,.json,text/csv,application/json">
+          <label for="file" class="btn">CSV / JSON を選ぶ</label>
+        </div>
+        <div id="importBox"></div>
+      </div>
+
+      <p class="msg" id="backupMsg" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <nav class="btabs" aria-label="画面の切り替え">
+    <button type="button" id="tabRecords" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
+    <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
+    <button type="button" id="tabChart"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
+    <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">資金</span></button>
+    <button type="button" id="tabAssets"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 18.5l5.5-6 4 3.5 7-8.5"/><path d="M15 7.5h5v5"/></svg><span class="tl">資産</span></button>
+  </nav>
+</div>
+
+<script id="core">
+const Core=(function(){
+  "use strict";
+  const pad=n=>String(n).padStart(2,"0");
+  const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+  const parts=s=>s.split("-").map(Number);
+  function addDays(s,n){const p=parts(s);return ymd(new Date(p[0],p[1]-1,p[2]+n));}
+  function daysBetween(a,b){const x=parts(a),y=parts(b);return Math.round((Date.UTC(y[0],y[1]-1,y[2])-Date.UTC(x[0],x[1]-1,x[2]))/86400000);}
+  function validDate(s){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+    const p=parts(s), d=new Date(p[0],p[1]-1,p[2]);
+    return d.getFullYear()===p[0]&&d.getMonth()===p[1]-1&&d.getDate()===p[2];
+  }
+  function normDate(v){
+    const s=String(v==null?"":v).normalize("NFKC").trim();
+    const m=s.match(/^(\d{4})[-\/.年](\d{1,2})[-\/.月](\d{1,2})日?(?:[ T].*)?$/);
+    if(!m) return null;
+    const r=m[1]+"-"+pad(+m[2])+"-"+pad(+m[3]);
+    return validDate(r)?r:null;
+  }
+  function parseAmount(v){
+    if(typeof v==="number") return Number.isFinite(v)?Math.round(v):null;
+    const s=String(v==null?"":v).normalize("NFKC").replace(/−/g,"-").replace(/[¥￥,，円\s]/g,"");
+    if(!/^-?\d+(\.\d+)?$/.test(s)) return null;
+    return Math.round(Number(s));
+  }
+  let seq=0;
+  /* 呼び名の変更。古い名前で保存された支払方法は新しい名前に読み替える */
+  const METHOD_ALIAS={"銀行引き落とし":"銀行引落"};
+  const normMethod=v=>{const t=String(v==null?"":v).trim().slice(0,50);return METHOD_ALIAS[t]||t;};
+  function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)+(seq++).toString(36);}
+
+  function makeItem(o){
+    const date=normDate(o.date);
+    const name=String(o.name==null?"":o.name).trim().slice(0,200);
+    const amount=parseAmount(o.amount);
+    if(!date||!name||amount===null) return null;
+    return {
+      id:String(o.id==null?"":o.id).trim()||newId(),
+      date:date, name:name, amount:amount,
+      method:normMethod(o.method),
+      category:String(o.category==null?"":o.category).trim().slice(0,50),
+      memo:String(o.memo==null?"":o.memo).trim().slice(0,200),
+      createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),
+      updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)
+    };
+  }
+
+  /* 日本の祝日(内蔵の計算。通信は不要)。国民の祝日に関する法律にもとづく。1990〜2099年に対応 */
+  const dowOf=(y,m,d)=>new Date(y,m-1,d).getDay();
+  const nthMonday=(y,m,n)=>1+((1-dowOf(y,m,1)+7)%7)+(n-1)*7;
+  const equinox=(y,m)=>Math.floor((m===3?20.8431:23.2488)+0.242194*(y-1980)-Math.floor((y-1980)/4));
+  function baseHoliday(y,m,d){
+    if(y<1990||y>2099) return false;
+    switch(m){
+      case 1: return d===1||(y>=2000&&d===nthMonday(y,1,2));
+      case 2: return d===11||(y>=2020&&d===23);
+      case 3: return d===equinox(y,3);
+      case 4: return d===29;
+      case 5: return d===3||d===4||d===5||(y===2019&&d===1);
+      case 7:
+        if(y===2020) return d===23||d===24;
+        if(y===2021) return d===22||d===23;
+        return y>=2003&&d===nthMonday(y,7,3);
+      case 8: return y>=2016&&d===(y===2020?10:y===2021?8:11);
+      case 9: return (y>=2003&&d===nthMonday(y,9,3))||d===equinox(y,9);
+      case 10:
+        if(y===2019&&d===22) return true;
+        if(y===2020||y===2021) return false;
+        return y>=2000&&d===nthMonday(y,10,2);
+      case 11: return d===3||d===23;
+      case 12: return y<=2018&&d===23;
+    }
+    return false;
+  }
+  function isHoliday(y,m,d){
+    if(baseHoliday(y,m,d)) return true;
+    const dt=new Date(y,m-1,d), wd=dt.getDay();
+    if(y>=2007&&wd!==0){
+      // 日曜が祝日のとき、そのあとの祝日でない最初の日が振替休日
+      let j=new Date(y,m-1,d-1);
+      while(baseHoliday(j.getFullYear(),j.getMonth()+1,j.getDate())){
+        if(j.getDay()===0) return true;
+        j=new Date(j.getFullYear(),j.getMonth(),j.getDate()-1);
+      }
+    }
+    if(wd!==0){
+      // 前後が祝日にはさまれた平日は国民の休日
+      const a=new Date(y,m-1,d-1), b=new Date(y,m-1,d+1);
+      if(baseHoliday(a.getFullYear(),a.getMonth()+1,a.getDate())&&baseHoliday(b.getFullYear(),b.getMonth()+1,b.getDate())) return true;
+    }
+    return false;
+  }
+  const isOffDay=dt=>dt.getDay()===0||dt.getDay()===6||isHoliday(dt.getFullYear(),dt.getMonth()+1,dt.getDate());
+  /* 給料日。基準日(1〜31。月に無い日は月末)が土日・祝日なら、直前の平日に前倒し */
+  function payday(y,m,base){
+    let dt=new Date(y,m-1,Math.min(base,new Date(y,m,0).getDate()));
+    while(isOffDay(dt)) dt=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()-1);
+    return ymd(dt);
+  }
+  function ymAdd(ym,n){const d=new Date(Number(ym.slice(0,4)),Number(ym.slice(5,7))-1+n,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");}
+  /* 月(YYYY-MM)ごとの期間。base が 0 なら暦の月。over は月ごとの手動の期間 {ym:{from,to}} */
+  function makePeriods(base,over){
+    over=over||{};
+    const of=ym=>{
+      const o=over[ym];
+      if(o&&o.from&&o.to) return {from:o.from,to:o.to,custom:true};
+      const y=Number(ym.slice(0,4)), m=Number(ym.slice(5,7));
+      if(!base) return {from:ym+"-01",to:ymd(new Date(y,m,0))};
+      const nx=ymAdd(ym,1);
+      return {from:payday(y,m,base),to:addDays(payday(Number(nx.slice(0,4)),Number(nx.slice(5,7)),base),-1)};
+    };
+    const monthOf=date=>{
+      const ym=date.slice(0,7);
+      for(const c of [ym,ymAdd(ym,-1),ymAdd(ym,1)]){const p=of(c); if(date>=p.from&&date<=p.to) return c;}
+      return ym;
+    };
+    return {base:base||0,of:of,monthOf:monthOf};
+  }
+
+  /* 資金メモ: 給与額・銀行口座(残高)・カード引落予定 */
+  const cleanStr=(v,n)=>String(v==null?"":v).trim().slice(0,n);
+  const idOf=o=>String(o.id==null?"":o.id).trim()||newId();
+  const stampsOf=o=>({createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)});
+  function makeAccount(o){
+    const name=cleanStr(o.name,100), balance=parseAmount(o.balance);
+    if(!name||balance===null) return null;
+    return Object.assign({id:idOf(o),name:name,balance:balance,balanceAt:normDate(o.balanceAt)||ymd(new Date()),memo:cleanStr(o.memo,200),inTotal:o.inTotal!==false},stampsOf(o));
+  }
+  function makeIncome(o){
+    const month=normMonth(o.month), amount=parseAmount(o.amount);
+    if(!month||amount===null) return null;
+    return Object.assign({id:idOf(o),month:month,name:cleanStr(o.name,100)||"給与",amount:amount,memo:cleanStr(o.memo,200)},stampsOf(o));
+  }
+  function makeDebit(o){
+    const date=normDate(o.date), card=cleanStr(o.card,100), amount=parseAmount(o.amount);
+    if(!date||!card||amount===null) return null;
+    return Object.assign({id:idOf(o),date:date,card:card,amount:amount,account:cleanStr(o.account,60),memo:cleanStr(o.memo,200)},stampsOf(o));
+  }
+
+  /* 資産運用: 月次の記録(rec)・NISAの追加投資/取り崩し(flow)・試算の設定(plan) */
+  const ASSET_KINDS=["nisa","ideco","cash"], ASSET_NAMES={nisa:"つみたてNISA",ideco:"iDeCo",cash:"銀行預金"};
+  const monthNo=ym=>Number(ym.slice(0,4))*12+Number(ym.slice(5,7))-1;
+  const ymFromNo=n=>Math.floor(n/12)+"-"+String(n%12+1).padStart(2,"0");
+  function makeAsset(o){
+    const kind=cleanStr(o.kind,10), t=cleanStr(o.t,10);
+    if(ASSET_KINDS.indexOf(kind)<0) return null;
+    if(t==="rec"){
+      const month=normMonth(o.month), principal=parseAmount(o.principal), value=parseAmount(o.value);
+      if(!month||principal===null||value===null) return null;
+      return Object.assign({id:idOf(o),t:"rec",kind:kind,month:month,principal:principal,value:value,memo:cleanStr(o.memo,200)},stampsOf(o));
+    }
+    if(t==="flow"){
+      const month=normMonth(o.month), amount=parseAmount(o.amount);
+      if(!month||amount===null||amount<=0) return null;
+      return Object.assign({id:idOf(o),t:"flow",kind:kind,month:month,type:o.type==="out"?"out":"add",amount:amount,memo:cleanStr(o.memo,200)},stampsOf(o));
+    }
+    if(t==="plan"){
+      const init=parseAmount(o.init), monthly=parseAmount(o.monthly), rate=Number(String(o.rate==null||o.rate===""?0:o.rate).normalize("NFKC").replace(/[%％\s]/g,""));
+      const from=o.from?normMonth(o.from):"", to=o.to?normMonth(o.to):"";
+      if((o.from&&!from)||(o.to&&!to)||(from&&to&&to<from)) return null;
+      return Object.assign({id:"plan-"+kind,t:"plan",kind:kind,init:init===null?0:Math.max(0,init),monthly:monthly===null?0:Math.max(0,monthly),rate:Number.isFinite(rate)?Math.max(-50,Math.min(100,rate)):0,from:from,to:to},stampsOf(o));
+    }
+    return null;
+  }
+  /* 試算: 開始月に元手があり、積立は翌月から。年利は月に直して複利。NISAの追加投資・取り崩しはその月に反映(取り崩しは元本も平均で減らす) */
+  function simulate(plan,flows){
+    if(!plan||!plan.from||!plan.to||plan.to<plan.from) return [];
+    const n=Math.min(monthNo(plan.to)-monthNo(plan.from),12*80), r=Math.pow(1+(plan.rate||0)/100,1/12)-1;
+    const by={}; (flows||[]).forEach(f=>{(by[f.month]=by[f.month]||[]).push(f);});
+    let v=plan.init||0, pr=v; const rows=[];
+    for(let i=0;i<=n;i++){
+      const ym=ymAdd(plan.from,i);
+      if(i>0){v=v*(1+r)+(plan.monthly||0); pr+=plan.monthly||0;}
+      (by[ym]||[]).forEach(f=>{
+        if(f.type==="out"){const a=Math.min(f.amount,v); if(v>0) pr-=pr*(a/v); v-=a;} else {v+=f.amount; pr+=f.amount;}
+      });
+      rows.push({ym:ym,principal:Math.round(pr),value:Math.round(v),gain:Math.round(v-pr)});
+    }
+    return rows;
+  }
+  /* 種類ごとの試算を月ごとに合算。始まる前は0、終わった後は最後の値のまま */
+  function sumSeries(list){
+    const all=list.filter(x=>x.length); if(!all.length) return [];
+    const a=all.map(x=>monthNo(x[0].ym)), b=all.map(x=>monthNo(x[x.length-1].ym));
+    const lo=Math.min.apply(null,a), hi=Math.max.apply(null,b), out=[];
+    for(let m=lo;m<=hi;m++){
+      let pr=0,v=0;
+      all.forEach((x,k)=>{if(m<a[k]) return; const row=x[Math.min(m-a[k],x.length-1)]; pr+=row.principal; v+=row.value;});
+      out.push({ym:ymFromNo(m),principal:pr,value:v,gain:v-pr});
+    }
+    return out;
+  }
+  /* 月次の記録を、記録のある月ごとに合算(種類ごとに直近の記録を引き継ぐ) */
+  function actualSeries(recs){
+    if(!recs.length) return [];
+    const by={}; recs.forEach(r=>{(by[r.kind]=by[r.kind]||[]).push(r);});
+    const months=Array.from(new Set(recs.map(r=>r.month))).sort();
+    return months.map(m=>{
+      let pr=0,v=0;
+      Object.keys(by).forEach(k=>{let last=null; by[k].forEach(r=>{if(r.month<=m&&(!last||r.month>last.month)) last=r;}); if(last){pr+=last.principal;v+=last.value;}});
+      return {ym:m,principal:pr,value:v,gain:v-pr};
+    });
+  }
+  const COL_KEYS={
+    accounts:a=>[a.name,a.balance,a.memo].join("\u0001"),
+    income:i=>[i.month,i.name,i.amount,i.memo].join("\u0001"),
+    debits:d=>[d.date,d.card,d.amount,d.account,d.memo].join("\u0001"),
+    assets:a=>[a.t,a.kind,a.month||"",a.type||"",a.principal,a.value,a.amount,a.init,a.monthly,a.rate,a.from||"",a.to||"",a.memo||""].join("\u0001")
+  };
+  function mergeList(existing,incoming,keyFn){
+    const ids=new Set(existing.map(i=>i.id)), keys=new Set(existing.map(keyFn));
+    const added=[]; let dup=0;
+    incoming.forEach(x=>{
+      if(ids.has(x.id)||keys.has(keyFn(x))){dup++;return;}
+      ids.add(x.id);keys.add(keyFn(x));added.push(x);
+    });
+    return {items:existing.concat(added),added:added.length,dup:dup};
+  }
+  /* 残高の見込み: 今日以降の引落予定を、口座ごと・全体で差し引く。
+     合計に入れるのは、チェック(inTotal)した口座だけ。引落は、その口座の分と、口座が未指定の分を差し引く */
+  function moneySummary(accounts,debits,income,todayStr,monthKey){
+    const up=debits.filter(d=>d.date>=todayStr);
+    const sum=a=>a.reduce((t,x)=>t+x.amount,0);
+    const ids=new Set(accounts.map(a=>a.id));
+    const sel=accounts.filter(a=>a.inTotal!==false), selIds=new Set(sel.map(a=>a.id));
+    const byAcct={};
+    accounts.forEach(a=>{byAcct[a.id]=sum(up.filter(d=>d.account===a.id));});
+    const relevant=up.filter(d=>selIds.has(d.account)||!ids.has(d.account));
+    const total=sel.reduce((t,a)=>t+a.balance,0), relTotal=sum(relevant);
+    return {
+      total:total, selectedCount:sel.length, accountCount:accounts.length,
+      upcoming:up, upcomingAllTotal:sum(up), upcomingTotal:relTotal, byAcct:byAcct,
+      unassigned:sum(up.filter(d=>!ids.has(d.account))),
+      projected:total-relTotal,
+      incomeNow:sum(income.filter(i=>i.month===monthKey))
+    };
+  }
+
+  /* 固定費: 月ごとの項目(月は YYYY-MM) */
+  function normMonth(v){
+    const m=String(v==null?"":v).normalize("NFKC").trim().match(/^(\d{4})[-\/年.](\d{1,2})(?:[-\/月.]\d{1,2}日?|月)?$/);
+    if(!m) return null;
+    const mo=Number(m[2]); if(mo<1||mo>12) return null;
+    return m[1]+"-"+String(mo).padStart(2,"0");
+  }
+  function makeFixed(o){
+    const month=normMonth(o.month);
+    const name=String(o.name==null?"":o.name).trim().slice(0,200);
+    const amount=parseAmount(o.amount);
+    if(!month||!name||amount===null) return null;
+    return {
+      id:String(o.id==null?"":o.id).trim()||newId(),
+      month:month, name:name, amount:amount,
+      method:normMethod(o.method),
+      memo:String(o.memo==null?"":o.memo).trim().slice(0,200),
+      createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),
+      updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)
+    };
+  }
+  const fixedKey=f=>[f.month,f.name,f.amount,f.method||"",f.memo].join("\u0001");
+  function mergeFixed(existing,incoming){
+    const ids=new Set(existing.map(i=>i.id)), keys=new Set(existing.map(fixedKey));
+    const added=[]; let dup=0;
+    incoming.forEach(f=>{
+      if(ids.has(f.id)||keys.has(fixedKey(f))){dup++;return;}
+      ids.add(f.id);keys.add(fixedKey(f));added.push(f);
+    });
+    return {items:existing.concat(added),added:added.length,dup:dup};
+  }
+  /* 記録(購入一覧)に同じ月・同じ名前の支払いがあれば、その固定費は支払済。同名が複数あるときは件数ぶんだけ数える */
+  const nameKey=s=>String(s==null?"":s).normalize("NFKC").replace(/\s+/g,"").toLowerCase();
+  function matchPaid(fixed,items,per){
+    per=per||makePeriods(0);
+    const pool=new Map();
+    items.forEach(it=>{const k=per.monthOf(it.date)+"\u0001"+nameKey(it.name); pool.set(k,(pool.get(k)||0)+1);});
+    const paid=new Set();
+    fixed.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(f=>{
+      const k=f.month+"\u0001"+nameKey(f.name), n=pool.get(k)||0;
+      if(n>0){paid.add(f.id);pool.set(k,n-1);}
+    });
+    return paid;
+  }
+  function fixedToCSV(list){
+    const head=["月","項目","金額","支払方法","メモ","ID"];
+    const rows=list.slice().sort((a,b)=>a.month<b.month?-1:a.month>b.month?1:(a.createdAt||0)-(b.createdAt||0))
+      .map(f=>[f.month,safeText(f.name),f.amount,safeText(f.method),safeText(f.memo),f.id]);
+    return "﻿"+[head].concat(rows).map(r=>r.map(csvCell).join(",")).join("\r\n")+"\r\n";
+  }
+  function prevMonth(ym){const y=Number(ym.slice(0,4)), m=Number(ym.slice(5,7)); return m===1?(y-1)+"-12":y+"-"+String(m-1).padStart(2,"0");}
+  /* 年ごと→月ごとにまとめる。年は新しい順、月も新しい順。currentYm より前の年は past=true */
+  function fixedGroups(list,currentYm){
+    const byMonth=new Map();
+    list.forEach(f=>{let g=byMonth.get(f.month); if(!g){g={ym:f.month,items:[],total:0};byMonth.set(f.month,g);} g.items.push(f); g.total+=f.amount;});
+    byMonth.forEach(g=>{
+      g.items.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+      const pm=byMonth.get(prevMonth(g.ym)); g.delta=pm?g.total-pm.total:null;
+    });
+    const byYear=new Map();
+    byMonth.forEach(g=>{
+      const y=g.ym.slice(0,4); let yg=byYear.get(y);
+      if(!yg){yg={year:y,months:[],total:0,count:0,names:new Map(),past:y<currentYm.slice(0,4)};byYear.set(y,yg);}
+      yg.months.push(g); yg.total+=g.total; yg.count+=g.items.length;
+      g.items.forEach(f=>{const n=yg.names.get(f.name)||{name:f.name,total:0,count:0}; n.total+=f.amount; n.count++; yg.names.set(f.name,n);});
+    });
+    return Array.from(byYear.values()).sort((a,b)=>a.year<b.year?1:-1).map(yg=>{
+      yg.months.sort((a,b)=>a.ym<b.ym?1:-1);
+      yg.names=Array.from(yg.names.values()).sort((a,b)=>b.total-a.total);
+      yg.avg=Math.round(yg.total/yg.months.length);
+      return yg;
+    });
+  }
+
+  /* CSV */
+  const safeText=s=>{s=String(s==null?"":s);return /^[=+\-@\t\r]/.test(s)?"'"+s:s;};
+  const unsafe=s=>String(s==null?"":s).replace(/^'(?=[=+\-@\t\r])/,"");
+  const csvCell=v=>{const s=String(v);return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  function sortAsc(items){return items.slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.createdAt||0)-(b.createdAt||0));}
+  function toCSV(items){
+    const head=["日付","品名","金額","支払方法","カテゴリ","メモ","ID"];
+    const rows=sortAsc(items).map(it=>[it.date,safeText(it.name),it.amount,safeText(it.method),safeText(it.category),safeText(it.memo),it.id]);
+    return "﻿"+[head].concat(rows).map(r=>r.map(csvCell).join(",")).join("\r\n")+"\r\n";
+  }
+  function parseCSV(text){
+    text=String(text).replace(/^﻿/,"");
+    const rows=[]; let row=[], cur="", q=false;
+    for(let i=0;i<text.length;i++){
+      const c=text[i];
+      if(q){
+        if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; }
+        else cur+=c;
+      } else if(c==='"') q=true;
+      else if(c===","){row.push(cur);cur="";}
+      else if(c==="\n"||c==="\r"){
+        if(c==="\r"&&text[i+1]==="\n") i++;
+        row.push(cur);cur="";rows.push(row);row=[];
+      } else cur+=c;
+    }
+    if(cur!==""||row.length){row.push(cur);rows.push(row);}
+    return rows.filter(r=>!(r.length===1&&r[0].trim()===""));
+  }
+  const ALIAS={
+    date:["日付","date","購入日"],
+    name:["品名","name","品物","商品","商品名","item"],
+    amount:["金額","amount","price","価格"],
+    method:["支払方法","支払い方法","支払い","method","payment"],
+    category:["カテゴリ","category","分類"],
+    memo:["メモ","memo","note","備考"],
+    id:["id"]
+  };
+  function csvToItems(text){
+    const rows=parseCSV(text);
+    if(!rows.length) throw new Error("ファイルが空です。");
+    const head=rows[0].map(h=>h.trim().toLowerCase());
+    const idx={};
+    Object.keys(ALIAS).forEach(k=>{idx[k]=head.findIndex(h=>ALIAS[k].indexOf(h)>=0);});
+    if(idx.date<0||idx.name<0||idx.amount<0) throw new Error("1行目に「日付」「品名」「金額」の見出しが必要です。");
+    const items=[]; let skipped=0;
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      const get=k=>(idx[k]>=0&&idx[k]<r.length)?r[idx[k]]:"";
+      const it=makeItem({date:get("date"),name:unsafe(get("name")),amount:get("amount"),method:unsafe(get("method")),category:unsafe(get("category")),memo:unsafe(get("memo")),id:get("id")});
+      if(it) items.push(it); else skipped++;
+    }
+    return {items:items,skipped:skipped};
+  }
+
+  /* JSON */
+  function fixedOut(f){return {id:f.id,month:f.month,name:f.name,amount:f.amount,method:f.method||"",memo:f.memo,createdAt:f.createdAt,updatedAt:f.updatedAt};}
+  function toJSON(items,fixed,more){
+    fixed=fixed||[]; more=more||{};
+    return JSON.stringify({
+      app:"kaimono-shukei", version:2, exportedAt:new Date().toISOString(), count:items.length, fixedCount:fixed.length,
+      items:sortAsc(items).map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,createdAt:it.createdAt,updatedAt:it.updatedAt})),
+      fixed:fixed.map(fixedOut),
+      income:(more.income||[]).map(x=>Object.assign({},x)),
+      accounts:(more.accounts||[]).map(x=>Object.assign({},x)),
+      debits:(more.debits||[]).map(x=>Object.assign({},x)),
+      assets:(more.assets||[]).map(x=>Object.assign({},x))
+    },null,2);
+  }
+  function jsonToItems(text){
+    let o;
+    try{o=JSON.parse(String(text).replace(/^﻿/,""));}catch(e){throw new Error("JSONとして読み込めませんでした。");}
+    const arr=Array.isArray(o)?o:(o&&o.items);
+    const hasFixed=!!(o&&!Array.isArray(o)&&Array.isArray(o.fixed));
+    const hasMore=!!(o&&!Array.isArray(o)&&(Array.isArray(o.income)||Array.isArray(o.accounts)||Array.isArray(o.debits)||Array.isArray(o.assets)));
+    if(!Array.isArray(arr)&&!hasFixed&&!hasMore) throw new Error("「items」の一覧が見つかりません。");
+    const items=[], fixed=[]; let skipped=0;
+    (Array.isArray(arr)?arr:[]).forEach(x=>{const it=(x&&typeof x==="object")?makeItem(x):null; if(it) items.push(it); else skipped++;});
+    if(hasFixed) o.fixed.forEach(x=>{const f=(x&&typeof x==="object")?makeFixed(x):null; if(f) fixed.push(f); else skipped++;});
+    const more={income:[],accounts:[],debits:[],assets:[]};
+    if(hasMore) [["income",makeIncome],["accounts",makeAccount],["debits",makeDebit],["assets",makeAsset]].forEach(p=>{
+      (Array.isArray(o[p[0]])?o[p[0]]:[]).forEach(x=>{const v=(x&&typeof x==="object")?p[1](x):null; if(v) more[p[0]].push(v); else skipped++;});
+    });
+    return {items:items,skipped:skipped,fixed:fixed,hasFixed:hasFixed,more:more,hasMore:hasMore};
+  }
+
+  const keyOf=it=>[it.date,it.name,it.amount,it.method||"",it.category,it.memo].join("\u0001");
+  function mergeItems(existing,incoming){
+    const ids=new Set(existing.map(i=>i.id)), keys=new Set(existing.map(keyOf));
+    const added=[]; let dup=0;
+    incoming.forEach(it=>{
+      if(ids.has(it.id)||keys.has(keyOf(it))){dup++;return;}
+      ids.add(it.id);keys.add(keyOf(it));added.push(it);
+    });
+    return {items:existing.concat(added),added:added.length,dup:dup};
+  }
+  function uniqueIds(items){
+    const seen=new Set();
+    return items.map(it=>{ if(seen.has(it.id)) it=Object.assign({},it,{id:newId()}); seen.add(it.id); return it; });
+  }
+
+  /* 同期の合体。同じIDは updatedAt が新しいほうを残す。削除の印(deleted)は、削除したあとに編集された記録には勝てない。
+     同じ時刻なら削除を優先する。 */
+  const TOMB_DAYS=180;
+  function mergeSync(localItems,localDeleted,remoteItems,remoteDeleted,now){
+    const map=new Map();
+    const pick=it=>{const c=map.get(it.id); if(!c||(it.updatedAt||0)>(c.updatedAt||0)) map.set(it.id,it);};
+    localItems.forEach(pick); remoteItems.forEach(pick);
+    const tomb=new Map();
+    localDeleted.concat(remoteDeleted).forEach(t=>{const c=tomb.get(t.id); if(!c||t.at>c.at) tomb.set(t.id,t);});
+    const keep=[];
+    tomb.forEach(t=>{
+      const it=map.get(t.id);
+      if(it&&(it.updatedAt||0)>t.at) return;
+      if(it) map.delete(t.id);
+      if(now-t.at<TOMB_DAYS*86400000) keep.push(t);
+    });
+    const items=Array.from(map.values());
+    const lm=new Map(localItems.map(i=>[i.id,i]));
+    let pulled=0;
+    items.forEach(i=>{const l=lm.get(i.id); if(!l||(l.updatedAt||0)!==(i.updatedAt||0)) pulled++;});
+    const removed=localItems.filter(i=>!map.has(i.id)).length;
+    return {items:items,deleted:keep,pulled:pulled,removed:removed};
+  }
+  function signature(items,deleted){
+    return items.map(i=>i.id+":"+(i.updatedAt||0)).sort().join("|")+"#"+deleted.map(t=>t.id+":"+t.at).sort().join("|");
+  }
+
+  /* 円グラフ用: 合計がプラスの項目だけを大きい順に並べ、max個を超えた分は「ほか」にまとめる */
+  function pieSegments(entries,max){
+    const pos=entries.filter(e=>e.total>0).sort((a,b)=>b.total-a.total);
+    const excluded=entries.length-pos.length;
+    const base=pos.reduce((s,e)=>s+e.total,0);
+    let segs;
+    if(pos.length<=max) segs=pos.map(e=>({name:e.name,total:e.total,count:e.count,other:false}));
+    else {
+      const head=pos.slice(0,max-1), tail=pos.slice(max-1);
+      segs=head.map(e=>({name:e.name,total:e.total,count:e.count,other:false}))
+        .concat([{name:"ほか("+tail.length+"項目)",total:tail.reduce((s,e)=>s+e.total,0),count:tail.reduce((s,e)=>s+e.count,0),other:true}]);
+    }
+    segs.forEach(x=>{x.ratio=base?x.total/base:0;});
+    return {segments:segs,base:base,excluded:excluded};
+  }
+
+  /* 集計。methods が空なら支払方法で絞らない("" は支払方法が未設定の記録) */
+  function summarize(items,from,to,today,methods){
+    const byDate=(a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0);
+    const periodList=items.filter(it=>(!from||it.date>=from)&&(!to||it.date<=to));
+    const periodTotal=periodList.reduce((s,it)=>s+it.amount,0);
+    const bm=new Map();
+    periodList.forEach(it=>{const k=it.method||"";const c=bm.get(k)||{key:k,total:0,count:0};c.total+=it.amount;c.count++;bm.set(k,c);});
+    const byMethod=Array.from(bm.values()).sort((a,b)=>b.total-a.total);
+
+    const sel=methods&&methods.length?methods:null;
+    const list=periodList.filter(it=>!sel||sel.indexOf(it.method||"")>=0).sort(byDate);
+    const count=list.length;
+    const total=list.reduce((s,it)=>s+it.amount,0);
+    let days=0;
+    if(count){
+      const start=from||list.reduce((m,it)=>it.date<m?it.date:m,list[0].date);
+      let end=to||today; if(end>today) end=today;
+      days=end<start?1:daysBetween(start,end)+1;
+    }
+    const avg=count?Math.round(total/days):null;
+    let largest=null;
+    list.forEach(it=>{if(it.amount>0&&(!largest||it.amount>largest.amount)) largest=it;});
+    const cm=new Map();
+    list.forEach(it=>{const k=it.category||"未分類";const c=cm.get(k)||{name:k,total:0,count:0};c.total+=it.amount;c.count++;cm.set(k,c);});
+    const cats=Array.from(cm.values()).sort((a,b)=>b.total-a.total);
+    const mm=new Map();
+    list.forEach(it=>{const k=it.date.slice(0,7);mm.set(k,(mm.get(k)||0)+it.amount);});
+    const months=Array.from(mm.entries()).sort((a,b)=>a[0]<b[0]?-1:1).map(e=>({key:e[0],total:e[1]}));
+    return {list:list,count:count,total:total,days:days,avg:avg,largest:largest,cats:cats,months:months,byMethod:byMethod,periodTotal:periodTotal,periodCount:periodList.length};
+  }
+
+  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,makeAsset,simulate,sumSeries,actualSeries,ASSET_KINDS,ASSET_NAMES,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
+})();
+</script>
+
+<script id="ui">
+(function(){
+  "use strict";
+  const $=id=>document.getElementById(id);
+  const KEY="kaimono-shukei:v1";
+  const DEFAULT_CATS=["食費","外食","日用品","衣類","趣味","ゲーム","本","サブスク","固定費","貯金類","交通","医療","その他"];
+  const PM_DEFAULTS=["クレカ","現金","生計費用クレカ","デビッドカード","銀行振込","振替","銀行引落"];
+  const PM_CLASS={"クレカ":"pm1","現金":"pm2","生計費用クレカ":"pm3","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6","銀行引落":"pm7"};
+  const WD="日月火水木金土";
+  const pad=n=>String(n).padStart(2,"0");
+  const today=()=>Core.ymd(new Date());
+  const yen=n=>(n<0?"-":"")+"¥"+Math.abs(Math.round(n)).toLocaleString("ja-JP");
+  const fmt=d=>d.replace(/-/g,"/");
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const pmClass=k=>PM_CLASS[k]||"pm0";
+  const pmLabel=k=>k||"未設定";
+  const tagHtml=k=>'<span class="pm '+pmClass(k)+'">'+esc(pmLabel(k))+'</span>';
+  function wd(d){const p=d.split("-").map(Number);return WD[new Date(p[0],p[1]-1,p[2]).getDay()];}
+  function stamp(iso){const d=new Date(iso);return isNaN(d)?"":Core.ymd(d)+" "+pad(d.getHours())+":"+pad(d.getMinutes());}
+
+  let state={items:[],fixed:[],income:[],accounts:[],debits:[],assets:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
+  let storageOk=true;
+  const ui={acEditing:null,diEditing:null,inEditing:null,mPending:null,mOpen:{},fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,asKind:"all",rcEditing:null,flEditing:null,plDirty:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
+  const timers={};
+
+  /* 保存 */
+  function validStored(it){return it&&typeof it==="object"&&Core.validDate(String(it.date))&&typeof it.name==="string"&&Number.isFinite(it.amount)&&it.id;}
+  const validAccount=a=>a&&typeof a==="object"&&typeof a.name==="string"&&Number.isFinite(a.balance)&&a.id;
+  const validIncome=i=>i&&typeof i==="object"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(String(i.month))&&Number.isFinite(i.amount)&&i.id;
+  const validDebit=d=>d&&typeof d==="object"&&Core.validDate(String(d.date))&&typeof d.card==="string"&&Number.isFinite(d.amount)&&d.id;
+  const validAsset=a=>a&&typeof a==='object'&&['rec','flow','plan'].indexOf(a.t)>=0&&['nisa','ideco','cash'].indexOf(a.kind)>=0&&a.id;
+  const stampFix=x=>{if(typeof x.updatedAt!=="number") x.updatedAt=typeof x.createdAt==="number"?x.createdAt:0; return x;};
+  function validFixed(f){return f&&typeof f=="object"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(String(f.month))&&typeof f.name==="string"&&Number.isFinite(f.amount)&&f.id;}
+  function load(){
+    try{
+      const raw=localStorage.getItem(KEY);
+      if(raw){
+        const o=JSON.parse(raw);
+        if(o&&Array.isArray(o.items)){
+          state.items=o.items.filter(validStored).map(it=>{
+            if(typeof it.updatedAt!=="number") it.updatedAt=typeof it.createdAt==="number"?it.createdAt:0;
+            return it;
+          });
+          state.fixed=(Array.isArray(o.fixed)?o.fixed:[]).filter(validFixed).map(f=>{
+            if(typeof f.updatedAt!=="number") f.updatedAt=typeof f.createdAt==="number"?f.createdAt:0;
+            return f;
+          });
+          state.items.forEach(it=>{it.method=Core.normMethod(it.method);}); state.fixed.forEach(f=>{f.method=Core.normMethod(f.method);});
+          state.income=(Array.isArray(o.income)?o.income:[]).filter(validIncome).map(stampFix);
+          state.accounts=(Array.isArray(o.accounts)?o.accounts:[]).filter(validAccount).map(stampFix);
+          state.debits=(Array.isArray(o.debits)?o.debits:[]).filter(validDebit).map(stampFix);
+          state.assets=(Array.isArray(o.assets)?o.assets:[]).filter(validAsset).map(stampFix);
+          state.deleted=Array.isArray(o.deleted)?o.deleted.filter(t=>t&&t.id&&Number.isFinite(t.at)):[];
+          state.meta=Object.assign({lastBackupAt:null,changes:0,lastSyncAt:null,pending:0},o.meta||{});
+          return true;
+        }
+      }
+    }catch(e){storageOk=false;}
+    return false;
+  }
+  function save(){
+    try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){storageOk=false;}
+  }
+  function makeSamples(){
+    const t=today();
+    const rows=[[0,"コーヒー豆",1280,"食費","現金"],[-1,"洗剤のつめかえ",398,"日用品","生計費用クレカ"],[-2,"ランチ(定食)",950,"外食","現金"],
+      [-4,"文庫本",748,"趣味","クレカ"],[-6,"Tシャツ",2990,"衣類","クレカ"],[-9,"スーパーのまとめ買い",5420,"食費","生計費用クレカ"],
+      [-13,"ICカードのチャージ",3000,"交通","デビッドカード"],[-20,"ティッシュ・トイレットペーパー",1180,"日用品","生計費用クレカ"],
+      [-27,"映画のチケット",1900,"趣味","デビッドカード"]];
+    return rows.map((r,i)=>({id:Core.newId(),date:Core.addDays(t,r[0]),name:r[1],amount:r[2],method:r[4],category:r[3],memo:"",createdAt:Date.now()+i,sample:true}));
+  }
+
+  function say(id,msg,err){
+    const el=$(id); el.textContent=msg; el.className="msg"+(err?" err":"");
+    clearTimeout(timers[id]); timers[id]=setTimeout(()=>{el.textContent="";},8000);
+  }
+  function changed(n){
+    state.meta.changes=(state.meta.changes||0)+(n||1);
+    state.meta.pending=(state.meta.pending||0)+(n||1);
+    save(); scheduleSync();
+  }
+  function tombstone(id){state.deleted=state.deleted.filter(t=>t.id!==id);state.deleted.push({id:id,at:Date.now()});}
+  function markBackup(){state.meta.lastBackupAt=new Date().toISOString();state.meta.changes=0;save();renderBackup();}
+  const realItems=()=>state.items.filter(i=>!i.sample);
+
+  /* 期間 */
+  const PRESETS=[["month","今月"],["prev","先月"],["d30","直近30日"],["year","今年"],["all","全期間"]];
+  const PAY_PRESETS=[["pay","今期間"],["payprev","前期間"]];
+  const presetList=()=>(cfg.payday?PAY_PRESETS:[]).concat(PRESETS);
+  function presetRange(k){
+    const t=today(), p=t.split("-").map(Number), y=p[0], m=p[1];
+    if(k==="pay"||k==="payprev"){const c=periods.monthOf(t), p=periods.of(k==="pay"?c:Core.ymAdd(c,-1)); return [p.from,p.to];}
+    if(k==="month") return [y+"-"+pad(m)+"-01",Core.ymd(new Date(y,m,0))];
+    if(k==="prev") return [Core.ymd(new Date(y,m-2,1)),Core.ymd(new Date(y,m-1,0))];
+    if(k==="d30") return [Core.addDays(t,-29),t];
+    if(k==="year") return [y+"-01-01",y+"-12-31"];
+    return ["",""];
+  }
+  function renderPresets(){
+    $("presets").innerHTML=presetList().map(p=>{
+      const r=presetRange(p[0]); const on=r[0]===ui.from&&r[1]===ui.to;
+      return '<button type="button" class="chip" data-preset="'+p[0]+'" aria-pressed="'+on+'">'+p[1]+'</button>';
+    }).join("");
+  }
+  function setRange(from,to){ui.from=from;ui.to=to;$("from").value=from;$("to").value=to;render();}
+
+  /* 支払方法 */
+  function methodKeys(){
+    const set=PM_DEFAULTS.slice(); let blank=false;
+    state.items.forEach(i=>{const m=i.method||""; if(!m) blank=true; else if(set.indexOf(m)<0) set.push(m);});
+    if(blank) set.push("");
+    return set;
+  }
+  function renderMethodChips(){
+    const all=ui.methods.length===0;
+    $("methodChips").innerHTML='<button type="button" class="chip" data-all="1" aria-pressed="'+all+'">すべて</button>'+
+      methodKeys().map(k=>{
+        const on=ui.methods.indexOf(k)>=0;
+        return '<button type="button" class="chip '+pmClass(k)+'" data-m="'+esc(k)+'" aria-pressed="'+on+'" style="display:inline-flex;align-items:center"><i class="dot"></i>'+esc(pmLabel(k))+'</button>';
+      }).join("");
+  }
+  function renderMethodSelect(){
+    const sel=$("fMethod"), keep=sel.value;
+    const keys=methodKeys().filter(k=>k!==""||ui.editingBlank);
+    sel.innerHTML=keys.map(k=>'<option value="'+esc(k)+'">'+esc(pmLabel(k))+'</option>').join("");
+    if(keys.indexOf(keep)>=0) sel.value=keep;
+  }
+
+  /* 描画 */
+  function render(){
+    const S=Core.summarize(state.items,ui.from,ui.to,today(),ui.methods);
+    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderMoney(); renderAssets(); renderPayday(); renderBackup(); renderBanners(); renderCats();
+  }
+  function renderSummary(S){
+    $("sumTotal").textContent=yen(S.total);
+    const label=(ui.from||ui.to)?((ui.from?fmt(ui.from):"最初")+" 〜 "+(ui.to?fmt(ui.to):"最新")):"全期間";
+    const pm=ui.methods.length?" / 支払方法: "+ui.methods.map(pmLabel).join("・"):"";
+    $("rangeText").textContent=label+pm+((ui.from&&ui.to&&ui.from>ui.to)?"(開始日が終了日より後になっています)":"");
+    $("sCount").textContent=S.count+"件";
+    $("sAvg").textContent=S.avg===null?"—":yen(S.avg);
+    $("sMax").textContent=S.largest?yen(S.largest.amount):"—";
+    $("sMaxName").textContent=S.largest?S.largest.name:"";
+  }
+  function bar(w,cls){return '<div class="track"><i class="'+(cls||"")+'" style="width:'+w+'%"></i></div>';}
+  function renderBreakdown(S){
+    if(!S.periodCount){$("breakBody").innerHTML='<p class="empty">この期間の記録がありません。</p>';return;}
+    const sec=(key,title,note,inner)=>'<details class="subfold" data-key="'+key+'"'+(ui.brkOpen[key]===false?'':' open')+'><summary class="sub-h"><span>'+title+(note?' <small>'+note+'</small>':'')+'</span></summary>'+inner+'</details>';
+    const pmMax=Math.max.apply(null,S.byMethod.map(m=>m.total).concat([1]));
+    const base=S.periodTotal>0?S.periodTotal:0;
+    let h=sec("method","支払方法別","期間内のすべて",'<ul class="bars">'+S.byMethod.map(m=>{
+      const w=m.total>0?Math.max(2,Math.round(m.total/pmMax*100)):0;
+      const pct=base&&m.total>0?Math.round(m.total/base*100)+"%":"";
+      return '<li class="'+pmClass(m.key)+'"><div class="bar-top"><span class="nm">'+tagHtml(m.key)+'<span class="pct">'+m.count+'件</span></span><span class="v">'+yen(m.total)+(pct?'<span class="pct">'+pct+'</span>':'')+'</span></div>'+bar(w,"pmfill")+'</li>';
+    }).join("")+'</ul>');
+    if(!S.count){
+      h+=sec("cat","カテゴリ別","",'<p class="empty">この条件の記録がありません。</p>');
+    } else {
+      const maxC=Math.max.apply(null,S.cats.map(c=>c.total).concat([1]));
+      const pctBase=S.total>0?S.total:0;
+      h+=sec("cat","カテゴリ別",ui.methods.length?"選んだ支払方法のみ":"",'<ul class="bars">'+S.cats.map(c=>{
+        const w=c.total>0?Math.max(2,Math.round(c.total/maxC*100)):0;
+        const pct=pctBase&&c.total>0?Math.round(c.total/pctBase*100)+"%":"";
+        return '<li><div class="bar-top"><span class="nm">'+esc(c.name)+' <span class="pct">'+c.count+'件</span></span><span class="v">'+yen(c.total)+(pct?'<span class="pct">'+pct+'</span>':'')+'</span></div>'+bar(w)+'</li>';
+      }).join("")+'</ul>');
+      if(S.months.length>=2){
+        const maxM=Math.max.apply(null,S.months.map(m=>m.total).concat([1]));
+        h+=sec("month","月別","",'<ul class="bars">'+S.months.map(m=>{
+          const w=m.total>0?Math.max(2,Math.round(m.total/maxM*100)):0;
+          return '<li><div class="bar-top"><span class="nm">'+m.key.slice(0,4)+'年'+Number(m.key.slice(5))+'月</span><span class="v">'+yen(m.total)+'</span></div>'+bar(w)+'</li>';
+        }).join("")+'</ul>');
+      }
+    }
+    $("breakBody").innerHTML=h;
+  }
+  $("breakBody").addEventListener("toggle",e=>{
+    const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.brkOpen[d.dataset.key]=d.open;
+  },true);
+  const LIMIT=300;
+  function renderList(S){
+    $("listCount").textContent=S.count?S.count+"件":"";
+    if(!S.count){$("listBody").innerHTML='<p class="empty">この条件の記録がありません。'+(ui.methods.length?'支払方法の絞り込みを変えるか、':'')+'上のフォームから追加できます。</p>';return;}
+    const shown=S.list.slice(0,LIMIT);
+    let h='<ul class="rows">'+shown.map(it=>{
+      const armed=ui.pendingDelete===it.id;
+      const dtxt=(it.date.slice(0,4)===today().slice(0,4)?it.date.slice(5).replace("-","/"):fmt(it.date))+"("+wd(it.date)+")";
+      const sub=[it.category||"未分類"].concat(it.memo?[it.memo]:[]).join(" · ");
+      return '<li class="row"><div class="r-name">'+esc(it.name)+tagHtml(it.method||"")+(it.sample?'<span class="tag">例</span>':'')+'</div>'+
+        '<div class="r-amt">'+yen(it.amount)+'</div><div class="r-meta"><span class="r-date">'+esc(dtxt)+'</span><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="edit" data-id="'+esc(it.id)+'">編集</button>'+
+        '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="del" data-id="'+esc(it.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
+    }).join("")+'</ul>';
+    if(S.list.length>LIMIT) h+='<p class="note">新しい順に'+LIMIT+'件を表示しています。合計と内訳はすべての記録を含みます。</p>';
+    $("listBody").innerHTML=h;
+  }
+  function renderBanners(){
+    let h="";
+    if(state.items.some(i=>i.sample)) h+='<div class="banner"><span>「例」の付いた記録はサンプルです。自分の記録を始めるときに消してください。書き出しには含まれません。</span><button type="button" class="small" data-act="clear-samples">サンプルを消す</button></div>';
+    if(!storageOk) h+='<div class="banner"><span>このブラウザでは自動保存が使えません。ページを閉じると記録が消えるので、こまめに書き出してください。</span></div>';
+    $("banners").innerHTML=h;
+  }
+  function renderCats(){
+    const set=new Set(DEFAULT_CATS); state.items.forEach(i=>{if(i.category) set.add(i.category);});
+    $("cats").innerHTML=Array.from(set).map(c=>'<option value="'+esc(c)+'"></option>').join("");
+  }
+  function renderBackup(){
+    const m=state.meta, real=realItems().length;
+    $("backupStatus").textContent="記録 "+real+"件"+(state.fixed.length?" / 固定費 "+state.fixed.length+"件":"")+(state.accounts.length||state.debits.length||state.income.length?" / 資金メモ "+(state.accounts.length+state.debits.length+state.income.length)+"件":"")+(state.assets.length?" / 資産運用 "+state.assets.length+"件":"")+" / 最終バックアップ: "+(m.lastBackupAt?stamp(m.lastBackupAt):"まだありません")+(m.changes?" / それ以降の変更 "+m.changes+"件":"");
+    const p=ui.plan;
+    if(p){
+      $("importBox").innerHTML='<div class="import"><p><b>'+esc(p.name)+'</b> から '+p.items.length+'件'+(p.fixed&&p.fixed.length?'と固定費'+p.fixed.length+'件':'')+(p.moreN?'と資金メモ'+p.moreN+'件':'')+'を読み込めます'+(p.range?'('+p.range+')':'')+'。'+(p.skipped?' 読み取れない行が'+p.skipped+'件ありました。':'')+'</p>'+
+        '<div class="btns"><button type="button" class="primary" data-act="merge">いまの記録に追加</button>'+
+        '<button type="button" class="danger'+(ui.replaceArmed?' armed':'')+'" data-act="replace">'+(ui.replaceArmed?'もう一度押すと、いまの記録をすべて置き換えます':'すべて置き換え')+'</button>'+
+        '<button type="button" data-act="cancel-import">やめる</button></div>'+
+        '<p class="hint" style="margin:10px 0 0">追加では、同じIDまたは同じ内容の記録は取り込みません。スマホとPCの記録を合わせるときは「追加」を使います。</p></div>';
+    } else $("importBox").innerHTML="";
+    renderSync();
+  }
+
+  /* 固定費 */
+  const curYm=()=>periods.monthOf(today());
+  const shortD=d=>Number(d.slice(5,7))+"/"+Number(d.slice(8,10));
+  const ymLabel=ym=>ym.slice(0,4)+"年"+Number(ym.slice(5,7))+"月";
+  const sgn=n=>(n>0?"+":n<0?"−":"±")+yen(Math.abs(n)).replace("-","");
+  function fxMethodKeys(){
+    const set=methodKeys().filter(k=>k!==""||ui.fxEditingBlank);
+    state.fixed.forEach(f=>{const m=f.method||""; if(m&&set.indexOf(m)<0) set.push(m);});
+    return set;
+  }
+  function renderFxSelect(){
+    const sel=$("xMethod"), keep=sel.value, keys=fxMethodKeys();
+    sel.innerHTML=keys.map(k=>'<option value="'+esc(k)+'">'+esc(pmLabel(k))+'</option>').join("");
+    if(keys.indexOf(keep)>=0) sel.value=keep;
+  }
+  function isOpen(key,def){return Object.prototype.hasOwnProperty.call(ui.fxOpen,key)?ui.fxOpen[key]:def;}
+  function perHtml(ym){
+    const p=periods.of(ym);
+    let h='<div class="mper"><span class="pt">期間 '+fmt(p.from)+' 〜 '+fmt(p.to)+(p.custom?'(手動)':(cfg.payday?'(給料日から)':'(暦の月)'))+'</span>'+
+      '<button type="button" class="small" data-act="fx-view" data-key="'+ym+'">記録で見る</button>'+
+      '<button type="button" class="small" data-act="fx-per" data-key="'+ym+'">期間を変更</button></div>';
+    if(ui.fxPerEdit===ym){
+      h+='<div class="perform"><input type="date" class="per-from" value="'+p.from+'" aria-label="開始日"><span class="sep">〜</span><input type="date" class="per-to" value="'+p.to+'" aria-label="終了日">'+
+        '<button type="button" class="small primary" data-act="fx-per-save" data-key="'+ym+'">保存</button>'+
+        (p.custom?'<button type="button" class="small" data-act="fx-per-reset" data-key="'+ym+'">自動に戻す</button>':'')+
+        '<button type="button" class="small" data-act="fx-per-close">閉じる</button></div>';
+    }
+    return h;
+  }
+  function fxMonthHtml(g,cur,paid){
+    const open=isOpen(g.ym,g.ym===cur);
+    const rows=g.items.map(f=>{
+      const armed=ui.fxPendingDelete===f.id, pd=paid.has(f.id);
+      return '<li class="frow'+(pd?' paid':'')+'"><div class="r-name">'+esc(f.name)+tagHtml(f.method||"")+(pd?'<span class="paid-tag">支払済</span>':'')+'</div><div class="r-amt">'+yen(f.amount)+'</div>'+
+        '<div class="r-meta"><span class="r-sub" title="'+esc(f.memo||"")+'">'+esc(f.memo||"")+'</span></div>'+
+        '<div class="r-act">'+(pd?'':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
+        '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="fx-del" data-id="'+esc(f.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
+    }).join("");
+    const incs=state.income.filter(i=>i.month===g.ym), incSum=incs.reduce((t,i)=>t+i.amount,0);
+    const allow=incs.length?'<small class="allow" title="その月の給与 '+yen(incSum)+' − 固定費の合計 '+yen(g.total)+'">小遣い '+yenS(incSum-g.total)+'</small>':'';
+    const np=g.items.filter(f=>paid.has(f.id)).length;
+    const unpaidAmt=g.items.reduce((a,f)=>a+(paid.has(f.id)?0:f.amount),0);
+    const per=periods.of(g.ym), perTxt=(cfg.payday||per.custom)?'<span class="m-per">'+shortD(per.from)+'〜'+shortD(per.to)+(per.custom?'(手動)':'')+' · </span>':"";
+    const meta=perTxt+(np?"支払済 "+np+"/":"")+g.items.length+"件"+(g.items.length>np?'<span class="unpaid-amt"> · 未払分 '+yen(unpaidAmt)+'</span>':' · すべて支払済')+(g.delta===null?"":'<span class="delta"> · 前月比 '+sgn(g.delta)+'</span>');
+    return '<details class="mfold" data-key="'+g.ym+'"'+(open?' open':'')+'><summary><span class="m-name">'+Number(g.ym.slice(5,7))+'月</span><span class="m-meta">'+meta+'</span><span class="m-total">'+yen(g.total)+allow+'</span></summary><div class="mbody">'+perHtml(g.ym)+'<ul class="rows">'+rows+'</ul></div></details>';
+  }
+  function renderFixed(){
+    renderFxSelect();
+    $("fxNames").innerHTML=Array.from(new Set(state.fixed.map(f=>f.name))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
+    const groups=Core.fixedGroups(state.fixed,curYm()), cur=curYm();
+    const paid=Core.matchPaid(state.fixed,realItems(),periods);
+    const open0=curYm();
+    const monthItems=state.fixed.filter(f=>f.month===open0);
+    const sumAll=a=>a.reduce((t,f)=>t+f.amount,0);
+    const unpaidNow=monthItems.filter(f=>!paid.has(f.id)), priorUnpaid=state.fixed.filter(f=>f.month<open0&&!paid.has(f.id));
+    const sm=$("fxSummary");
+    if(!monthItems.length&&!priorUnpaid.length) sm.hidden=true;
+    else {
+      sm.hidden=false;
+      sm.innerHTML=(monthItems.length?'<div><dt>'+ymLabel(open0)+'の固定費</dt><dd>'+yen(sumAll(monthItems))+'</dd></div>'+
+        '<div><dt>支払済</dt><dd>'+yen(sumAll(monthItems)-sumAll(unpaidNow))+'</dd></div>'+
+        '<div class="unpaid'+(unpaidNow.length?'':' zero')+'"><dt>未払分</dt><dd>'+yen(sumAll(unpaidNow))+'</dd></div>':'<div class="unpaid zero"><dt>'+ymLabel(open0)+'の未払分</dt><dd>'+yen(0)+'</dd></div>')+
+        (()=>{const inc=state.income.filter(i=>i.month===open0).reduce((t,i)=>t+i.amount,0); return state.income.some(i=>i.month===open0)&&monthItems.length?'<p class="prior">'+Number(open0.slice(5,7))+'月分の小遣い(給与 '+yen(inc)+' − 固定費 '+yen(sumAll(monthItems))+')= '+yenS(inc-sumAll(monthItems))+'</p>':'';})()+
+        (priorUnpaid.length?'<p class="prior">以前の月の未払分 '+yen(sumAll(priorUnpaid))+'('+priorUnpaid.length+'件)。記録に支払いがない月が含まれます。</p>':'');
+    }
+    $("fxPick").innerHTML=Array.from(new Set(state.fixed.filter(f=>f.month===open0&&!paid.has(f.id)).map(f=>f.name))).map(n=>'<option value="'+esc(n)+'">').join("");
+    $("fxCount").textContent=state.fixed.length?state.fixed.length+"件":"";
+    $("btnFixedCsv").hidden=!state.fixed.length;
+    if(!groups.length){$("fxBody").innerHTML='<p class="empty">まだ固定費がありません。上のフォームで、月と項目を入れて追加できます。翌月以降は「前の月からコピー」で引き継げます。</p>';return;}
+    $("fxBody").innerHTML=groups.map(yg=>{
+      if(!yg.past){
+        return '<h3 class="yh"><span>'+yg.year+'年</span><small>'+yg.months.length+'か月分 · 合計 '+yen(yg.total)+'</small></h3>'+yg.months.map(g=>fxMonthHtml(g,cur,paid)).join("");
+      }
+      const open=isOpen("y"+yg.year,false);
+      const names='<table class="ytable"><thead><tr><th>項目</th><th class="n">回数</th><th class="n">年間合計</th></tr></thead><tbody>'+
+        yg.names.map(n=>'<tr><td>'+esc(n.name)+'</td><td class="n">'+n.count+'</td><td class="n">'+yen(n.total)+'</td></tr>').join("")+'</tbody></table>';
+      return '<details class="yfold" data-key="y'+yg.year+'"'+(open?' open':'')+'><summary><span class="m-name">'+yg.year+'年のまとめ</span><span class="m-meta">'+yg.months.length+'か月分 · 月平均 '+yen(yg.avg)+'</span><span class="m-total">'+yen(yg.total)+'</span></summary>'+
+        '<div class="ybody"><h4 class="sub-h"><span>項目ごとの年間合計</span></h4><div class="wrapx">'+names+'</div>'+
+        '<h4 class="sub-h"><span>月ごと</span></h4>'+yg.months.map(g=>fxMonthHtml(g,cur,paid)).join("")+'</div></details>';
+    }).join("");
+  }
+  $("fxBody").addEventListener("toggle",e=>{
+    const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.fxOpen[d.dataset.key]=d.open;
+  },true);
+
+  const X={month:$("xMonth"),amount:$("xAmount"),name:$("xName"),method:$("xMethod"),memo:$("xMemo")};
+  function endFxEdit(){ui.fxEditing=null;ui.fxEditingBlank=false;$("fxTitle").textContent="固定費を追加";$("xSubmit").textContent="追加";$("xCancel").hidden=true;}
+  function resetFx(){X.name.value="";X.amount.value="";X.memo.value="";}
+  $("fxForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const month=Core.normMonth(X.month.value), name=X.name.value.trim(), amount=Core.parseAmount(X.amount.value);
+    if(!month) return say("xMsg","月を選んでください(例 2026-10)。",true);
+    if(!name) return say("xMsg","項目を入力してください。",true);
+    if(amount===null) return say("xMsg","金額は数字で入力してください。",true);
+    const method=X.method.value, memo=X.memo.value.trim(), wasEdit=!!ui.fxEditing;
+    if(ui.fxEditing){
+      const f=state.fixed.find(i=>i.id===ui.fxEditing);
+      if(f){f.month=month;f.name=name;f.amount=amount;f.method=method;f.memo=memo;f.updatedAt=Date.now();}
+      endFxEdit();
+    } else state.fixed.push({id:Core.newId(),month:month,name:name,amount:amount,method:method,memo:memo,createdAt:Date.now(),updatedAt:Date.now()});
+    ui.fxOpen[month]=true; X.month.value=month;
+    changed(1); resetFx(); render();
+    say("xMsg",wasEdit?"更新しました。":"追加しました。"); X.name.focus();
+  });
+  $("xCancel").addEventListener("click",()=>{endFxEdit();resetFx();render();say("xMsg","編集をやめました。");});
+  $("xCopy").addEventListener("click",()=>{
+    const month=Core.normMonth(X.month.value);
+    if(!month) return say("xMsg","コピー先の月を選んでください。",true);
+    const months=Array.from(new Set(state.fixed.map(f=>f.month))).filter(m=>m<month).sort();
+    if(!months.length) return say("xMsg",ymLabel(month)+"より前の月に固定費がありません。",true);
+    const src=months[months.length-1];
+    const have=new Set(state.fixed.filter(f=>f.month===month).map(f=>f.name));
+    const now=Date.now();
+    const add=state.fixed.filter(f=>f.month===src&&!have.has(f.name)).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))
+      .map((f,i)=>({id:Core.newId(),month:month,name:f.name,amount:f.amount,method:f.method||"",memo:f.memo||"",createdAt:now+i,updatedAt:now+i}));
+    if(!add.length) return say("xMsg",ymLabel(src)+"の項目はすべて "+ymLabel(month)+" に入っています。",true);
+    state.fixed=state.fixed.concat(add); ui.fxOpen[month]=true; changed(add.length); render();
+    say("xMsg",ymLabel(src)+"から"+add.length+"件をコピーしました。金額が変わる項目は「編集」で直してください。");
+  });
+  $("btnFixedCsv").addEventListener("click",()=>{
+    if(!state.fixed.length) return say("xMsg","書き出す固定費がありません。",true);
+    try{
+      const url=URL.createObjectURL(new Blob([Core.fixedToCSV(state.fixed)],{type:"text/csv;charset=utf-8"}));
+      const a=document.createElement("a"); a.href=url; a.download="spendino_fixed_"+today()+".csv"; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+      say("xMsg","書き出しました。");
+    }catch(err){say("xMsg","書き出せませんでした。",true);}
+  });
+
+  /* 資金メモ: 口座・カード引落予定・給与 */
+  const dayLabel=d=>(d.slice(0,4)===today().slice(0,4)?d.slice(5).replace("-","/"):fmt(d))+"("+wd(d)+")";
+  const yenS=n=>'<span'+(n<0?' class="neg"':'')+'>'+yen(n)+'</span>';
+  const acctName=id=>{const a=state.accounts.find(x=>x.id===id); return a?a.name:"";};
+  function delBtn(act,id){const armed=ui.mPending===id; return '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="'+act+'" data-id="'+esc(id)+'">'+(armed?'削除する?':'削除')+'</button>';}
+
+  /* 資産運用 */
+  const KN=Core.ASSET_NAMES, KINDS=Core.ASSET_KINDS, PLAN_KINDS=["nisa","ideco"];
+  const assetsOf=t=>state.assets.filter(a=>a.t===t);
+  const planOf=k=>state.assets.find(a=>a.t==="plan"&&a.kind===k)||null;
+  const latestRec=k=>assetsOf("rec").filter(r=>r.kind===k).sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:(b.updatedAt||0)-(a.updatedAt||0))[0]||null;
+  const mnOf=ym=>Number(ym.slice(0,4))*12+Number(ym.slice(5,7))-1;
+  const ymOfNo=n=>Math.floor(n/12)+"-"+String(n%12+1).padStart(2,"0");
+  const fmtMan=n=>{const a=Math.abs(n), s=n<0?"-":""; if(a>=1e8) return s+(+(a/1e8).toFixed(2))+"億"; if(a>=1e4) return s+Math.round(a/1e4).toLocaleString("ja-JP")+"万"; return s+Math.round(a);};
+  function niceMax(v){if(!(v>0)) return 1; const e=Math.pow(10,Math.floor(Math.log10(v))), f=v/e; for(const c of [1,1.2,1.6,2,2.4,3.2,4,5,6,8,10]) if(f<=c+1e-9) return c*e; return 10*e;}
+  function assetSeriesFor(kind){
+    const flows=assetsOf("flow"), ks=KINDS.filter(k=>kind==="all"||k===kind);
+    const sim=Core.sumSeries(ks.filter(k=>PLAN_KINDS.indexOf(k)>=0).map(k=>Core.simulate(planOf(k),flows.filter(f=>f.kind===k))));
+    // 銀行預金は試算せず、最新の記録の金額のまま合計に足す
+    const cr=ks.indexOf("cash")>=0&&ks.length>1?latestRec("cash"):null;
+    if(cr) sim.forEach(r=>{r.principal+=cr.principal; r.value+=cr.value; r.gain=r.value-r.principal;});
+    return {sim:sim, act:Core.actualSeries(assetsOf("rec").filter(r=>ks.indexOf(r.kind)>=0))};
+  }
+  const gainSub=(v,p)=>'<span class="sub">元本 '+yen(p)+'</span><span class="sub">運用益 '+sgn(v-p)+(p>0?'('+((v-p)/p*100).toFixed(1)+'%)':'')+'</span>';
+  function planFormHtml(){
+    return PLAN_KINDS.map(k=>'<div class="plk"><h3>'+KN[k]+'<button type="button" class="small" data-act="pl-latest" data-kind="'+k+'">最新の記録を元手に</button></h3><div class="fields">'+
+      '<label class="f">元手(円)<input type="text" inputmode="numeric" data-pl="'+k+':init" placeholder="0"></label>'+
+      '<label class="f">毎月の積立(円)<input type="text" inputmode="numeric" data-pl="'+k+':monthly" placeholder="30000"></label>'+
+      '<label class="f">想定年利(%)<input type="text" inputmode="decimal" data-pl="'+k+':rate" placeholder="5"></label></div><div class="fields two">'+
+      '<label class="f">開始月<input type="month" data-pl="'+k+':from"></label>'+
+      '<label class="f">終了月<input type="month" data-pl="'+k+':to"></label></div></div>').join("");
+  }
+  function fillPlanForm(){
+    const f=$("plForm"); if(ui.plDirty||f.contains(document.activeElement)) return;
+    PLAN_KINDS.forEach(k=>{
+      const pl=planOf(k), set=(n,v)=>{f.querySelector('[data-pl="'+k+':'+n+'"]').value=v;};
+      set("init",pl&&pl.init?String(pl.init):""); set("monthly",pl&&pl.monthly?String(pl.monthly):""); set("rate",pl&&pl.rate?String(pl.rate):""); set("from",pl?pl.from:""); set("to",pl?pl.to:"");
+    });
+  }
+  function renderAssets(){
+    const kind=ui.asKind, S=assetSeriesFor(kind), names=kind==="all"?"合計":KN[kind];
+    $("asKinds").innerHTML=["all"].concat(KINDS).map(k=>'<button type="button" data-ak="'+k+'" aria-pressed="'+(k===kind)+'">'+(k==="all"?"合計":KN[k])+'</button>').join("");
+    let nowV=0,nowP=0,has=false;
+    KINDS.filter(k=>kind==="all"||k===kind).forEach(k=>{const r=latestRec(k); if(r){nowV+=r.value;nowP+=r.principal;has=true;}});
+    const end=S.sim[S.sim.length-1];
+    $("asSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">いまの資産(記録・'+names+')</span><span class="big">'+(has?yenS(nowV):'—')+'</span>'+(has?gainSub(nowV,nowP):'<span class="sub">月次の記録を入れてください</span>')+'</div>'+
+      '<div class="mcell"><span class="lbl">'+(end?ymLabel(end.ym)+'の試算':'期間末の試算')+'</span><span class="big">'+(end?yenS(end.value):'—')+'</span>'+(end?gainSub(end.value,end.principal):'<span class="sub">「試算の設定」を入れてください</span>')+'</div></div>'+
+      '<dl class="msum3">'+KINDS.map(k=>{const r=latestRec(k); return '<div><dt>'+KN[k]+'</dt><dd>'+(r?yenS(r.value):'—')+'</dd></div>';}).join("")+'</dl>';
+    renderAssetChart(S);
+    // 試算の設定の見出し
+    const nPlan=PLAN_KINDS.filter(k=>{const pl=planOf(k); return pl&&pl.from&&pl.to;}).length;
+    $("plCount").textContent=nPlan?nPlan+"種類を設定済み":"未設定";
+    fillPlanForm();
+    // 月次の記録(種類ごとに折りたたみ)
+    const recs=assetsOf("rec");
+    $("rcCount").textContent=recs.length?recs.length+"件":"";
+    const rowOf=r=>{
+      const g=r.value-r.principal, sub=["元本 "+yen(r.principal),"運用益 "+sgn(g)+(r.principal>0?"("+(g/r.principal*100).toFixed(1)+"%)":"")].concat(r.memo?[r.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name"><span class="dchip">'+r.month.slice(0,4)+'/'+r.month.slice(5,7)+'</span>'+esc(KN[r.kind])+'</div><div class="r-amt">'+yenS(r.value)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="rc-edit" data-id="'+esc(r.id)+'">編集</button>'+delBtn("rc-del",r.id)+'</div></li>';
+    };
+    $("rcBody").innerHTML=recs.length?KINDS.filter(k=>recs.some(r=>r.kind===k)).map(k=>{
+      const list=recs.filter(r=>r.kind===k).sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:0), top=list[0], open=ui.mOpen["as-"+k]===true;
+      return '<details class="mfold" data-key="as-'+k+'"'+(open?' open':'')+'><summary><span class="m-name">'+KN[k]+'</span><span class="m-meta">'+list.length+'件 · 最新 '+top.month.slice(0,4)+'/'+top.month.slice(5,7)+'</span><span class="m-total">'+yen(top.value)+'</span></summary><div class="mbody"><ul class="rows">'+list.map(rowOf).join("")+'</ul></div></details>';
+    }).join(""):'<p class="empty">まだ記録がありません。「＋ 追加」から、毎月の元本と評価額を入れます。同じ月・同じ種類は上書きされます。</p>';
+    // NISAの追加投資・取り崩し
+    const fls=assetsOf("flow").sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:(b.createdAt||0)-(a.createdAt||0));
+    $("flCount").textContent=fls.length?fls.length+"件":"";
+    $("flBody").innerHTML=fls.length?'<ul class="rows">'+fls.map(f=>{
+      const sub=[KN[f.kind]].concat(f.memo?[f.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name"><span class="dchip">'+f.month.slice(0,4)+'/'+f.month.slice(5,7)+'</span>'+(f.type==="out"?'取り崩し':'追加投資')+'</div><div class="r-amt">'+(f.type==="out"?'−':'+')+yen(f.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="fl-edit" data-id="'+esc(f.id)+'">編集</button>'+delBtn("fl-del",f.id)+'</div></li>';
+    }).join("")+'</ul>':'<p class="empty">追加投資や取り崩しはありません。</p>';
+  }
+  function renderAssetChart(S){
+    const box=$("asChart"), sim=S.sim, act=S.act, tb=$("asTblBody"), tbl=$("asTbl");
+    if(!sim.length&&!act.length){box.innerHTML='<p class="empty">「試算の設定」か「月次の記録」を入れると、ここにグラフが出ます。</p>'; tb.innerHTML=""; tbl.hidden=true; return;}
+    tbl.hidden=false;
+    const all=sim.concat(act), ms=all.map(r=>mnOf(r.ym)), lo=Math.min.apply(null,ms), hi=Math.max.apply(null,ms);
+    const W=360,H=220,L=46,R=18,T=16,B=26, span=Math.max(hi-lo,1);
+    const X=m=>L+(m-lo)/span*(W-L-R);
+    const maxV=niceMax(Math.max.apply(null,all.map(r=>Math.max(r.value,r.principal,0)))*1.02);
+    const Y=v=>T+(1-Math.max(v,0)/maxV)*(H-T-B);
+    const pts=(rows,k)=>rows.map((r,i)=>(i?"L":"M")+X(mnOf(r.ym)).toFixed(1)+" "+Y(r[k]).toFixed(1)).join("");
+    let g="";
+    for(let i=0;i<=4;i++){const v=maxV/4*i, y=Y(v).toFixed(1); g+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(L-5)+'" y="'+(+y+3)+'" text-anchor="end">'+fmtMan(v)+'</text>';}
+    const yrs=span/12, ticks=[];
+    if(yrs<=2){const st=Math.max(1,Math.round(span/4)); for(let m=lo;m<=hi;m+=st) ticks.push(m);}
+    else{const st=yrs>40?10:yrs>20?5:yrs>8?2:1; for(let m=lo;m<=hi;m++){if(m%12===0&&Math.floor(m/12)%st===0) ticks.push(m);}}
+    ticks.forEach(m=>{const ym=ymOfNo(m); g+='<text x="'+X(m).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+(yrs<=2?ym.slice(2,4)+"/"+Number(ym.slice(5,7)):ym.slice(0,4))+'</text>';});
+    if(sim.length){
+      g+='<path d="'+pts(sim,"value")+sim.slice().reverse().map(r=>"L"+X(mnOf(r.ym)).toFixed(1)+" "+Y(r.principal).toFixed(1)).join("")+'Z" fill="var(--s1)" opacity=".13"/>';
+      g+='<path d="'+pts(sim,"principal")+'" fill="none" stroke="var(--other)" stroke-width="1.8" stroke-dasharray="5 3"/>';
+      g+='<path d="'+pts(sim,"value")+'" fill="none" stroke="var(--s1)" stroke-width="2"/>';
+      const e=sim[sim.length-1]; g+='<text x="'+X(mnOf(e.ym)).toFixed(1)+'" y="'+(Y(e.value)-6).toFixed(1)+'" text-anchor="end" style="fill:var(--fg)">'+fmtMan(e.value)+'</text>';
+    }
+    if(act.length){
+      if(act.length>1) g+='<path d="'+pts(act,"value")+'" fill="none" stroke="var(--s2)" stroke-width="1.5"/>';
+      g+=act.map(r=>'<circle cx="'+X(mnOf(r.ym)).toFixed(1)+'" cy="'+Y(r.value).toFixed(1)+'" r="3.2" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>').join("");
+    }
+    g+='<line class="cross" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1" style="display:none"/>';
+    box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(sim.length?ymLabel(sim[0].ym)+'から'+ymLabel(sim[sim.length-1].ym)+'の試算':'月次の記録')+'の推移グラフ。すぐ下の表でも確認できます">'+g+'</svg><div class="tip" hidden></div>';
+    const simBy={}, actBy={}; sim.forEach(r=>{simBy[mnOf(r.ym)]=r;}); act.forEach(r=>{actBy[mnOf(r.ym)]=r;});
+    const svg=box.querySelector("svg"), cross=svg.querySelector(".cross"), tip=box.querySelector(".tip");
+    function show(ev){
+      const rc=svg.getBoundingClientRect(); if(!rc.width) return;
+      let m=Math.round(lo+((ev.clientX-rc.left)/rc.width*W-L)/(W-L-R)*span); m=Math.max(lo,Math.min(hi,m));
+      const s=simBy[m], a=actBy[m];
+      cross.setAttribute("x1",X(m)); cross.setAttribute("x2",X(m)); cross.style.display="";
+      tip.innerHTML='<b>'+ymLabel(ymOfNo(m))+'</b>'+(s?'試算 '+yen(s.value)+'<br>元本 '+yen(s.principal)+' / 運用益 '+sgn(s.gain):'')+(s&&a?'<br>':'')+(a?'記録 '+yen(a.value)+'(元本 '+yen(a.principal)+')':'')+(!s&&!a?'記録なし':'');
+      tip.hidden=false;
+      const w=tip.offsetWidth, lx=X(m)/W*rc.width;
+      tip.style.left=Math.max(0,Math.min(rc.width-w,lx-w/2))+"px";
+    }
+    const hide=()=>{cross.style.display="none"; tip.hidden=true;};
+    svg.addEventListener("pointermove",show); svg.addEventListener("pointerdown",show); svg.addEventListener("pointerleave",hide);
+    // 表(年末ごと)
+    const src=sim.length?sim:act, seen=new Set(), rows=src.filter((r,i)=>(i===0||i===src.length-1||r.ym.slice(5,7)==="12")&&!seen.has(r.ym)&&seen.add(r.ym));
+    const num=n=>Math.round(n).toLocaleString("ja-JP");
+    tb.innerHTML=rows.map(r=>'<tr class="dr" tabindex="0"><td>'+r.ym.slice(0,4)+'/'+r.ym.slice(5,7)+'</td><td>'+num(r.principal)+'</td><td>'+num(r.value)+'</td></tr><tr class="gr"><td colspan="3">運用益 '+sgn(r.gain)+(r.principal>0?'('+(r.gain/r.principal*100).toFixed(1)+'%)':'')+'</td></tr>').join("");
+  }
+  function renderMoney(){
+    const t=today(), M=Core.moneySummary(state.accounts,state.debits,state.income,t,curYm());
+    // 引落口座の選択肢
+    const sel=$("dAcct"), keep=sel.value;
+    sel.innerHTML='<option value="">未指定</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");
+    if(keep&&state.accounts.some(a=>a.id===keep)) sel.value=keep;
+    // 小遣い = チェックを入れた口座の残高合計 − 未払いの固定費(今月と以前の月)
+    let allow;
+    if(!state.accounts.length||!M.selectedCount) allow='<div class="mcell"><span class="lbl">小遣い</span><span class="big muted">—</span><span class="sub">'+(state.accounts.length?'口座にチェックを':'口座を追加すると出ます')+'</span></div>';
+    else{
+      const paidSet=Core.matchPaid(state.fixed,realItems(),periods), cy=curYm(), sm=a=>a.reduce((t,f)=>t+f.amount,0);
+      const un=sm(state.fixed.filter(f=>f.month<=cy&&!paidSet.has(f.id)));
+      allow='<div class="mcell" title="チェックした口座の残高 '+yen(M.total)+' − 未払いの固定費 '+yen(un)+'(今月と以前の月。未来の月は含みません)"><span class="lbl">小遣い</span><span class="big">'+yenS(M.total-un)+'</span><span class="sub">未払いの固定費 −'+yen(un).replace("-","")+'</span></div>';
+    }
+    $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
+    // まとめ
+    $("mSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">銀行口座残高の合計'+(M.accountCount&&M.selectedCount<M.accountCount?'(選んだ'+M.selectedCount+'口座 / 全'+M.accountCount+'口座)':'')+'</span><span class="big">'+yenS(M.total)+'</span></div>'+allow+'</div>'+
+      '<dl class="msum3"><div><dt>これからの引落</dt><dd>'+(M.upcomingTotal?"−"+yen(M.upcomingTotal):yen(0))+'</dd></div>'+
+      '<div class="hl"><dt>引落後の見込み</dt><dd>'+yenS(M.projected)+'</dd></div>'+
+      '<div><dt>'+Number(curYm().slice(5,7))+'月分の給与</dt><dd>'+(M.incomeNow?yen(M.incomeNow):"—")+'</dd></div></dl>';
+    const notes=[];
+    if(state.accounts.length&&M.selectedCount===0) notes.push("合計に含める口座にチェックを入れてください");
+    if(M.unassigned>0&&state.accounts.length) notes.push("引落口座が未指定の予定が "+yen(M.unassigned)+" あります");
+    notes.push("引落予定は今日以降の分のみ。給与の入金は含みません");
+    $("mNote").textContent=notes.join("。")+"。";
+    // 口座
+    $("acCount").textContent=state.accounts.length?(M.selectedCount<M.accountCount?"合計に含む "+M.selectedCount+" / ":"")+state.accounts.length+"口座":"";
+    $("acBody").innerHTML=state.accounts.length?'<ul class="rows">'+state.accounts.map(a=>{
+      const dbt=M.byAcct[a.id]||0;
+      const sub=[a.memo].filter(Boolean).concat(["更新 "+shortD(a.balanceAt)]).concat(dbt?['引落 −'+yen(dbt).replace("-","")+' → '+yen(a.balance-dbt)]:[]).join(" · ");
+      return '<li class="frow'+(a.inTotal===false?' off':'')+'"><div class="r-name"><label class="ck" title="残高合計に含める"><input type="checkbox" data-ac-sel="'+esc(a.id)+'"'+(a.inTotal===false?'':' checked')+' aria-label="'+esc(a.name)+'を残高合計に含める"></label>'+esc(a.name)+'</div><div class="r-amt">'+yenS(a.balance)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="ac-edit" data-id="'+esc(a.id)+'">編集</button>'+delBtn("ac-del",a.id)+'</div></li>';
+    }).join("")+'</ul>':'<p class="empty">まだ口座がありません。「＋ 追加」から登録できます。口座は何口座でも追加・削除できます。</p>';
+    // 引落予定
+    const upc=state.debits.filter(d=>d.date>=t).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.createdAt||0)-(b.createdAt||0));
+    const past=state.debits.filter(d=>d.date<t).sort((a,b)=>a.date<b.date?1:-1);
+    $("diCount").textContent=upc.length?"これから "+upc.length+"件 · "+yen(M.upcomingAllTotal):"";
+    const dRow=d=>{
+      const an=acctName(d.account), days=Math.round((new Date(d.date+"T00:00:00")-new Date(t+"T00:00:00"))/86400000);
+      const rel=days===0?"今日":(days>0?"あと"+days+"日":Math.abs(days)+"日前");
+      const sub=[rel].concat(an?[an]:[]).concat(d.memo?[d.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name"><span class="dchip'+(days>=0&&days<=3?' soon':'')+'">'+esc(dayLabel(d.date))+'</span>'+esc(d.card)+'</div><div class="r-amt">'+yen(d.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="di-edit" data-id="'+esc(d.id)+'">編集</button>'+delBtn("di-del",d.id)+'</div></li>';
+    };
+    let h=upc.length?'<ul class="rows">'+upc.map(dRow).join("")+'</ul>':'<p class="empty">これからの引落予定はありません。</p>';
+    if(past.length){
+      const open=ui.mOpen.past===true;
+      h+='<details class="mfold" data-key="past" style="margin-top:8px"'+(open?' open':'')+'><summary><span class="m-name">過去の引落</span><span class="m-meta">'+past.length+'件</span></summary><div class="mbody"><ul class="rows">'+past.map(dRow).join("")+'</ul></div></details>';
+    }
+    $("diBody").innerHTML=h;
+    // 給与
+    const inc=state.income.slice().sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:(b.createdAt||0)-(a.createdAt||0));
+    $("inCount").textContent=inc.length?inc.length+"件":"";
+    $("inBody").innerHTML=inc.length?'<ul class="rows">'+inc.map(i=>{
+      const sub=["給料日 "+shortD(periods.of(i.month).from)].concat(i.memo?[i.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name"><span class="dchip">'+Number(i.month.slice(5,7))+'月分</span>'+esc(i.name)+'</div><div class="r-amt">'+yen(i.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="in-edit" data-id="'+esc(i.id)+'">編集</button>'+delBtn("in-del",i.id)+'</div></li>';
+    }).join("")+'</ul>':'<p class="empty">まだ給与の記録がありません。</p>';
+  }
+
+  /* 資産運用: 入力 */
+  $("plFields").innerHTML=planFormHtml();
+  $("plForm").addEventListener("input",()=>{ui.plDirty=true;});
+  const R_={kind:$("rKind"),month:$("rMonth"),prin:$("rPrin"),val:$("rVal"),memo:$("rMemo")}, W_={month:$("wMonth"),type:$("wType"),amt:$("wAmt"),memo:$("wMemo")};
+  function endRc(){ui.rcEditing=null;$("rSubmit").textContent="記録する";$("rCancel").hidden=true;R_.prin.value="";R_.val.value="";R_.memo.value="";}
+  function endFl(){ui.flEditing=null;$("wSubmit").textContent="追加する";$("wCancel").hidden=true;W_.amt.value="";W_.memo.value="";}
+  $("rcForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const kind=R_.kind.value, month=Core.normMonth(R_.month.value), pr=Core.parseAmount(R_.prin.value), v=Core.parseAmount(R_.val.value);
+    if(!month) return say("rMsg","月を選んでください。",true);
+    if(pr===null||pr<0) return say("rMsg","元本は0以上の数字で入力してください。",true);
+    if(v===null||v<0) return say("rMsg","評価額は0以上の数字で入力してください。",true);
+    const memo=R_.memo.value.trim(), now=Date.now();
+    const ed=ui.rcEditing?state.assets.find(a=>a.id===ui.rcEditing):null;
+    const dup=state.assets.find(a=>a.t==="rec"&&a.kind===kind&&a.month===month&&(!ed||a.id!==ed.id));
+    const rec=ed||dup; let msg="追加しました。";
+    if(ed&&dup){state.assets=state.assets.filter(a=>a.id!==dup.id); tombstone(dup.id);}
+    if(rec){Object.assign(rec,{kind:kind,month:month,principal:pr,value:v,memo:memo,updatedAt:now}); msg=ed?"更新しました。":"同じ月の記録を上書きしました。";}
+    else state.assets.push({id:Core.newId(),t:"rec",kind:kind,month:month,principal:pr,value:v,memo:memo,createdAt:now,updatedAt:now});
+    endRc(); changed(1); render(); say("rMsg",msg);
+  });
+  $("rCancel").addEventListener("click",()=>{endRc();say("rMsg","編集をやめました。");});
+  $("flForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const month=Core.normMonth(W_.month.value), amt=Core.parseAmount(W_.amt.value);
+    if(!month) return say("wMsg","月を選んでください。",true);
+    if(amt===null||amt<=0) return say("wMsg","金額は1以上の数字で入力してください。",true);
+    const type=W_.type.value==="out"?"out":"add", memo=W_.memo.value.trim(), now=Date.now(), wasEdit=!!ui.flEditing;
+    if(ui.flEditing){const f=state.assets.find(a=>a.id===ui.flEditing); if(f) Object.assign(f,{month:month,type:type,amount:amt,memo:memo,updatedAt:now});}
+    else state.assets.push({id:Core.newId(),t:"flow",kind:"nisa",month:month,type:type,amount:amt,memo:memo,createdAt:now,updatedAt:now});
+    endFl(); changed(1); render(); say("wMsg",wasEdit?"更新しました。":"追加しました。");
+  });
+  $("wCancel").addEventListener("click",()=>{endFl();say("wMsg","編集をやめました。");});
+  $("plForm").addEventListener("submit",e=>{
+    e.preventDefault(); const f=$("plForm"), now=Date.now(), outs=[];
+    for(const k of PLAN_KINDS){
+      const g=n=>f.querySelector('[data-pl="'+k+':'+n+'"]').value.trim();
+      const init=g("init")===""?0:Core.parseAmount(g("init")), monthly=g("monthly")===""?0:Core.parseAmount(g("monthly"));
+      const rate=g("rate")===""?0:Number(g("rate").normalize("NFKC").replace(/[%％\s]/g,"")), from=g("from"), to=g("to");
+      if(init===null||init<0||monthly===null||monthly<0) return say("plMsg",KN[k]+": 元手と積立額は0以上の数字で入力してください。",true);
+      if(!Number.isFinite(rate)||rate<-50||rate>100) return say("plMsg",KN[k]+": 年利は -50 〜 100 の数字で入力してください。",true);
+      if((from&&!to)||(!from&&to)) return say("plMsg",KN[k]+": 開始月と終了月は両方入れてください。",true);
+      if(from&&to&&to<from) return say("plMsg",KN[k]+": 終了月は開始月より後にしてください。",true);
+      if(from&&to&&Number(to.slice(0,4))-Number(from.slice(0,4))>80) return say("plMsg",KN[k]+": 投資期間は80年までです。",true);
+      outs.push({k:k,init:init,monthly:monthly,rate:rate,from:from,to:to});
+    }
+    let n=0;
+    outs.forEach(o=>{
+      const old=planOf(o.k);
+      if(old){ if(old.init===o.init&&old.monthly===o.monthly&&old.rate===o.rate&&old.from===o.from&&old.to===o.to) return; Object.assign(old,{init:o.init,monthly:o.monthly,rate:o.rate,from:o.from,to:o.to,updatedAt:now}); n++; }
+      else if(o.init||o.monthly||o.rate||o.from||o.to){ state.assets.push({id:"plan-"+o.k,t:"plan",kind:o.k,init:o.init,monthly:o.monthly,rate:o.rate,from:o.from,to:o.to,createdAt:now,updatedAt:now}); n++; }
+    });
+    ui.plDirty=false; if(n) changed(n); render(); say("plMsg",n?"保存しました。":"変更はありません。");
+  });
+  $("asTblBody").addEventListener("click",e=>{const r=e.target.closest("tr.dr"); if(r) r.classList.toggle("on");});
+  $("asTblBody").addEventListener("keydown",e=>{const r=e.target.closest("tr.dr"); if(r&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); r.classList.toggle("on");}});
+  document.addEventListener("click",e=>{const t=e.target.closest(".info"); document.querySelectorAll(".info.on").forEach(x=>{if(x!==t) x.classList.remove("on");}); if(t){e.preventDefault(); e.stopPropagation(); t.classList.toggle("on");}},true);
+  $("asKinds").addEventListener("click",e=>{const b=e.target.closest("[data-ak]"); if(!b) return; ui.asKind=b.dataset.ak; renderAssets();});
+  $("rcBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
+  $("acBody").addEventListener("change",e=>{
+    const c=e.target.closest("[data-ac-sel]"); if(!c) return;
+    const a=state.accounts.find(x=>x.id===c.dataset.acSel); if(!a) return;
+    a.inTotal=c.checked; a.updatedAt=Date.now(); changed(1); render();
+  });
+  $("diBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
+
+  const A={name:$("aName"),bal:$("aBal"),memo:$("aMemo")}, D={date:$("dDate"),amount:$("dAmount"),card:$("dCard"),acct:$("dAcct"),memo:$("dMemo")}, I={month:$("iMonth"),amount:$("iAmount"),name:$("iName"),memo:$("iMemo")};
+  function showForm(k,on){
+    const f=$({ac:"acForm",di:"diForm","in":"inForm",rc:"rcForm",fl:"flForm"}[k]), b=$(k+"Toggle");
+    if(on&&k==="ac") $("acFold").open=true;
+    f.hidden=!on; b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));
+  }
+  document.querySelectorAll(".tg[data-form]").forEach(b=>b.addEventListener("click",e=>{
+    e.preventDefault(); e.stopPropagation();
+    const k=b.dataset.form, f=$({ac:"acForm",di:"diForm","in":"inForm",rc:"rcForm",fl:"flForm"}[k]), on=f.hidden;
+    showForm(k,on);
+    if(on) f.querySelector("input").focus();
+  }));
+  function endAc(){ui.acEditing=null;$("aSubmit").textContent="口座を追加";$("aCancel").hidden=true;A.name.value="";A.bal.value="";A.memo.value="";}
+  function endDi(){ui.diEditing=null;$("dSubmit").textContent="引落予定を追加";$("dCancel").hidden=true;D.card.value="";D.amount.value="";D.memo.value="";}
+  function endIn(){ui.inEditing=null;$("iSubmit").textContent="給与を追加";$("iCancel").hidden=true;I.amount.value="";I.name.value="";I.memo.value="";}
+  $("acForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const name=A.name.value.trim(), bal=Core.parseAmount(A.bal.value);
+    if(!name) return say("aMsg","口座名を入力してください。",true);
+    if(bal===null) return say("aMsg","残高は数字で入力してください(マイナスも可)。",true);
+    const memo=A.memo.value.trim(), now=Date.now();
+    if(ui.acEditing){
+      const a=state.accounts.find(x=>x.id===ui.acEditing);
+      if(a){ if(a.balance!==bal) a.balanceAt=today(); a.name=name;a.balance=bal;a.memo=memo;a.updatedAt=now; }
+      endAc(); say("aMsg","更新しました。");
+    } else { state.accounts.push({id:Core.newId(),name:name,balance:bal,balanceAt:today(),memo:memo,createdAt:now,updatedAt:now}); endAc(); say("aMsg","口座を追加しました。"); }
+    changed(1); render(); A.name.focus();
+  });
+  $("aCancel").addEventListener("click",()=>{endAc();say("aMsg","編集をやめました。");});
+  $("diForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const date=Core.normDate(D.date.value), card=D.card.value.trim(), amount=Core.parseAmount(D.amount.value);
+    if(!date) return say("dMsg","引落日を選んでください。",true);
+    if(!card) return say("dMsg","カード名を入力してください。",true);
+    if(amount===null) return say("dMsg","金額は数字で入力してください。",true);
+    const acct=D.acct.value, memo=D.memo.value.trim(), now=Date.now(), wasEdit=!!ui.diEditing;
+    if(ui.diEditing){
+      const d=state.debits.find(x=>x.id===ui.diEditing);
+      if(d){d.date=date;d.card=card;d.amount=amount;d.account=acct;d.memo=memo;d.updatedAt=now;}
+    } else state.debits.push({id:Core.newId(),date:date,card:card,amount:amount,account:acct,memo:memo,createdAt:now,updatedAt:now});
+    endDi(); changed(1); render(); say("dMsg",wasEdit?"更新しました。":"追加しました。"); D.card.focus();
+  });
+  $("dCancel").addEventListener("click",()=>{endDi();say("dMsg","編集をやめました。");});
+  $("inForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const month=Core.normMonth(I.month.value), amount=Core.parseAmount(I.amount.value);
+    if(!month) return say("iMsg","月を選んでください(例 2026-10)。",true);
+    if(amount===null) return say("iMsg","金額は数字で入力してください。",true);
+    const name=I.name.value.trim()||"給与", memo=I.memo.value.trim(), now=Date.now(), wasEdit=!!ui.inEditing;
+    if(ui.inEditing){
+      const i=state.income.find(x=>x.id===ui.inEditing);
+      if(i){i.month=month;i.name=name;i.amount=amount;i.memo=memo;i.updatedAt=now;}
+    } else state.income.push({id:Core.newId(),month:month,name:name,amount:amount,memo:memo,createdAt:now,updatedAt:now});
+    const keepMonth=month; endIn(); I.month.value=keepMonth; changed(1); render(); say("iMsg",wasEdit?"更新しました。":"追加しました。");
+  });
+  $("iCancel").addEventListener("click",()=>{endIn();I.month.value=curYm();say("iMsg","編集をやめました。");});
+  function mDelete(key,list,id,endFn){
+    if(ui.mPending===id){
+      state[list]=state[list].filter(x=>x.id!==id); ui.mPending=null; tombstone(id);
+      if(ui[key]===id) endFn();
+      changed(1); render();
+    } else { ui.mPending=id; render(); clearTimeout(timers.mdel); timers.mdel=setTimeout(()=>{ui.mPending=null;render();},4000); }
+  }
+
+  function renderPayday(){
+    const inp=$("paydayInput"); if(document.activeElement!==inp) inp.value=cfg.payday?String(cfg.payday):"";
+    const c=periods.monthOf(today()), p=periods.of(c), nx=periods.of(Core.ymAdd(c,1));
+    $("paydayStatus").textContent="いまは "+ymLabel(c)+"分: "+fmt(p.from)+" 〜 "+fmt(p.to)+(cfg.payday?" / 次の給料日: "+fmt(nx.from):"");
+  }
+  $("paydayInput").addEventListener("change",e=>{
+    const v=e.target.value.normalize("NFKC").trim();
+    if(v===""){cfg.payday=0;}
+    else {
+      const n=Number(v);
+      if(!/^\d{1,2}$/.test(v)||n<1||n>31){e.target.value=cfg.payday?String(cfg.payday):""; return;}
+      cfg.payday=n;
+    }
+    saveCfg(); rebuildPeriods(); X.month.value=curYm(); render();
+  });
+
+  /* グラフ(円グラフ)。項目は最大6つ(5つ+ほか)。カテゴリは大きい順に色を割り当て、支払方法は固定の色 */
+  const PIE_MAX=6;
+  const pctText=r=>(Math.round(r*1000)/10).toFixed(1)+"%";
+  function rangeLabel(){return (ui.from||ui.to)?((ui.from?fmt(ui.from):"最初")+" 〜 "+(ui.to?fmt(ui.to):"最新")):"全期間";}
+  function chartData(S){
+    if(ui.chartMode==="method"){
+      const map=new Map(S.byMethod.map(m=>[m.key,m]));
+      const segs=[];
+      PM_DEFAULTS.forEach((k,i)=>{const m=map.get(k); if(m&&m.total>0) segs.push({name:k,total:m.total,count:m.count,cls:"km"+(i+1)});});
+      const rest=S.byMethod.filter(m=>PM_DEFAULTS.indexOf(m.key)<0&&m.total>0);
+      if(rest.length) segs.push({name:rest.length===1?pmLabel(rest[0].key):"ほか("+rest.length+"種類)",total:rest.reduce((a,m)=>a+m.total,0),count:rest.reduce((a,m)=>a+m.count,0),cls:"k0"});
+      const base=segs.reduce((a,x)=>a+x.total,0);
+      segs.forEach(x=>{x.ratio=base?x.total/base:0;});
+      return {rows:S.byMethod.map(m=>({name:pmLabel(m.key),total:m.total,count:m.count})),segs:segs,base:base,excluded:S.byMethod.filter(m=>m.total<=0).length};
+    }
+    const p=Core.pieSegments(S.cats,PIE_MAX);
+    let n=0;
+    const segs=p.segments.map(x=>Object.assign({},x,{cls:x.other?"k0":"k"+(++n)}));
+    return {rows:S.cats.map(c=>({name:c.name,total:c.total,count:c.count})),segs:segs,base:p.base,excluded:p.excluded};
+  }
+  function arc(cx,cy,r,a0,a1){
+    const pt=a=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)];
+    if(a1-a0>=359.99) return "M"+(cx-r)+" "+cy+"A"+r+" "+r+" 0 1 1 "+(cx+r)+" "+cy+"A"+r+" "+r+" 0 1 1 "+(cx-r)+" "+cy+"Z";
+    const s0=pt(a0), e0=pt(a1);
+    return "M"+cx+" "+cy+"L"+s0[0].toFixed(2)+" "+s0[1].toFixed(2)+"A"+r+" "+r+" 0 "+((a1-a0)>180?1:0)+" 1 "+e0[0].toFixed(2)+" "+e0[1].toFixed(2)+"Z";
+  }
+  function pieSvg(segs,aria){
+    const cx=100, cy=100, r=94;
+    let a=-90, out="";
+    segs.forEach(sg=>{
+      const a0=a, a1=a+sg.ratio*360; a=a1;
+      out+='<path class="slice '+sg.cls+'" tabindex="0" d="'+arc(cx,cy,r,a0,a1)+'"><title>'+esc(sg.name)+" "+yen(sg.total)+"("+pctText(sg.ratio)+")"+'</title></path>';
+      if(sg.ratio>=0.1){
+        const mid=(a0+a1)/2*Math.PI/180;
+        out+='<text class="slice-label '+sg.cls+'" x="'+(cx+Math.cos(mid)*r*0.62).toFixed(1)+'" y="'+(cy+Math.sin(mid)*r*0.62).toFixed(1)+'">'+Math.round(sg.ratio*100)+'%</text>';
+      }
+    });
+    return '<svg class="pie" viewBox="0 0 200 200" role="img" aria-label="'+esc(aria)+'">'+out+'</svg>';
+  }
+  function legendHtml(segs){
+    return '<ul class="legend">'+segs.map(sg=>'<li class="'+sg.cls+'"><i class="sw"></i><span class="nm">'+esc(sg.name)+'</span><span class="v">'+yen(sg.total)+'</span><span class="p">'+pctText(sg.ratio)+'</span></li>').join("")+'</ul>';
+  }
+  function tableHtml(D){
+    const rows=D.rows.map(r=>'<tr><td>'+esc(r.name)+'</td><td class="n">'+r.count+'</td><td class="n">'+yen(r.total)+'</td><td class="n">'+(r.total>0&&D.base?pctText(r.total/D.base):"—")+'</td></tr>').join("");
+    return '<details class="tv"><summary>すべての内訳を表で見る</summary><div class="wrapx"><table><thead><tr><th>'+(ui.chartMode==="method"?"支払方法":"カテゴリ")+'</th><th class="n">件数</th><th class="n">金額</th><th class="n">割合</th></tr></thead><tbody>'+rows+'</tbody></table></div></details>';
+  }
+  function renderChart(S){
+    $("modeCat").setAttribute("aria-pressed",String(ui.chartMode==="cat"));
+    $("modeMethod").setAttribute("aria-pressed",String(ui.chartMode==="method"));
+    $("chartScope").textContent=rangeLabel()+((ui.chartMode==="cat"&&ui.methods.length)?" / 支払方法: "+ui.methods.map(pmLabel).join("・"):"");
+    const D=chartData(S), body=$("chartBody");
+    if(!D.segs.length){body.innerHTML='<p class="empty">この条件の記録がありません。</p>';return;}
+    const aria=D.segs.map(sg=>sg.name+" "+Math.round(sg.ratio*100)+"%").join("、");
+    let h="";
+    if(D.segs.length>=3) h+='<div class="pie-wrap">'+pieSvg(D.segs,aria)+legendHtml(D.segs)+'</div>';
+    else h+='<div class="stackbar" role="img" aria-label="'+esc(aria)+'">'+D.segs.map(sg=>'<i class="'+sg.cls+'" style="flex:'+sg.ratio+' 1 0%" title="'+esc(sg.name)+'"></i>').join("")+'</div>'+legendHtml(D.segs);
+    const notes=["円グラフの合計は "+yen(D.base)+"(プラスの支出のみ)"];
+    if(D.excluded) notes.push("返品など合計がマイナスの項目 "+D.excluded+"件は含めていません");
+    if(ui.chartMode==="method"&&ui.methods.length) notes.push("支払方法別は、絞り込みに関係なく期間内のすべてを表示しています");
+    if(D.segs.length<3) notes.push("項目が2つ以下のときは、円ではなく帯で表示します");
+    h+='<p class="note">'+notes.join("。")+'。</p>'+tableHtml(D);
+    body.innerHTML=h;
+  }
+  $("modeCat").addEventListener("click",()=>{ui.chartMode="cat";render();});
+  $("modeMethod").addEventListener("click",()=>{ui.chartMode="method";render();});
+
+  /* フォーム */
+  const F={date:$("fDate"),amount:$("fAmount"),name:$("fName"),method:$("fMethod"),cat:$("fCat"),memo:$("fMemo")};
+  function resetEntry(){F.name.value="";F.amount.value="";F.memo.value="";}
+  function endEdit(){
+    ui.editingId=null; ui.editingBlank=false; $("formTitle").textContent="購入品・支払済サービスを追加"; $("fSubmit").textContent="追加"; $("fCancel").hidden=true;
+  }
+  $("form").addEventListener("submit",e=>{
+    e.preventDefault();
+    const date=Core.normDate(F.date.value), name=F.name.value.trim(), amount=Core.parseAmount(F.amount.value);
+    if(!date) return say("formMsg","日付を選んでください。",true);
+    if(!name) return say("formMsg","品名を入力してください。",true);
+    if(amount===null) return say("formMsg","金額は数字で入力してください。",true);
+    const method=F.method.value, category=F.cat.value.trim(), memo=F.memo.value.trim();
+    let item;
+    const wasEdit=!!ui.editingId;
+    if(ui.editingId){
+      item=state.items.find(i=>i.id===ui.editingId);
+      if(item){item.date=date;item.name=name;item.amount=amount;item.method=method;item.category=category;item.memo=memo;item.updatedAt=Date.now();delete item.sample;}
+      endEdit();
+    } else {
+      item={id:Core.newId(),date:date,name:name,amount:amount,method:method,category:category,memo:memo,createdAt:Date.now(),updatedAt:Date.now()};
+      state.items.push(item);
+    }
+    changed(1); resetEntry();
+    const hidden=[];
+    if((ui.from&&date<ui.from)||(ui.to&&date>ui.to)) hidden.push("期間");
+    if(ui.methods.length&&ui.methods.indexOf(method)<0) hidden.push("支払方法");
+    render();
+    say("formMsg",(wasEdit?"更新しました。":"記録しました。")+(hidden.length?" 表示中の"+hidden.join("・")+"の条件に合わないため、一覧には出ません。":""));
+    F.name.focus();
+  });
+  F.name.addEventListener("change",()=>{
+    if(ui.editingId||F.amount.value.trim()) return;
+    const ym=periods.monthOf(Core.normDate(F.date.value)||today()), paid=Core.matchPaid(state.fixed,realItems(),periods);
+    const f=state.fixed.find(x=>x.month===ym&&!paid.has(x.id)&&x.name.replace(/\s+/g,"")===F.name.value.trim().replace(/\s+/g,""));
+    if(!f) return;
+    F.amount.value=String(f.amount); F.method.value=f.method||""; if(!F.cat.value.trim()) F.cat.value="固定費";
+  });
+  $("fCancel").addEventListener("click",()=>{endEdit();resetEntry();render();say("formMsg","編集をやめました。");});
+
+  /* 入力欄の折り畳み(記録・固定費)。編集を始めると自動で開く */
+  function setBody(btnId,bodyId,on){
+    const b=$(btnId), bd=$(bodyId); bd.hidden=!on; b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));
+  }
+  [["fToggle","fBody"],["xToggle","xBody"]].forEach(p=>$(p[0]).addEventListener("click",()=>{
+    const on=$(p[1]).hidden; setBody(p[0],p[1],on);
+    if(on){const i=$(p[1]).querySelector("input"); if(i) i.focus();}
+  }));
+
+  /* 期間・支払方法の入力 */
+  $("presets").addEventListener("click",e=>{
+    const b=e.target.closest("[data-preset]"); if(!b) return;
+    const r=presetRange(b.dataset.preset); setRange(r[0],r[1]);
+  });
+  $("from").addEventListener("change",e=>{ui.from=e.target.value;render();});
+  $("to").addEventListener("change",e=>{ui.to=e.target.value;render();});
+  $("methodChips").addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    if(b.hasAttribute("data-all")) ui.methods=[];
+    else {
+      const k=b.getAttribute("data-m"), i=ui.methods.indexOf(k);
+      if(i>=0) ui.methods.splice(i,1); else ui.methods.push(k);
+    }
+    render();
+  });
+
+  /* 一覧・バナー・取り込みのボタン */
+  document.addEventListener("click",e=>{
+    const b=e.target.closest("[data-act]"); if(!b) return;
+    const act=b.dataset.act, id=b.dataset.id;
+    if(act==="edit"){
+      const it=state.items.find(i=>i.id===id); if(!it) return;
+      ui.editingId=id; ui.editingBlank=!it.method;
+      renderMethodSelect();
+      F.date.value=it.date; F.name.value=it.name; F.amount.value=String(it.amount); F.method.value=it.method||""; F.cat.value=it.category; F.memo.value=it.memo||"";
+      $("formTitle").textContent="記録を編集"; $("fSubmit").textContent="更新"; $("fCancel").hidden=false; setBody("fToggle","fBody",true);
+      $("form").scrollIntoView({block:"nearest",behavior:"smooth"}); F.name.focus();
+    } else if(act==="del"){
+      if(ui.pendingDelete===id){
+        const gone=state.items.find(i=>i.id===id);
+        state.items=state.items.filter(i=>i.id!==id); ui.pendingDelete=null;
+        if(gone&&!gone.sample) tombstone(id);
+        if(ui.editingId===id){endEdit();resetEntry();}
+        changed(1); render();
+      } else {
+        ui.pendingDelete=id; render();
+        clearTimeout(timers.del); timers.del=setTimeout(()=>{ui.pendingDelete=null;render();},4000);
+      }
+    } else if(act==="ac-edit"){
+      const a=state.accounts.find(x=>x.id===id); if(!a) return;
+      ui.acEditing=id; A.name.value=a.name; A.bal.value=String(a.balance); A.memo.value=a.memo||"";
+      $("aSubmit").textContent="更新"; $("aCancel").hidden=false; showForm("ac",true); $("acForm").scrollIntoView({block:"nearest",behavior:"smooth"}); A.bal.focus();
+    } else if(act==="ac-del"){
+      const used=state.debits.some(d=>d.account===id);
+      mDelete("acEditing","accounts",id,endAc);
+      if(used&&!ui.mPending) say("aMsg","その口座を引落口座にしていた予定は「未指定」になります。");
+    } else if(act==="di-edit"){
+      const d=state.debits.find(x=>x.id===id); if(!d) return;
+      ui.diEditing=id; D.date.value=d.date; D.card.value=d.card; D.amount.value=String(d.amount); D.acct.value=d.account||""; D.memo.value=d.memo||"";
+      $("dSubmit").textContent="更新"; $("dCancel").hidden=false; showForm("di",true); $("diForm").scrollIntoView({block:"nearest",behavior:"smooth"}); D.card.focus();
+    } else if(act==="di-del"){ mDelete("diEditing","debits",id,endDi);
+    } else if(act==="in-edit"){
+      const i=state.income.find(x=>x.id===id); if(!i) return;
+      ui.inEditing=id; I.month.value=i.month; I.name.value=i.name; I.amount.value=String(i.amount); I.memo.value=i.memo||"";
+      $("iSubmit").textContent="更新"; $("iCancel").hidden=false; showForm("in",true); $("inForm").scrollIntoView({block:"nearest",behavior:"smooth"}); I.amount.focus();
+    } else if(act==="in-del"){ mDelete("inEditing","income",id,endIn);
+    } else if(act==="rc-edit"){
+      const r=state.assets.find(x=>x.id===id); if(!r) return;
+      ui.rcEditing=id; R_.kind.value=r.kind; R_.month.value=r.month; R_.prin.value=String(r.principal); R_.val.value=String(r.value); R_.memo.value=r.memo||"";
+      $("rSubmit").textContent="更新"; $("rCancel").hidden=false; showForm("rc",true); $("rcForm").scrollIntoView({block:"nearest",behavior:"smooth"}); R_.val.focus();
+    } else if(act==="rc-del"){ mDelete("rcEditing","assets",id,endRc);
+    } else if(act==="fl-edit"){
+      const f=state.assets.find(x=>x.id===id); if(!f) return;
+      ui.flEditing=id; W_.month.value=f.month; W_.type.value=f.type; W_.amt.value=String(f.amount); W_.memo.value=f.memo||"";
+      $("wSubmit").textContent="更新"; $("wCancel").hidden=false; showForm("fl",true); $("flForm").scrollIntoView({block:"nearest",behavior:"smooth"}); W_.amt.focus();
+    } else if(act==="fl-del"){ mDelete("flEditing","assets",id,endFl);
+    } else if(act==="pl-latest"){
+      const k=b.dataset.kind, r=latestRec(k), f=$("plForm");
+      if(!r) return say("plMsg",KN[k]+"の記録がまだありません。",true);
+      f.querySelector('[data-pl="'+k+':init"]').value=String(r.value); f.querySelector('[data-pl="'+k+':from"]').value=r.month; ui.plDirty=true;
+      say("plMsg",KN[k]+": 最新の記録("+ymLabel(r.month)+")を元手と開始月に入れました。「保存」で確定します。");
+    } else if(act==="fx-view"){
+      const p=periods.of(b.dataset.key); setRange(p.from,p.to); showView("records",true);
+    } else if(act==="fx-per"){
+      ui.fxPerEdit=ui.fxPerEdit===b.dataset.key?null:b.dataset.key; ui.fxOpen[b.dataset.key]=true; renderFixed();
+    } else if(act==="fx-per-close"){
+      ui.fxPerEdit=null; renderFixed();
+    } else if(act==="fx-per-save"){
+      const box=b.closest(".mbody"), from=Core.normDate(box.querySelector(".per-from").value), to=Core.normDate(box.querySelector(".per-to").value);
+      if(!from||!to||from>to) return say("xMsg","開始日と終了日を正しく入れてください(開始日は終了日より前)。",true);
+      cfg.pOver[b.dataset.key]={from:from,to:to}; saveCfg(); rebuildPeriods(); ui.fxPerEdit=null; render();
+      say("xMsg",ymLabel(b.dataset.key)+"分の期間を "+fmt(from)+" 〜 "+fmt(to)+" にしました。");
+    } else if(act==="fx-per-reset"){
+      delete cfg.pOver[b.dataset.key]; saveCfg(); rebuildPeriods(); ui.fxPerEdit=null; render();
+    } else if(act==="fx-pay"){
+      const f=state.fixed.find(i=>i.id===id); if(!f) return;
+      const t=today(), pp=periods.of(f.month);
+      const date=t<pp.from?pp.from:(t>pp.to?pp.to:t);
+      const now=Date.now();
+      state.items.push({id:Core.newId(),date:date,name:f.name,amount:f.amount,method:f.method||"",category:"固定費",memo:f.memo||"",createdAt:now,updatedAt:now});
+      changed(1); render();
+      say("xMsg","「"+f.name+"」を記録に追加しました("+fmt(date)+")。");
+    } else if(act==="fx-edit"){
+      const f=state.fixed.find(i=>i.id===id); if(!f) return;
+      ui.fxEditing=id; ui.fxEditingBlank=!f.method; renderFxSelect();
+      X.month.value=f.month; X.name.value=f.name; X.amount.value=String(f.amount); X.method.value=f.method||""; X.memo.value=f.memo||"";
+      $("fxTitle").textContent="固定費を編集"; $("xSubmit").textContent="更新"; $("xCancel").hidden=false; setBody("xToggle","xBody",true);
+      $("fxForm").scrollIntoView({block:"nearest",behavior:"smooth"}); X.name.focus();
+    } else if(act==="fx-del"){
+      if(ui.fxPendingDelete===id){
+        state.fixed=state.fixed.filter(i=>i.id!==id); ui.fxPendingDelete=null; tombstone(id);
+        if(ui.fxEditing===id){endFxEdit();resetFx();}
+        changed(1); render();
+      } else {
+        ui.fxPendingDelete=id; render();
+        clearTimeout(timers.fxdel); timers.fxdel=setTimeout(()=>{ui.fxPendingDelete=null;render();},4000);
+      }
+    } else if(act==="clear-samples"){
+      state.items=state.items.filter(i=>!i.sample); save(); render();
+    } else if(act==="merge"){ applyImport(false);
+    } else if(act==="replace"){
+      if(!ui.replaceArmed){ui.replaceArmed=true;renderBackup();return;}
+      applyImport(true);
+    } else if(act==="cancel-import"){ ui.plan=null; ui.replaceArmed=false; renderBackup(); }
+  });
+
+  /* 書き出し */
+  function deliver(filename,text,mime,full){
+    try{
+      const url=URL.createObjectURL(new Blob([text],{type:mime}));
+      const a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+      if(full) markBackup();
+      say("backupMsg","書き出しました: "+filename);
+    }catch(e){say("backupMsg","書き出せませんでした。",true);}
+  }
+  $("btnCsv").addEventListener("click",()=>{
+    const scope=document.querySelector('input[name="scope"]:checked').value;
+    const base=realItems();
+    const items=scope==="period"?Core.summarize(base,ui.from,ui.to,today(),ui.methods).list:base;
+    if(!items.length) return say("backupMsg","書き出す記録がありません。",true);
+    deliver("kaimono_"+today()+(scope==="period"?"_filtered":"")+".csv",Core.toCSV(items),"text/csv;charset=utf-8",scope==="all");
+  });
+  $("btnJson").addEventListener("click",()=>{
+    const items=realItems();
+    if(!items.length&&!state.fixed.length&&!state.accounts.length&&!state.debits.length&&!state.income.length&&!state.assets.length) return say("backupMsg","書き出す記録がありません。",true);
+    deliver("kaimono_"+today()+".json",Core.toJSON(items,state.fixed,{income:state.income,accounts:state.accounts,debits:state.debits,assets:state.assets}),"application/json",true);
+  });
+
+  /* 読み込み */
+  async function readText(file){
+    const buf=await file.arrayBuffer();
+    try{return new TextDecoder("utf-8",{fatal:true}).decode(buf);}
+    catch(e){return new TextDecoder("shift_jis").decode(buf);}
+  }
+  $("file").addEventListener("change",async e=>{
+    const file=e.target.files&&e.target.files[0]; if(!file) return;
+    try{
+      const text=await readText(file);
+      const isJson=/\.json$/i.test(file.name)||/^\s*[\[{]/.test(text);
+      const r=isJson?Core.jsonToItems(text):Core.csvToItems(text);
+      const fx=r.fixed||[], mo=r.more||{income:[],accounts:[],debits:[],assets:[]};
+      const moreN=mo.income.length+mo.accounts.length+mo.debits.length+(mo.assets||[]).length;
+      if(!r.items.length&&!fx.length&&!moreN) throw new Error("取り込める記録が見つかりませんでした。");
+      const ds=r.items.map(i=>i.date).sort();
+      ui.plan={name:file.name,items:r.items,fixed:fx,hasFixed:!!r.hasFixed,more:mo,hasMore:!!r.hasMore,moreN:moreN,skipped:r.skipped,range:ds.length?fmt(ds[0])+" 〜 "+fmt(ds[ds.length-1]):""};
+      ui.replaceArmed=false; renderBackup();
+    }catch(err){
+      ui.plan=null; renderBackup(); say("backupMsg",err.message||"読み込めませんでした。",true);
+    }
+    e.target.value="";
+  });
+  function applyImport(replace){
+    const p=ui.plan; if(!p) return;
+    if(replace){
+      const next=Core.uniqueIds(p.items), keep=new Set(next.map(i=>i.id)), now=Date.now();
+      realItems().filter(i=>!keep.has(i.id)).forEach(i=>state.deleted.push({id:i.id,at:now}));
+      state.deleted=state.deleted.filter(t=>!keep.has(t.id));
+      if(p.hasFixed){
+        const nf=Core.uniqueIds(p.fixed), keepF=new Set(nf.map(i=>i.id));
+        state.fixed.filter(i=>!keepF.has(i.id)).forEach(i=>state.deleted.push({id:i.id,at:now}));
+        state.deleted=state.deleted.filter(t=>!keepF.has(t.id));
+        state.fixed=nf;
+      }
+      if(p.hasMore) ["income","accounts","debits","assets"].forEach(k=>{
+        const nl=Core.uniqueIds(p.more[k]||[]), keepK=new Set(nl.map(i=>i.id));
+        state[k].filter(i=>!keepK.has(i.id)).forEach(i=>state.deleted.push({id:i.id,at:now}));
+        state.deleted=state.deleted.filter(t=>!keepK.has(t.id));
+        state[k]=nl;
+      });
+      state.items=next; state.meta.changes=0; changed(1); state.meta.changes=0; save();
+      say("backupMsg",p.items.length+"件"+(p.hasFixed?"と固定費"+p.fixed.length+"件":"")+"で置き換えました。");
+    } else {
+      const r=Core.mergeItems(realItems(),p.items);
+      const rf=Core.mergeFixed(state.fixed,p.fixed||[]);
+      state.items=r.items; state.fixed=rf.items;
+      let moreAdded=0;
+      if(p.hasMore) ["income","accounts","debits","assets"].forEach(k=>{const rm=Core.mergeList(state[k],p.more[k]||[],Core.COL_KEYS[k]); state[k]=rm.items; moreAdded+=rm.added;});
+      const addedAll=r.added+rf.added+moreAdded;
+      if(addedAll) changed(addedAll); else save();
+      say("backupMsg",r.added+"件"+(rf.added?"と固定費"+rf.added+"件":"")+(moreAdded?"と資金メモ"+moreAdded+"件":"")+"を追加しました"+((r.dup+rf.dup)?"("+(r.dup+rf.dup)+"件は重複のため取り込みませんでした)":"")+"。");
+    }
+    ui.plan=null; ui.replaceArmed=false; render();
+  }
+
+  /* Googleドライブ同期。権限は drive.appdata だけ(このアプリ専用の隠しフォルダ)。ログイン用の一時キーは保存せず、メモリにだけ置きます */
+  const CFG_KEY="kaimono-shukei:cfg";
+  const PRESET_CLIENT_ID=""; // ここにクライアントIDを貼っておくと、スマホとPCで入力しなくて済みます
+  const SYNC_FILE="kaimono-shukei.json";
+  const SCOPE="https://www.googleapis.com/auth/drive.appdata";
+  let cfg={clientId:"",connected:false,payday:25,pOver:{}};
+  let periods=Core.makePeriods(25,{});
+  function rebuildPeriods(){periods=Core.makePeriods(cfg.payday,cfg.pOver);}
+  let token=null, tokenExp=0, syncing=false, fileId=null, syncTimer=null;
+
+  function loadCfg(){
+    let o={};
+    try{o=JSON.parse(localStorage.getItem(CFG_KEY)||"{}")||{};}catch(e){}
+    cfg.clientId=PRESET_CLIENT_ID||String(o.clientId||"").trim();
+    cfg.connected=!!o.connected;
+    const pd=Number(o.payday);
+    cfg.payday=(o.payday===undefined||o.payday===null||!Number.isFinite(pd)||pd<0||pd>31)?25:Math.floor(pd);
+    cfg.pOver={};
+    if(o.pOver&&typeof o.pOver==="object") Object.keys(o.pOver).forEach(k=>{const v=o.pOver[k]; if(/^\d{4}-\d{2}$/.test(k)&&v&&Core.validDate(String(v.from))&&Core.validDate(String(v.to))&&v.from<=v.to) cfg.pOver[k]={from:v.from,to:v.to};});
+    rebuildPeriods();
+  }
+  function saveCfg(){try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}catch(e){}}
+  const tokenOk=()=>!!token&&Date.now()<tokenExp-60000;
+
+  function loadGIS(){
+    return new Promise((resolve,reject)=>{
+      if(window.google&&google.accounts&&google.accounts.oauth2) return resolve();
+      const s=document.createElement("script");
+      s.src="https://accounts.google.com/gsi/client"; s.async=true;
+      s.onload=()=>resolve();
+      s.onerror=()=>reject(new Error("Googleのログイン部品を読み込めませんでした。ネット接続を確認してください。"));
+      document.head.appendChild(s);
+    });
+  }
+  async function getToken(){
+    if(tokenOk()) return token;
+    await loadGIS();
+    return new Promise((resolve,reject)=>{
+      const client=google.accounts.oauth2.initTokenClient({
+        client_id:cfg.clientId, scope:SCOPE,
+        callback:r=>{
+          if(r.error) return reject(new Error("ログインできませんでした("+r.error+")。クライアントIDと、承認済みのJavaScript生成元を確認してください。"));
+          if(!google.accounts.oauth2.hasGrantedAllScopes(r,SCOPE)) return reject(new Error("Googleドライブの権限が許可されていません。もう一度ログインして、権限にチェックを入れてください。"));
+          token=r.access_token; tokenExp=Date.now()+(Number(r.expires_in)||3600)*1000; resolve(token);
+        },
+        error_callback:err=>reject(new Error(
+          err&&err.type==="popup_closed"?"ログインがキャンセルされました。":
+          err&&err.type==="popup_failed_to_open"?"ポップアップがブロックされました。許可してから、もう一度押してください。":
+          "ログインに失敗しました。"))
+      });
+      client.requestAccessToken({prompt:""});
+    });
+  }
+  async function drive(path,o){
+    o=o||{};
+    const r=await fetch("https://www.googleapis.com"+path,{method:o.method||"GET",headers:Object.assign({Authorization:"Bearer "+token},o.headers||{}),body:o.body});
+    if(r.status===401){token=null;throw new Error("auth");}
+    if(!r.ok){const e=new Error("Drive "+r.status);e.status=r.status;throw e;}
+    return r;
+  }
+  async function findFile(){
+    const q=encodeURIComponent("name='"+SYNC_FILE+"' and trashed=false");
+    const r=await drive("/drive/v3/files?spaces=appDataFolder&q="+q+"&orderBy=createdTime&fields=files(id)&pageSize=5");
+    const j=await r.json();
+    return j.files&&j.files.length?j.files[0].id:null;
+  }
+  async function downloadRemote(id){
+    const r=await drive("/drive/v3/files/"+id+"?alt=media");
+    const t=await r.text();
+    if(!t.trim()) return {items:[],fixed:[],income:[],accounts:[],debits:[],assets:[],deleted:[]};
+    let j; try{j=JSON.parse(t);}catch(e){throw new Error("ドライブ上のデータを読み取れませんでした。");}
+    const items=(Array.isArray(j.items)?j.items:[]).map(x=>(x&&typeof x==="object")?Core.makeItem(x):null).filter(Boolean);
+    const deleted=(Array.isArray(j.deleted)?j.deleted:[]).filter(t=>t&&t.id&&Number.isFinite(t.at));
+    const fixed=(Array.isArray(j.fixed)?j.fixed:[]).map(x=>(x&&typeof x==="object")?Core.makeFixed(x):null).filter(Boolean);
+    const rd=(k,mk)=>(Array.isArray(j[k])?j[k]:[]).map(x=>(x&&typeof x==="object")?mk(x):null).filter(Boolean);
+    return {items:items,fixed:fixed,income:rd("income",Core.makeIncome),accounts:rd("accounts",Core.makeAccount),debits:rd("debits",Core.makeDebit),assets:rd("assets",Core.makeAsset),deleted:deleted};
+  }
+  async function uploadRemote(id,m){
+    const body=JSON.stringify({
+      app:"kaimono-shukei",version:2,updatedAt:new Date().toISOString(),
+      items:m.items.map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,createdAt:it.createdAt,updatedAt:it.updatedAt})),
+      fixed:m.fixed.map(Core.fixedOut),
+      income:m.income, accounts:m.accounts, debits:m.debits, assets:m.assets,
+      deleted:m.deleted
+    });
+    if(id){
+      try{
+        await drive("/upload/drive/v3/files/"+id+"?uploadType=media",{method:"PATCH",headers:{"Content-Type":"application/json; charset=UTF-8"},body:body});
+        return id;
+      }catch(e){ if(e.status!==404) throw e; }
+    }
+    const b="kaimono"+Math.random().toString(36).slice(2);
+    const meta=JSON.stringify({name:SYNC_FILE,parents:["appDataFolder"],mimeType:"application/json"});
+    const mp="--"+b+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+meta+"\r\n--"+b+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+body+"\r\n--"+b+"--";
+    const r=await drive("/upload/drive/v3/files?uploadType=multipart&fields=id",{method:"POST",headers:{"Content-Type":"multipart/related; boundary="+b},body:mp});
+    return (await r.json()).id;
+  }
+  function syncError(e){
+    const msg=e&&e.message||"";
+    if(msg==="auth") return "ログインの有効期限が切れました。もう一度「同期する」を押してください。";
+    if(e&&e.status===403) return "Googleドライブにアクセスできません。Google Drive API を有効にしたか、権限(drive.appdata)の設定を確認してください。";
+    if(e&&e.status) return "同期できませんでした(Drive "+e.status+")。しばらくしてからもう一度お試しください。";
+    if(e instanceof TypeError) return "通信できませんでした。ネット接続を確認してください。";
+    return msg||"同期できませんでした。";
+  }
+  async function syncNow(){
+    if(syncing) return;
+    if(!/^https?:$/.test(location.protocol)) return say("syncMsg","同期は、GitHub Pagesなど https のページで使えます。",true);
+    if(!cfg.clientId){showView("settings");$("syncDetails").open=true;return say("syncMsg","先にクライアントIDを入力してください。",true);}
+    syncing=true; renderSync();
+    try{
+      await getToken();
+      let remote=null;
+      for(let attempt=0;attempt<2&&!remote;attempt++){
+        try{
+          if(!fileId) fileId=await findFile();
+          remote=fileId?await downloadRemote(fileId):{items:[],fixed:[],income:[],accounts:[],debits:[],assets:[],deleted:[]};
+        }catch(e){
+          if(e.status===404&&attempt===0){fileId=null;continue;}
+          throw e;
+        }
+      }
+      const now=Date.now(), m1=Core.mergeSync(realItems(),state.deleted,remote.items,remote.deleted,now);
+      const m={items:m1.items,deleted:m1.deleted,pulled:m1.pulled,removed:m1.removed};
+      ["fixed","income","accounts","debits","assets"].forEach(k=>{
+        const mm=Core.mergeSync(state[k],m.deleted,remote[k]||[],remote.deleted,now);
+        m[k]=mm.items; m.deleted=mm.deleted; m.pulled+=mm.pulled; m.removed+=mm.removed;
+      });
+      state.items=m.items.concat(state.items.filter(i=>i.sample)); state.deleted=m.deleted;
+      ["fixed","income","accounts","debits","assets"].forEach(k=>{state[k]=m[k];});
+      const allOf=o=>o.items.concat(o.fixed||[],o.income||[],o.accounts||[],o.debits||[],o.assets||[]);
+      if(!fileId||Core.signature(allOf(m),m.deleted)!==Core.signature(allOf(remote),remote.deleted)){
+        fileId=await uploadRemote(fileId,m);
+      }
+      cfg.connected=true; saveCfg();
+      state.meta.lastSyncAt=new Date().toISOString(); state.meta.pending=0; save();
+      render();
+      const parts=[];
+      if(m.pulled) parts.push("ほかの端末の変更を "+m.pulled+"件取り込み");
+      if(m.removed) parts.push("削除を "+m.removed+"件反映");
+      say("syncMsg","同期しました"+(parts.length?"("+parts.join("、")+")":"")+"。");
+    }catch(e){
+      say("syncMsg",syncError(e),true);
+    }finally{
+      syncing=false; renderSync();
+    }
+  }
+  function scheduleSync(){
+    if(!cfg.connected||!tokenOk()) return;
+    clearTimeout(syncTimer); syncTimer=setTimeout(syncNow,1500);
+  }
+  function renderSync(){
+    const m=state.meta;
+    const st=!cfg.clientId?"未設定(クライアントIDが必要です)":(cfg.connected?"Googleドライブに接続済み":"未接続");
+    $("syncStatus").textContent=st+" / 最終同期: "+(m.lastSyncAt?stamp(m.lastSyncAt):"まだありません")+(m.pending?" / 未同期の変更 "+m.pending+"件":"");
+    $("btnSync").disabled=syncing; $("btnSync").textContent=syncing?"同期中…":"同期する";
+    $("btnDisconnect").hidden=!cfg.connected;
+    const bd=$("tabBadge"); bd.hidden=!(cfg.connected&&m.pending); bd.textContent=m.pending||""; bd.title="未同期の変更 "+(m.pending||0)+"件";
+    const inp=$("clientIdInput");
+    if(document.activeElement!==inp) inp.value=cfg.clientId;
+    inp.readOnly=!!PRESET_CLIENT_ID; $("btnSaveClient").hidden=!!PRESET_CLIENT_ID;
+  }
+  $("btnSync").addEventListener("click",syncNow);
+  $("btnSaveClient").addEventListener("click",()=>{
+    const v=$("clientIdInput").value.trim();
+    if(!/^[\w.-]+\.apps\.googleusercontent\.com$/.test(v)) return say("syncMsg","クライアントIDの形式が違います。「…apps.googleusercontent.com」で終わる文字列を貼ってください。",true);
+    cfg.clientId=v; cfg.connected=false; token=null; fileId=null; saveCfg(); renderSync();
+    say("syncMsg","保存しました。「同期する」を押してログインしてください。");
+  });
+  $("btnDisconnect").addEventListener("click",()=>{
+    try{if(token&&window.google&&google.accounts&&google.accounts.oauth2) google.accounts.oauth2.revoke(token,()=>{});}catch(e){}
+    token=null; fileId=null; cfg.connected=false; saveCfg(); renderSync();
+    say("syncMsg","連携を解除しました。ドライブ側の記録は残っています。");
+  });
+
+  /* 画面の切り替え(記録 / グラフ / 設定)。期間・支払方法の欄は、記録とグラフで共有 */
+  const VIEWS={records:["viewRecords","tabRecords"],fixed:["viewFixed","tabFixed"],chart:["viewChart","tabChart"],money:["viewMoney","tabMoney"],assets:["viewAssets","tabAssets"],settings:["viewSettings","tabSettings"]};
+  const viewFromHash=()=>{const h=location.hash.slice(1);return VIEWS[h]?h:"records";};
+  function showView(v,fromUser){
+    Object.keys(VIEWS).forEach(k=>{
+      $(VIEWS[k][0]).hidden=k!==v;
+      const t=$(VIEWS[k][1]);
+      if(k===v) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current");
+    });
+    $("period").hidden=(v==="settings"||v==="fixed"||v==="money"||v==="assets");
+    if(v==="settings"&&!cfg.clientId) $("syncDetails").open=true;
+    if(fromUser){
+      try{history.replaceState(null,"","#"+v);}catch(e){}
+      window.scrollTo(0,0);
+    }
+  }
+  Object.keys(VIEWS).forEach(k=>$(VIEWS[k][1]).addEventListener("click",()=>showView(k,true)));
+  window.addEventListener("hashchange",()=>showView(viewFromHash()));
+  /* 横にスワイプして、画面(タブ)を切り替える。入力欄・グラフ・横に動く表の上では動かさない */
+  {
+    const ORDER=["records","fixed","chart","money","assets"]; let st=null;
+    const blocked=el=>{
+      for(let n=el;n&&n!==document.body;n=n.parentElement){
+        if(/^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName)||(n.classList&&(n.classList.contains("achart")||n.classList.contains("ibox")))) return true;
+        if(n.scrollWidth>n.clientWidth+2&&/(auto|scroll)/.test(getComputedStyle(n).overflowX)) return true;
+      }
+      return false;
+    };
+    document.addEventListener("touchstart",e=>{
+      const t=e.touches&&e.touches[0]; st=(t&&e.touches.length===1&&!blocked(e.target))?{x:t.clientX,y:t.clientY,at:Date.now()}:null;
+    },{passive:true});
+    document.addEventListener("touchend",e=>{
+      const s0=st; st=null; const t=e.changedTouches&&e.changedTouches[0]; if(!s0||!t) return;
+      const dx=t.clientX-s0.x, dy=t.clientY-s0.y;
+      if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.8||Date.now()-s0.at>700) return;
+      const cur=ORDER.indexOf(viewFromHash()); if(cur<0) return;
+      const nx=cur+(dx<0?1:-1); if(nx<0||nx>=ORDER.length) return;
+      showView(ORDER[nx],true);
+    },{passive:true});
+  }
+
+
+  /* 起動 */
+  const had=load();
+  if(!had){state.items=makeSamples();save();}
+  loadCfg();
+  F.date.value=today(); X.month.value=curYm(); D.date.value=today(); I.month.value=curYm(); R_.month.value=today().slice(0,7); W_.month.value=today().slice(0,7);
+  const r0=presetRange("month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
+  render();
+  $("originText").textContent=location.origin;
+  const wideScr=!!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches);
+  $("breakdown").open=wideScr; setBody("fToggle","fBody",wideScr); setBody("xToggle","xBody",wideScr);
+  showView(viewFromHash());
+})();
+</script>
+</body>
+</html>
