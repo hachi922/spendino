@@ -256,6 +256,26 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .subfold:first-of-type > summary.sub-h{margin-top:0; border-top:0; padding-top:0}
 
 /* 資金メモ */
+/* 資産運用 */
+#rcBody,#flBody{container-type:inline-size; margin-top:10px}
+.alegend{display:flex; flex-wrap:wrap; gap:2px 14px; font-size:.72rem; color:var(--muted); margin:2px 0 6px}
+.alegend i{display:inline-block; width:16px; height:0; border-top:2.5px solid; vertical-align:middle; margin-right:5px}
+.alegend i.dash{border-top-style:dashed}
+.alegend i.dot{width:8px; height:8px; border:0; border-radius:50%; background:var(--s2)}
+.achart{position:relative}
+.achart svg{display:block; width:100%; height:auto; touch-action:pan-y}
+.achart text{font-family:var(--font-num); font-size:9.5px; fill:var(--muted)}
+.achart .grid{stroke:var(--line); stroke-width:1}
+.achart .tip{position:absolute; top:0; pointer-events:none; background:var(--surface); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:5px 8px; font-size:.72rem; line-height:1.45; box-shadow:0 2px 8px rgba(0,0,0,.14); white-space:nowrap; z-index:2}
+.achart .tip b{display:block; font-weight:700}
+.plk{border-top:1px solid var(--line); padding-top:10px; margin-top:10px}
+.plk h3{margin:0 0 6px; font-size:.9rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.atbl{width:100%; border-collapse:collapse; font-size:.78rem; font-family:var(--font-num)}
+.atbl th,.atbl td{padding:4px 6px; text-align:right; border-top:1px solid var(--line); white-space:nowrap}
+.atbl th{font-family:var(--font-body); font-weight:500; color:var(--muted); font-size:.7rem}
+.atbl th:first-child,.atbl td:first-child{text-align:left}
+.assetview .seg{flex-wrap:wrap}
+.assetview .seg button{padding:1px 9px}
 .moneyview{max-width:760px; display:grid; gap:10px}
 #acBody,#diBody,#inBody{container-type:inline-size; margin-top:10px}
 .mhero .lbl{font-size:.74rem; color:var(--muted)}
@@ -265,7 +285,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .mcell .lbl{display:block; font-size:.72rem; color:var(--muted)}
 .mcell .big{display:block; white-space:nowrap}
 .mcell .big.muted{color:var(--muted)}
-.mcell .sub{display:block; font-size:.68rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.mcell .sub{display:block; font-size:.68rem; color:var(--muted); overflow-wrap:anywhere}
 .mtop .mcell + .mcell{border-left:1px solid var(--line); padding-left:10px}
 .msum3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 10px; margin:10px 0 0; padding-top:10px; border-top:1px solid var(--line)}
 .msum3 div{min-width:0}
@@ -538,6 +558,70 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     </details>
   </main>
 
+  <main class="moneyview assetview" id="viewAssets" hidden>
+    <section class="panel" aria-labelledby="h-asum">
+      <h2 id="h-asum">資産のイメージ</h2>
+      <div id="asSum"></div>
+      <p class="note" id="asNote"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-achart">
+      <h2 id="h-achart">推移と試算</h2>
+      <div class="seg" id="asKinds" role="group" aria-label="表示する資産"></div>
+      <div class="alegend" aria-hidden="true"><span><i style="border-color:var(--s1)"></i>評価額(試算)</span><span><i class="dash" style="border-color:var(--other)"></i>元本(試算)</span><span><i class="dot"></i>評価額(記録)</span></div>
+      <div id="asChart" class="achart"></div>
+      <details class="mfold" id="asTbl" style="margin-top:8px"><summary><span class="m-name">表で見る</span><span class="m-meta">年末ごと</span></summary><div class="mbody"><table class="atbl"><thead><tr><th>年月</th><th>元本</th><th>評価額</th><th>運用益</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
+    </section>
+
+    <details class="panel fold" id="plFold">
+      <summary><h2 id="h-pl"><span>試算の設定 <small id="plCount"></small></span></h2></summary>
+      <div class="secbody">
+      <form id="plForm" novalidate autocomplete="off">
+        <p class="note">元手は「開始月」の時点の金額です。積立は開始月の翌月から数えます。投資期間(開始月〜終了月)は手動で指定します。</p>
+        <div id="plFields"></div>
+        <div class="actions"><button type="submit" class="primary">保存</button></div>
+        <p class="msg" id="plMsg" role="status" aria-live="polite"></p>
+      </form>
+      </div>
+    </details>
+
+    <details class="panel fold" open>
+      <summary><h2 id="h-rc"><span>月次の記録 <small id="rcCount"></small></span><button type="button" class="small tg" data-form="rc" id="rcToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
+      <form id="rcForm" class="mform" novalidate autocomplete="off" hidden>
+        <div class="fields">
+          <label class="f">種類<select id="rKind"><option value="nisa">つみたてNISA</option><option value="ideco">iDeCo</option><option value="cash">現金預金</option></select></label>
+          <label class="f">月<input type="month" id="rMonth" placeholder="2026-10"></label>
+          <label class="f">元本(円)<input type="text" id="rPrin" inputmode="numeric" placeholder="積み立てた累計"></label>
+          <label class="f">評価額(円)<input type="text" id="rVal" inputmode="numeric" placeholder="いまの金額"></label>
+          <label class="f full">メモ(任意)<input type="text" id="rMemo" maxlength="200"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary" id="rSubmit">記録する</button><button type="button" id="rCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="rMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="rcBody"></div>
+      </div>
+    </details>
+
+    <details class="panel fold" open>
+      <summary><h2 id="h-fl"><span>NISAの追加投資・取り崩し <small id="flCount"></small></span><button type="button" class="small tg" data-form="fl" id="flToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <div class="secbody">
+      <form id="flForm" class="mform" novalidate autocomplete="off" hidden>
+        <div class="fields">
+          <label class="f">月<input type="month" id="wMonth" placeholder="2026-10"></label>
+          <label class="f">種別<select id="wType"><option value="add">追加投資</option><option value="out">取り崩し</option></select></label>
+          <label class="f">金額(円)<input type="text" id="wAmt" inputmode="numeric" placeholder="500000"></label>
+          <label class="f">メモ(任意)<input type="text" id="wMemo" maxlength="200"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary" id="wSubmit">追加する</button><button type="button" id="wCancel" hidden>編集をやめる</button></div>
+        <p class="msg" id="wMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="flBody"></div>
+      <p class="note">試算の設定の期間内の分だけ、つみたてNISAの試算に反映します。</p>
+      </div>
+    </details>
+  </main>
+
   <main class="settings" id="viewSettings" hidden>
     <section class="panel" aria-labelledby="h-sync">
       <h2 id="h-sync">Googleドライブで同期</h2>
@@ -609,6 +693,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
     <button type="button" id="tabChart"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
     <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">資金</span></button>
+    <button type="button" id="tabAssets"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 18.5l5.5-6 4 3.5 7-8.5"/><path d="M15 7.5h5v5"/></svg><span class="tl">資産</span></button>
   </nav>
 </div>
 
@@ -751,10 +836,76 @@ const Core=(function(){
     if(!date||!card||amount===null) return null;
     return Object.assign({id:idOf(o),date:date,card:card,amount:amount,account:cleanStr(o.account,60),memo:cleanStr(o.memo,200)},stampsOf(o));
   }
+
+  /* 資産運用: 月次の記録(rec)・NISAの追加投資/取り崩し(flow)・試算の設定(plan) */
+  const ASSET_KINDS=["nisa","ideco","cash"], ASSET_NAMES={nisa:"つみたてNISA",ideco:"iDeCo",cash:"現金預金"};
+  const monthNo=ym=>Number(ym.slice(0,4))*12+Number(ym.slice(5,7))-1;
+  const ymFromNo=n=>Math.floor(n/12)+"-"+String(n%12+1).padStart(2,"0");
+  function makeAsset(o){
+    const kind=cleanStr(o.kind,10), t=cleanStr(o.t,10);
+    if(ASSET_KINDS.indexOf(kind)<0) return null;
+    if(t==="rec"){
+      const month=normMonth(o.month), principal=parseAmount(o.principal), value=parseAmount(o.value);
+      if(!month||principal===null||value===null) return null;
+      return Object.assign({id:idOf(o),t:"rec",kind:kind,month:month,principal:principal,value:value,memo:cleanStr(o.memo,200)},stampsOf(o));
+    }
+    if(t==="flow"){
+      const month=normMonth(o.month), amount=parseAmount(o.amount);
+      if(!month||amount===null||amount<=0) return null;
+      return Object.assign({id:idOf(o),t:"flow",kind:kind,month:month,type:o.type==="out"?"out":"add",amount:amount,memo:cleanStr(o.memo,200)},stampsOf(o));
+    }
+    if(t==="plan"){
+      const init=parseAmount(o.init), monthly=parseAmount(o.monthly), rate=Number(String(o.rate==null||o.rate===""?0:o.rate).normalize("NFKC").replace(/[%％\s]/g,""));
+      const from=o.from?normMonth(o.from):"", to=o.to?normMonth(o.to):"";
+      if((o.from&&!from)||(o.to&&!to)||(from&&to&&to<from)) return null;
+      return Object.assign({id:"plan-"+kind,t:"plan",kind:kind,init:init===null?0:Math.max(0,init),monthly:monthly===null?0:Math.max(0,monthly),rate:Number.isFinite(rate)?Math.max(-50,Math.min(100,rate)):0,from:from,to:to},stampsOf(o));
+    }
+    return null;
+  }
+  /* 試算: 開始月に元手があり、積立は翌月から。年利は月に直して複利。NISAの追加投資・取り崩しはその月に反映(取り崩しは元本も平均で減らす) */
+  function simulate(plan,flows){
+    if(!plan||!plan.from||!plan.to||plan.to<plan.from) return [];
+    const n=Math.min(monthNo(plan.to)-monthNo(plan.from),12*80), r=Math.pow(1+(plan.rate||0)/100,1/12)-1;
+    const by={}; (flows||[]).forEach(f=>{(by[f.month]=by[f.month]||[]).push(f);});
+    let v=plan.init||0, pr=v; const rows=[];
+    for(let i=0;i<=n;i++){
+      const ym=ymAdd(plan.from,i);
+      if(i>0){v=v*(1+r)+(plan.monthly||0); pr+=plan.monthly||0;}
+      (by[ym]||[]).forEach(f=>{
+        if(f.type==="out"){const a=Math.min(f.amount,v); if(v>0) pr-=pr*(a/v); v-=a;} else {v+=f.amount; pr+=f.amount;}
+      });
+      rows.push({ym:ym,principal:Math.round(pr),value:Math.round(v),gain:Math.round(v-pr)});
+    }
+    return rows;
+  }
+  /* 種類ごとの試算を月ごとに合算。始まる前は0、終わった後は最後の値のまま */
+  function sumSeries(list){
+    const all=list.filter(x=>x.length); if(!all.length) return [];
+    const a=all.map(x=>monthNo(x[0].ym)), b=all.map(x=>monthNo(x[x.length-1].ym));
+    const lo=Math.min.apply(null,a), hi=Math.max.apply(null,b), out=[];
+    for(let m=lo;m<=hi;m++){
+      let pr=0,v=0;
+      all.forEach((x,k)=>{if(m<a[k]) return; const row=x[Math.min(m-a[k],x.length-1)]; pr+=row.principal; v+=row.value;});
+      out.push({ym:ymFromNo(m),principal:pr,value:v,gain:v-pr});
+    }
+    return out;
+  }
+  /* 月次の記録を、記録のある月ごとに合算(種類ごとに直近の記録を引き継ぐ) */
+  function actualSeries(recs){
+    if(!recs.length) return [];
+    const by={}; recs.forEach(r=>{(by[r.kind]=by[r.kind]||[]).push(r);});
+    const months=Array.from(new Set(recs.map(r=>r.month))).sort();
+    return months.map(m=>{
+      let pr=0,v=0;
+      Object.keys(by).forEach(k=>{let last=null; by[k].forEach(r=>{if(r.month<=m&&(!last||r.month>last.month)) last=r;}); if(last){pr+=last.principal;v+=last.value;}});
+      return {ym:m,principal:pr,value:v,gain:v-pr};
+    });
+  }
   const COL_KEYS={
     accounts:a=>[a.name,a.balance,a.memo].join("\u0001"),
     income:i=>[i.month,i.name,i.amount,i.memo].join("\u0001"),
-    debits:d=>[d.date,d.card,d.amount,d.account,d.memo].join("\u0001")
+    debits:d=>[d.date,d.card,d.amount,d.account,d.memo].join("\u0001"),
+    assets:a=>[a.t,a.kind,a.month||"",a.type||"",a.principal,a.value,a.amount,a.init,a.monthly,a.rate,a.from||"",a.to||"",a.memo||""].join("\u0001")
   };
   function mergeList(existing,incoming,keyFn){
     const ids=new Set(existing.map(i=>i.id)), keys=new Set(existing.map(keyFn));
@@ -923,7 +1074,8 @@ const Core=(function(){
       fixed:fixed.map(fixedOut),
       income:(more.income||[]).map(x=>Object.assign({},x)),
       accounts:(more.accounts||[]).map(x=>Object.assign({},x)),
-      debits:(more.debits||[]).map(x=>Object.assign({},x))
+      debits:(more.debits||[]).map(x=>Object.assign({},x)),
+      assets:(more.assets||[]).map(x=>Object.assign({},x))
     },null,2);
   }
   function jsonToItems(text){
@@ -931,13 +1083,13 @@ const Core=(function(){
     try{o=JSON.parse(String(text).replace(/^﻿/,""));}catch(e){throw new Error("JSONとして読み込めませんでした。");}
     const arr=Array.isArray(o)?o:(o&&o.items);
     const hasFixed=!!(o&&!Array.isArray(o)&&Array.isArray(o.fixed));
-    const hasMore=!!(o&&!Array.isArray(o)&&(Array.isArray(o.income)||Array.isArray(o.accounts)||Array.isArray(o.debits)));
+    const hasMore=!!(o&&!Array.isArray(o)&&(Array.isArray(o.income)||Array.isArray(o.accounts)||Array.isArray(o.debits)||Array.isArray(o.assets)));
     if(!Array.isArray(arr)&&!hasFixed&&!hasMore) throw new Error("「items」の一覧が見つかりません。");
     const items=[], fixed=[]; let skipped=0;
     (Array.isArray(arr)?arr:[]).forEach(x=>{const it=(x&&typeof x==="object")?makeItem(x):null; if(it) items.push(it); else skipped++;});
     if(hasFixed) o.fixed.forEach(x=>{const f=(x&&typeof x==="object")?makeFixed(x):null; if(f) fixed.push(f); else skipped++;});
-    const more={income:[],accounts:[],debits:[]};
-    if(hasMore) [["income",makeIncome],["accounts",makeAccount],["debits",makeDebit]].forEach(p=>{
+    const more={income:[],accounts:[],debits:[],assets:[]};
+    if(hasMore) [["income",makeIncome],["accounts",makeAccount],["debits",makeDebit],["assets",makeAsset]].forEach(p=>{
       (Array.isArray(o[p[0]])?o[p[0]]:[]).forEach(x=>{const v=(x&&typeof x==="object")?p[1](x):null; if(v) more[p[0]].push(v); else skipped++;});
     });
     return {items:items,skipped:skipped,fixed:fixed,hasFixed:hasFixed,more:more,hasMore:hasMore};
@@ -1032,7 +1184,7 @@ const Core=(function(){
     return {list:list,count:count,total:total,days:days,avg:avg,largest:largest,cats:cats,months:months,byMethod:byMethod,periodTotal:periodTotal,periodCount:periodList.length};
   }
 
-  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
+  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,makeAsset,simulate,sumSeries,actualSeries,ASSET_KINDS,ASSET_NAMES,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
 })();
 </script>
 
@@ -1056,9 +1208,9 @@ const Core=(function(){
   function wd(d){const p=d.split("-").map(Number);return WD[new Date(p[0],p[1]-1,p[2]).getDay()];}
   function stamp(iso){const d=new Date(iso);return isNaN(d)?"":Core.ymd(d)+" "+pad(d.getHours())+":"+pad(d.getMinutes());}
 
-  let state={items:[],fixed:[],income:[],accounts:[],debits:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
+  let state={items:[],fixed:[],income:[],accounts:[],debits:[],assets:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
   let storageOk=true;
-  const ui={acEditing:null,diEditing:null,inEditing:null,mPending:null,mOpen:{},fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
+  const ui={acEditing:null,diEditing:null,inEditing:null,mPending:null,mOpen:{},fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,asKind:"all",rcEditing:null,flEditing:null,plDirty:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
   const timers={};
 
   /* 保存 */
@@ -1066,6 +1218,7 @@ const Core=(function(){
   const validAccount=a=>a&&typeof a==="object"&&typeof a.name==="string"&&Number.isFinite(a.balance)&&a.id;
   const validIncome=i=>i&&typeof i==="object"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(String(i.month))&&Number.isFinite(i.amount)&&i.id;
   const validDebit=d=>d&&typeof d==="object"&&Core.validDate(String(d.date))&&typeof d.card==="string"&&Number.isFinite(d.amount)&&d.id;
+  const validAsset=a=>a&&typeof a==='object'&&['rec','flow','plan'].indexOf(a.t)>=0&&['nisa','ideco','cash'].indexOf(a.kind)>=0&&a.id;
   const stampFix=x=>{if(typeof x.updatedAt!=="number") x.updatedAt=typeof x.createdAt==="number"?x.createdAt:0; return x;};
   function validFixed(f){return f&&typeof f=="object"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(String(f.month))&&typeof f.name==="string"&&Number.isFinite(f.amount)&&f.id;}
   function load(){
@@ -1086,6 +1239,7 @@ const Core=(function(){
           state.income=(Array.isArray(o.income)?o.income:[]).filter(validIncome).map(stampFix);
           state.accounts=(Array.isArray(o.accounts)?o.accounts:[]).filter(validAccount).map(stampFix);
           state.debits=(Array.isArray(o.debits)?o.debits:[]).filter(validDebit).map(stampFix);
+          state.assets=(Array.isArray(o.assets)?o.assets:[]).filter(validAsset).map(stampFix);
           state.deleted=Array.isArray(o.deleted)?o.deleted.filter(t=>t&&t.id&&Number.isFinite(t.at)):[];
           state.meta=Object.assign({lastBackupAt:null,changes:0,lastSyncAt:null,pending:0},o.meta||{});
           return true;
@@ -1165,7 +1319,7 @@ const Core=(function(){
   /* 描画 */
   function render(){
     const S=Core.summarize(state.items,ui.from,ui.to,today(),ui.methods);
-    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderMoney(); renderPayday(); renderBackup(); renderBanners(); renderCats();
+    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderMoney(); renderAssets(); renderPayday(); renderBackup(); renderBanners(); renderCats();
   }
   function renderSummary(S){
     $("sumTotal").textContent=yen(S.total);
@@ -1240,7 +1394,7 @@ const Core=(function(){
   }
   function renderBackup(){
     const m=state.meta, real=realItems().length;
-    $("backupStatus").textContent="記録 "+real+"件"+(state.fixed.length?" / 固定費 "+state.fixed.length+"件":"")+(state.accounts.length||state.debits.length||state.income.length?" / 資金メモ "+(state.accounts.length+state.debits.length+state.income.length)+"件":"")+" / 最終バックアップ: "+(m.lastBackupAt?stamp(m.lastBackupAt):"まだありません")+(m.changes?" / それ以降の変更 "+m.changes+"件":"");
+    $("backupStatus").textContent="記録 "+real+"件"+(state.fixed.length?" / 固定費 "+state.fixed.length+"件":"")+(state.accounts.length||state.debits.length||state.income.length?" / 資金メモ "+(state.accounts.length+state.debits.length+state.income.length)+"件":"")+(state.assets.length?" / 資産運用 "+state.assets.length+"件":"")+" / 最終バックアップ: "+(m.lastBackupAt?stamp(m.lastBackupAt):"まだありません")+(m.changes?" / それ以降の変更 "+m.changes+"件":"");
     const p=ui.plan;
     if(p){
       $("importBox").innerHTML='<div class="import"><p><b>'+esc(p.name)+'</b> から '+p.items.length+'件'+(p.fixed&&p.fixed.length?'と固定費'+p.fixed.length+'件':'')+(p.moreN?'と資金メモ'+p.moreN+'件':'')+'を読み込めます'+(p.range?'('+p.range+')':'')+'。'+(p.skipped?' 読み取れない行が'+p.skipped+'件ありました。':'')+'</p>'+
@@ -1386,6 +1540,119 @@ const Core=(function(){
   const yenS=n=>'<span'+(n<0?' class="neg"':'')+'>'+yen(n)+'</span>';
   const acctName=id=>{const a=state.accounts.find(x=>x.id===id); return a?a.name:"";};
   function delBtn(act,id){const armed=ui.mPending===id; return '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="'+act+'" data-id="'+esc(id)+'">'+(armed?'削除する?':'削除')+'</button>';}
+
+  /* 資産運用 */
+  const KN=Core.ASSET_NAMES, KINDS=Core.ASSET_KINDS;
+  const assetsOf=t=>state.assets.filter(a=>a.t===t);
+  const planOf=k=>state.assets.find(a=>a.t==="plan"&&a.kind===k)||null;
+  const latestRec=k=>assetsOf("rec").filter(r=>r.kind===k).sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:(b.updatedAt||0)-(a.updatedAt||0))[0]||null;
+  const mnOf=ym=>Number(ym.slice(0,4))*12+Number(ym.slice(5,7))-1;
+  const ymOfNo=n=>Math.floor(n/12)+"-"+String(n%12+1).padStart(2,"0");
+  const fmtMan=n=>{const a=Math.abs(n), s=n<0?"-":""; if(a>=1e8) return s+(+(a/1e8).toFixed(2))+"億"; if(a>=1e4) return s+Math.round(a/1e4).toLocaleString("ja-JP")+"万"; return s+Math.round(a);};
+  function niceMax(v){if(!(v>0)) return 1; const e=Math.pow(10,Math.floor(Math.log10(v))), f=v/e; for(const c of [1,1.2,1.6,2,2.4,3.2,4,5,6,8,10]) if(f<=c+1e-9) return c*e; return 10*e;}
+  function assetSeriesFor(kind){
+    const flows=assetsOf("flow"), ks=KINDS.filter(k=>kind==="all"||k===kind);
+    return {sim:Core.sumSeries(ks.map(k=>Core.simulate(planOf(k),flows.filter(f=>f.kind===k)))), act:Core.actualSeries(assetsOf("rec").filter(r=>ks.indexOf(r.kind)>=0))};
+  }
+  const gainSub=(v,p)=>'<span class="sub">元本 '+yen(p)+'</span><span class="sub">運用益 '+sgn(v-p)+(p>0?'('+((v-p)/p*100).toFixed(1)+'%)':'')+'</span>';
+  function planFormHtml(){
+    return KINDS.map(k=>'<div class="plk"><h3>'+KN[k]+'<button type="button" class="small" data-act="pl-latest" data-kind="'+k+'">最新の記録を元手に</button></h3><div class="fields">'+
+      '<label class="f">元手(円)<input type="text" inputmode="numeric" data-pl="'+k+':init" placeholder="0"></label>'+
+      '<label class="f">毎月の積立(円)<input type="text" inputmode="numeric" data-pl="'+k+':monthly" placeholder="30000"></label>'+
+      '<label class="f">想定年利(%)<input type="text" inputmode="decimal" data-pl="'+k+':rate" placeholder="'+(k==="cash"?"0.2":"5")+'"></label>'+
+      '<span></span>'+
+      '<label class="f">開始月<input type="month" data-pl="'+k+':from"></label>'+
+      '<label class="f">終了月<input type="month" data-pl="'+k+':to"></label></div></div>').join("");
+  }
+  function fillPlanForm(){
+    const f=$("plForm"); if(ui.plDirty||f.contains(document.activeElement)) return;
+    KINDS.forEach(k=>{
+      const pl=planOf(k), set=(n,v)=>{f.querySelector('[data-pl="'+k+':'+n+'"]').value=v;};
+      set("init",pl&&pl.init?String(pl.init):""); set("monthly",pl&&pl.monthly?String(pl.monthly):""); set("rate",pl&&pl.rate?String(pl.rate):""); set("from",pl?pl.from:""); set("to",pl?pl.to:"");
+    });
+  }
+  function renderAssets(){
+    const kind=ui.asKind, S=assetSeriesFor(kind), names=kind==="all"?"合計":KN[kind];
+    $("asKinds").innerHTML=["all"].concat(KINDS).map(k=>'<button type="button" data-ak="'+k+'" aria-pressed="'+(k===kind)+'">'+(k==="all"?"合計":KN[k])+'</button>').join("");
+    let nowV=0,nowP=0,has=false;
+    KINDS.filter(k=>kind==="all"||k===kind).forEach(k=>{const r=latestRec(k); if(r){nowV+=r.value;nowP+=r.principal;has=true;}});
+    const end=S.sim[S.sim.length-1];
+    $("asSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">いまの資産(記録・'+names+')</span><span class="big">'+(has?yenS(nowV):'—')+'</span>'+(has?gainSub(nowV,nowP):'<span class="sub">月次の記録を入れてください</span>')+'</div>'+
+      '<div class="mcell"><span class="lbl">'+(end?ymLabel(end.ym)+'の試算':'期間末の試算')+'</span><span class="big">'+(end?yenS(end.value):'—')+'</span>'+(end?gainSub(end.value,end.principal):'<span class="sub">「試算の設定」を入れてください</span>')+'</div></div>'+
+      '<dl class="msum3">'+KINDS.map(k=>{const r=latestRec(k); return '<div><dt>'+KN[k]+'</dt><dd>'+(r?yenS(r.value):'—')+'</dd></div>';}).join("")+'</dl>';
+    $("asNote").textContent="元本は積み立てた額、運用益は評価額から元本を引いた額です。試算は、想定年利で月ごとに複利計算した見込みで、将来を保証するものではありません。";
+    renderAssetChart(S);
+    // 試算の設定の見出し
+    const nPlan=KINDS.filter(k=>{const pl=planOf(k); return pl&&pl.from&&pl.to;}).length;
+    $("plCount").textContent=nPlan?nPlan+"種類を設定済み":"未設定";
+    fillPlanForm();
+    // 月次の記録(種類ごとに折りたたみ)
+    const recs=assetsOf("rec");
+    $("rcCount").textContent=recs.length?recs.length+"件":"";
+    const rowOf=r=>{
+      const g=r.value-r.principal, sub=["元本 "+yen(r.principal),"運用益 "+sgn(g)+(r.principal>0?"("+(g/r.principal*100).toFixed(1)+"%)":"")].concat(r.memo?[r.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name"><span class="dchip">'+r.month.slice(0,4)+'/'+r.month.slice(5,7)+'</span>'+esc(KN[r.kind])+'</div><div class="r-amt">'+yenS(r.value)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="rc-edit" data-id="'+esc(r.id)+'">編集</button>'+delBtn("rc-del",r.id)+'</div></li>';
+    };
+    $("rcBody").innerHTML=recs.length?KINDS.filter(k=>recs.some(r=>r.kind===k)).map(k=>{
+      const list=recs.filter(r=>r.kind===k).sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:0), top=list[0], open=ui.mOpen["as-"+k]===true;
+      return '<details class="mfold" data-key="as-'+k+'"'+(open?' open':'')+'><summary><span class="m-name">'+KN[k]+'</span><span class="m-meta">'+list.length+'件 · 最新 '+top.month.slice(0,4)+'/'+top.month.slice(5,7)+'</span><span class="m-total">'+yen(top.value)+'</span></summary><div class="mbody"><ul class="rows">'+list.map(rowOf).join("")+'</ul></div></details>';
+    }).join(""):'<p class="empty">まだ記録がありません。「＋ 追加」から、毎月の元本と評価額を入れます。同じ月・同じ種類は上書きされます。</p>';
+    // NISAの追加投資・取り崩し
+    const fls=assetsOf("flow").sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:(b.createdAt||0)-(a.createdAt||0));
+    $("flCount").textContent=fls.length?fls.length+"件":"";
+    $("flBody").innerHTML=fls.length?'<ul class="rows">'+fls.map(f=>{
+      const sub=[KN[f.kind]].concat(f.memo?[f.memo]:[]).join(" · ");
+      return '<li class="frow"><div class="r-name"><span class="dchip">'+f.month.slice(0,4)+'/'+f.month.slice(5,7)+'</span>'+(f.type==="out"?'取り崩し':'追加投資')+'</div><div class="r-amt">'+(f.type==="out"?'−':'+')+yen(f.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
+        '<div class="r-act"><button type="button" class="small" data-act="fl-edit" data-id="'+esc(f.id)+'">編集</button>'+delBtn("fl-del",f.id)+'</div></li>';
+    }).join("")+'</ul>':'<p class="empty">追加投資や取り崩しはありません。</p>';
+  }
+  function renderAssetChart(S){
+    const box=$("asChart"), sim=S.sim, act=S.act, tb=$("asTblBody"), tbl=$("asTbl");
+    if(!sim.length&&!act.length){box.innerHTML='<p class="empty">「試算の設定」か「月次の記録」を入れると、ここにグラフが出ます。</p>'; tb.innerHTML=""; tbl.hidden=true; return;}
+    tbl.hidden=false;
+    const all=sim.concat(act), ms=all.map(r=>mnOf(r.ym)), lo=Math.min.apply(null,ms), hi=Math.max.apply(null,ms);
+    const W=360,H=220,L=46,R=18,T=16,B=26, span=Math.max(hi-lo,1);
+    const X=m=>L+(m-lo)/span*(W-L-R);
+    const maxV=niceMax(Math.max.apply(null,all.map(r=>Math.max(r.value,r.principal,0)))*1.02);
+    const Y=v=>T+(1-Math.max(v,0)/maxV)*(H-T-B);
+    const pts=(rows,k)=>rows.map((r,i)=>(i?"L":"M")+X(mnOf(r.ym)).toFixed(1)+" "+Y(r[k]).toFixed(1)).join("");
+    let g="";
+    for(let i=0;i<=4;i++){const v=maxV/4*i, y=Y(v).toFixed(1); g+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(L-5)+'" y="'+(+y+3)+'" text-anchor="end">'+fmtMan(v)+'</text>';}
+    const yrs=span/12, ticks=[];
+    if(yrs<=2){const st=Math.max(1,Math.round(span/4)); for(let m=lo;m<=hi;m+=st) ticks.push(m);}
+    else{const st=yrs>40?10:yrs>20?5:yrs>8?2:1; for(let m=lo;m<=hi;m++){if(m%12===0&&Math.floor(m/12)%st===0) ticks.push(m);}}
+    ticks.forEach(m=>{const ym=ymOfNo(m); g+='<text x="'+X(m).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+(yrs<=2?ym.slice(2,4)+"/"+Number(ym.slice(5,7)):ym.slice(0,4))+'</text>';});
+    if(sim.length){
+      g+='<path d="'+pts(sim,"value")+sim.slice().reverse().map(r=>"L"+X(mnOf(r.ym)).toFixed(1)+" "+Y(r.principal).toFixed(1)).join("")+'Z" fill="var(--s1)" opacity=".13"/>';
+      g+='<path d="'+pts(sim,"principal")+'" fill="none" stroke="var(--other)" stroke-width="1.8" stroke-dasharray="5 3"/>';
+      g+='<path d="'+pts(sim,"value")+'" fill="none" stroke="var(--s1)" stroke-width="2"/>';
+      const e=sim[sim.length-1]; g+='<text x="'+X(mnOf(e.ym)).toFixed(1)+'" y="'+(Y(e.value)-6).toFixed(1)+'" text-anchor="end" style="fill:var(--fg)">'+fmtMan(e.value)+'</text>';
+    }
+    if(act.length){
+      if(act.length>1) g+='<path d="'+pts(act,"value")+'" fill="none" stroke="var(--s2)" stroke-width="1.5"/>';
+      g+=act.map(r=>'<circle cx="'+X(mnOf(r.ym)).toFixed(1)+'" cy="'+Y(r.value).toFixed(1)+'" r="3.2" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>').join("");
+    }
+    g+='<line class="cross" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1" style="display:none"/>';
+    box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(sim.length?ymLabel(sim[0].ym)+'から'+ymLabel(sim[sim.length-1].ym)+'の試算':'月次の記録')+'の推移グラフ。表でも確認できます">'+g+'</svg><div class="tip" hidden></div>';
+    const simBy={}, actBy={}; sim.forEach(r=>{simBy[mnOf(r.ym)]=r;}); act.forEach(r=>{actBy[mnOf(r.ym)]=r;});
+    const svg=box.querySelector("svg"), cross=svg.querySelector(".cross"), tip=box.querySelector(".tip");
+    function show(ev){
+      const rc=svg.getBoundingClientRect(); if(!rc.width) return;
+      let m=Math.round(lo+((ev.clientX-rc.left)/rc.width*W-L)/(W-L-R)*span); m=Math.max(lo,Math.min(hi,m));
+      const s=simBy[m], a=actBy[m];
+      cross.setAttribute("x1",X(m)); cross.setAttribute("x2",X(m)); cross.style.display="";
+      tip.innerHTML='<b>'+ymLabel(ymOfNo(m))+'</b>'+(s?'試算 '+yen(s.value)+'<br>元本 '+yen(s.principal)+' / 運用益 '+sgn(s.gain):'')+(s&&a?'<br>':'')+(a?'記録 '+yen(a.value)+'(元本 '+yen(a.principal)+')':'')+(!s&&!a?'記録なし':'');
+      tip.hidden=false;
+      const w=tip.offsetWidth, lx=X(m)/W*rc.width;
+      tip.style.left=Math.max(0,Math.min(rc.width-w,lx-w/2))+"px";
+    }
+    const hide=()=>{cross.style.display="none"; tip.hidden=true;};
+    svg.addEventListener("pointermove",show); svg.addEventListener("pointerdown",show); svg.addEventListener("pointerleave",hide);
+    // 表(年末ごと)
+    const src=sim.length?sim:act, seen=new Set(), rows=src.filter((r,i)=>(i===0||i===src.length-1||r.ym.slice(5,7)==="12")&&!seen.has(r.ym)&&seen.add(r.ym));
+    tb.innerHTML=rows.map(r=>'<tr><td>'+r.ym.slice(0,4)+'/'+r.ym.slice(5,7)+'</td><td>'+yen(r.principal)+'</td><td>'+yenS(r.value)+'</td><td>'+sgn(r.gain)+'</td></tr>').join("");
+  }
   function renderMoney(){
     const t=today(), M=Core.moneySummary(state.accounts,state.debits,state.income,t,curYm());
     // 引落口座の選択肢
@@ -1445,6 +1712,63 @@ const Core=(function(){
         '<div class="r-act"><button type="button" class="small" data-act="in-edit" data-id="'+esc(i.id)+'">編集</button>'+delBtn("in-del",i.id)+'</div></li>';
     }).join("")+'</ul>':'<p class="empty">まだ給与の記録がありません。</p>';
   }
+
+  /* 資産運用: 入力 */
+  $("plFields").innerHTML=planFormHtml();
+  $("plForm").addEventListener("input",()=>{ui.plDirty=true;});
+  const R_={kind:$("rKind"),month:$("rMonth"),prin:$("rPrin"),val:$("rVal"),memo:$("rMemo")}, W_={month:$("wMonth"),type:$("wType"),amt:$("wAmt"),memo:$("wMemo")};
+  function endRc(){ui.rcEditing=null;$("rSubmit").textContent="記録する";$("rCancel").hidden=true;R_.prin.value="";R_.val.value="";R_.memo.value="";}
+  function endFl(){ui.flEditing=null;$("wSubmit").textContent="追加する";$("wCancel").hidden=true;W_.amt.value="";W_.memo.value="";}
+  $("rcForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const kind=R_.kind.value, month=Core.normMonth(R_.month.value), pr=Core.parseAmount(R_.prin.value), v=Core.parseAmount(R_.val.value);
+    if(!month) return say("rMsg","月を選んでください。",true);
+    if(pr===null||pr<0) return say("rMsg","元本は0以上の数字で入力してください。",true);
+    if(v===null||v<0) return say("rMsg","評価額は0以上の数字で入力してください。",true);
+    const memo=R_.memo.value.trim(), now=Date.now();
+    const ed=ui.rcEditing?state.assets.find(a=>a.id===ui.rcEditing):null;
+    const dup=state.assets.find(a=>a.t==="rec"&&a.kind===kind&&a.month===month&&(!ed||a.id!==ed.id));
+    const rec=ed||dup; let msg="追加しました。";
+    if(ed&&dup){state.assets=state.assets.filter(a=>a.id!==dup.id); tombstone(dup.id);}
+    if(rec){Object.assign(rec,{kind:kind,month:month,principal:pr,value:v,memo:memo,updatedAt:now}); msg=ed?"更新しました。":"同じ月の記録を上書きしました。";}
+    else state.assets.push({id:Core.newId(),t:"rec",kind:kind,month:month,principal:pr,value:v,memo:memo,createdAt:now,updatedAt:now});
+    endRc(); changed(1); render(); say("rMsg",msg);
+  });
+  $("rCancel").addEventListener("click",()=>{endRc();say("rMsg","編集をやめました。");});
+  $("flForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const month=Core.normMonth(W_.month.value), amt=Core.parseAmount(W_.amt.value);
+    if(!month) return say("wMsg","月を選んでください。",true);
+    if(amt===null||amt<=0) return say("wMsg","金額は1以上の数字で入力してください。",true);
+    const type=W_.type.value==="out"?"out":"add", memo=W_.memo.value.trim(), now=Date.now(), wasEdit=!!ui.flEditing;
+    if(ui.flEditing){const f=state.assets.find(a=>a.id===ui.flEditing); if(f) Object.assign(f,{month:month,type:type,amount:amt,memo:memo,updatedAt:now});}
+    else state.assets.push({id:Core.newId(),t:"flow",kind:"nisa",month:month,type:type,amount:amt,memo:memo,createdAt:now,updatedAt:now});
+    endFl(); changed(1); render(); say("wMsg",wasEdit?"更新しました。":"追加しました。");
+  });
+  $("wCancel").addEventListener("click",()=>{endFl();say("wMsg","編集をやめました。");});
+  $("plForm").addEventListener("submit",e=>{
+    e.preventDefault(); const f=$("plForm"), now=Date.now(), outs=[];
+    for(const k of KINDS){
+      const g=n=>f.querySelector('[data-pl="'+k+':'+n+'"]').value.trim();
+      const init=g("init")===""?0:Core.parseAmount(g("init")), monthly=g("monthly")===""?0:Core.parseAmount(g("monthly"));
+      const rate=g("rate")===""?0:Number(g("rate").normalize("NFKC").replace(/[%％\s]/g,"")), from=g("from"), to=g("to");
+      if(init===null||init<0||monthly===null||monthly<0) return say("plMsg",KN[k]+": 元手と積立額は0以上の数字で入力してください。",true);
+      if(!Number.isFinite(rate)||rate<-50||rate>100) return say("plMsg",KN[k]+": 年利は -50 〜 100 の数字で入力してください。",true);
+      if((from&&!to)||(!from&&to)) return say("plMsg",KN[k]+": 開始月と終了月は両方入れてください。",true);
+      if(from&&to&&to<from) return say("plMsg",KN[k]+": 終了月は開始月より後にしてください。",true);
+      if(from&&to&&Number(to.slice(0,4))-Number(from.slice(0,4))>80) return say("plMsg",KN[k]+": 投資期間は80年までです。",true);
+      outs.push({k:k,init:init,monthly:monthly,rate:rate,from:from,to:to});
+    }
+    let n=0;
+    outs.forEach(o=>{
+      const old=planOf(o.k);
+      if(old){ if(old.init===o.init&&old.monthly===o.monthly&&old.rate===o.rate&&old.from===o.from&&old.to===o.to) return; Object.assign(old,{init:o.init,monthly:o.monthly,rate:o.rate,from:o.from,to:o.to,updatedAt:now}); n++; }
+      else if(o.init||o.monthly||o.rate||o.from||o.to){ state.assets.push({id:"plan-"+o.k,t:"plan",kind:o.k,init:o.init,monthly:o.monthly,rate:o.rate,from:o.from,to:o.to,createdAt:now,updatedAt:now}); n++; }
+    });
+    ui.plDirty=false; if(n) changed(n); render(); say("plMsg",n?"保存しました。":"変更はありません。");
+  });
+  $("asKinds").addEventListener("click",e=>{const b=e.target.closest("[data-ak]"); if(!b) return; ui.asKind=b.dataset.ak; renderAssets();});
+  $("rcBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
   $("acBody").addEventListener("change",e=>{
     const c=e.target.closest("[data-ac-sel]"); if(!c) return;
     const a=state.accounts.find(x=>x.id===c.dataset.acSel); if(!a) return;
@@ -1454,13 +1778,13 @@ const Core=(function(){
 
   const A={name:$("aName"),bal:$("aBal"),memo:$("aMemo")}, D={date:$("dDate"),amount:$("dAmount"),card:$("dCard"),acct:$("dAcct"),memo:$("dMemo")}, I={month:$("iMonth"),amount:$("iAmount"),name:$("iName"),memo:$("iMemo")};
   function showForm(k,on){
-    const f=$({ac:"acForm",di:"diForm","in":"inForm"}[k]), b=$(k+"Toggle");
+    const f=$({ac:"acForm",di:"diForm","in":"inForm",rc:"rcForm",fl:"flForm"}[k]), b=$(k+"Toggle");
     if(on&&k==="ac") $("acFold").open=true;
     f.hidden=!on; b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));
   }
   document.querySelectorAll(".tg[data-form]").forEach(b=>b.addEventListener("click",e=>{
     e.preventDefault(); e.stopPropagation();
-    const k=b.dataset.form, f=$({ac:"acForm",di:"diForm","in":"inForm"}[k]), on=f.hidden;
+    const k=b.dataset.form, f=$({ac:"acForm",di:"diForm","in":"inForm",rc:"rcForm",fl:"flForm"}[k]), on=f.hidden;
     showForm(k,on);
     if(on) f.querySelector("input").focus();
   }));
@@ -1704,6 +2028,21 @@ const Core=(function(){
       ui.inEditing=id; I.month.value=i.month; I.name.value=i.name; I.amount.value=String(i.amount); I.memo.value=i.memo||"";
       $("iSubmit").textContent="更新"; $("iCancel").hidden=false; showForm("in",true); $("inForm").scrollIntoView({block:"nearest",behavior:"smooth"}); I.amount.focus();
     } else if(act==="in-del"){ mDelete("inEditing","income",id,endIn);
+    } else if(act==="rc-edit"){
+      const r=state.assets.find(x=>x.id===id); if(!r) return;
+      ui.rcEditing=id; R_.kind.value=r.kind; R_.month.value=r.month; R_.prin.value=String(r.principal); R_.val.value=String(r.value); R_.memo.value=r.memo||"";
+      $("rSubmit").textContent="更新"; $("rCancel").hidden=false; showForm("rc",true); $("rcForm").scrollIntoView({block:"nearest",behavior:"smooth"}); R_.val.focus();
+    } else if(act==="rc-del"){ mDelete("rcEditing","assets",id,endRc);
+    } else if(act==="fl-edit"){
+      const f=state.assets.find(x=>x.id===id); if(!f) return;
+      ui.flEditing=id; W_.month.value=f.month; W_.type.value=f.type; W_.amt.value=String(f.amount); W_.memo.value=f.memo||"";
+      $("wSubmit").textContent="更新"; $("wCancel").hidden=false; showForm("fl",true); $("flForm").scrollIntoView({block:"nearest",behavior:"smooth"}); W_.amt.focus();
+    } else if(act==="fl-del"){ mDelete("flEditing","assets",id,endFl);
+    } else if(act==="pl-latest"){
+      const k=b.dataset.kind, r=latestRec(k), f=$("plForm");
+      if(!r) return say("plMsg",KN[k]+"の記録がまだありません。",true);
+      f.querySelector('[data-pl="'+k+':init"]').value=String(r.value); f.querySelector('[data-pl="'+k+':from"]').value=r.month; ui.plDirty=true;
+      say("plMsg",KN[k]+": 最新の記録("+ymLabel(r.month)+")を元手と開始月に入れました。「保存」で確定します。");
     } else if(act==="fx-view"){
       const p=periods.of(b.dataset.key); setRange(p.from,p.to); showView("records",true);
     } else if(act==="fx-per"){
@@ -1768,8 +2107,8 @@ const Core=(function(){
   });
   $("btnJson").addEventListener("click",()=>{
     const items=realItems();
-    if(!items.length&&!state.fixed.length&&!state.accounts.length&&!state.debits.length&&!state.income.length) return say("backupMsg","書き出す記録がありません。",true);
-    deliver("kaimono_"+today()+".json",Core.toJSON(items,state.fixed,{income:state.income,accounts:state.accounts,debits:state.debits}),"application/json",true);
+    if(!items.length&&!state.fixed.length&&!state.accounts.length&&!state.debits.length&&!state.income.length&&!state.assets.length) return say("backupMsg","書き出す記録がありません。",true);
+    deliver("kaimono_"+today()+".json",Core.toJSON(items,state.fixed,{income:state.income,accounts:state.accounts,debits:state.debits,assets:state.assets}),"application/json",true);
   });
 
   /* 読み込み */
@@ -1784,8 +2123,8 @@ const Core=(function(){
       const text=await readText(file);
       const isJson=/\.json$/i.test(file.name)||/^\s*[\[{]/.test(text);
       const r=isJson?Core.jsonToItems(text):Core.csvToItems(text);
-      const fx=r.fixed||[], mo=r.more||{income:[],accounts:[],debits:[]};
-      const moreN=mo.income.length+mo.accounts.length+mo.debits.length;
+      const fx=r.fixed||[], mo=r.more||{income:[],accounts:[],debits:[],assets:[]};
+      const moreN=mo.income.length+mo.accounts.length+mo.debits.length+(mo.assets||[]).length;
       if(!r.items.length&&!fx.length&&!moreN) throw new Error("取り込める記録が見つかりませんでした。");
       const ds=r.items.map(i=>i.date).sort();
       ui.plan={name:file.name,items:r.items,fixed:fx,hasFixed:!!r.hasFixed,more:mo,hasMore:!!r.hasMore,moreN:moreN,skipped:r.skipped,range:ds.length?fmt(ds[0])+" 〜 "+fmt(ds[ds.length-1]):""};
@@ -1807,8 +2146,8 @@ const Core=(function(){
         state.deleted=state.deleted.filter(t=>!keepF.has(t.id));
         state.fixed=nf;
       }
-      if(p.hasMore) ["income","accounts","debits"].forEach(k=>{
-        const nl=Core.uniqueIds(p.more[k]), keepK=new Set(nl.map(i=>i.id));
+      if(p.hasMore) ["income","accounts","debits","assets"].forEach(k=>{
+        const nl=Core.uniqueIds(p.more[k]||[]), keepK=new Set(nl.map(i=>i.id));
         state[k].filter(i=>!keepK.has(i.id)).forEach(i=>state.deleted.push({id:i.id,at:now}));
         state.deleted=state.deleted.filter(t=>!keepK.has(t.id));
         state[k]=nl;
@@ -1820,7 +2159,7 @@ const Core=(function(){
       const rf=Core.mergeFixed(state.fixed,p.fixed||[]);
       state.items=r.items; state.fixed=rf.items;
       let moreAdded=0;
-      if(p.hasMore) ["income","accounts","debits"].forEach(k=>{const rm=Core.mergeList(state[k],p.more[k],Core.COL_KEYS[k]); state[k]=rm.items; moreAdded+=rm.added;});
+      if(p.hasMore) ["income","accounts","debits","assets"].forEach(k=>{const rm=Core.mergeList(state[k],p.more[k]||[],Core.COL_KEYS[k]); state[k]=rm.items; moreAdded+=rm.added;});
       const addedAll=r.added+rf.added+moreAdded;
       if(addedAll) changed(addedAll); else save();
       say("backupMsg",r.added+"件"+(rf.added?"と固定費"+rf.added+"件":"")+(moreAdded?"と資金メモ"+moreAdded+"件":"")+"を追加しました"+((r.dup+rf.dup)?"("+(r.dup+rf.dup)+"件は重複のため取り込みませんでした)":"")+"。");
@@ -1897,20 +2236,20 @@ const Core=(function(){
   async function downloadRemote(id){
     const r=await drive("/drive/v3/files/"+id+"?alt=media");
     const t=await r.text();
-    if(!t.trim()) return {items:[],fixed:[],income:[],accounts:[],debits:[],deleted:[]};
+    if(!t.trim()) return {items:[],fixed:[],income:[],accounts:[],debits:[],assets:[],deleted:[]};
     let j; try{j=JSON.parse(t);}catch(e){throw new Error("ドライブ上のデータを読み取れませんでした。");}
     const items=(Array.isArray(j.items)?j.items:[]).map(x=>(x&&typeof x==="object")?Core.makeItem(x):null).filter(Boolean);
     const deleted=(Array.isArray(j.deleted)?j.deleted:[]).filter(t=>t&&t.id&&Number.isFinite(t.at));
     const fixed=(Array.isArray(j.fixed)?j.fixed:[]).map(x=>(x&&typeof x==="object")?Core.makeFixed(x):null).filter(Boolean);
     const rd=(k,mk)=>(Array.isArray(j[k])?j[k]:[]).map(x=>(x&&typeof x==="object")?mk(x):null).filter(Boolean);
-    return {items:items,fixed:fixed,income:rd("income",Core.makeIncome),accounts:rd("accounts",Core.makeAccount),debits:rd("debits",Core.makeDebit),deleted:deleted};
+    return {items:items,fixed:fixed,income:rd("income",Core.makeIncome),accounts:rd("accounts",Core.makeAccount),debits:rd("debits",Core.makeDebit),assets:rd("assets",Core.makeAsset),deleted:deleted};
   }
   async function uploadRemote(id,m){
     const body=JSON.stringify({
       app:"kaimono-shukei",version:2,updatedAt:new Date().toISOString(),
       items:m.items.map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,createdAt:it.createdAt,updatedAt:it.updatedAt})),
       fixed:m.fixed.map(Core.fixedOut),
-      income:m.income, accounts:m.accounts, debits:m.debits,
+      income:m.income, accounts:m.accounts, debits:m.debits, assets:m.assets,
       deleted:m.deleted
     });
     if(id){
@@ -1944,7 +2283,7 @@ const Core=(function(){
       for(let attempt=0;attempt<2&&!remote;attempt++){
         try{
           if(!fileId) fileId=await findFile();
-          remote=fileId?await downloadRemote(fileId):{items:[],fixed:[],income:[],accounts:[],debits:[],deleted:[]};
+          remote=fileId?await downloadRemote(fileId):{items:[],fixed:[],income:[],accounts:[],debits:[],assets:[],deleted:[]};
         }catch(e){
           if(e.status===404&&attempt===0){fileId=null;continue;}
           throw e;
@@ -1952,13 +2291,13 @@ const Core=(function(){
       }
       const now=Date.now(), m1=Core.mergeSync(realItems(),state.deleted,remote.items,remote.deleted,now);
       const m={items:m1.items,deleted:m1.deleted,pulled:m1.pulled,removed:m1.removed};
-      ["fixed","income","accounts","debits"].forEach(k=>{
+      ["fixed","income","accounts","debits","assets"].forEach(k=>{
         const mm=Core.mergeSync(state[k],m.deleted,remote[k]||[],remote.deleted,now);
         m[k]=mm.items; m.deleted=mm.deleted; m.pulled+=mm.pulled; m.removed+=mm.removed;
       });
       state.items=m.items.concat(state.items.filter(i=>i.sample)); state.deleted=m.deleted;
-      ["fixed","income","accounts","debits"].forEach(k=>{state[k]=m[k];});
-      const allOf=o=>o.items.concat(o.fixed||[],o.income||[],o.accounts||[],o.debits||[]);
+      ["fixed","income","accounts","debits","assets"].forEach(k=>{state[k]=m[k];});
+      const allOf=o=>o.items.concat(o.fixed||[],o.income||[],o.accounts||[],o.debits||[],o.assets||[]);
       if(!fileId||Core.signature(allOf(m),m.deleted)!==Core.signature(allOf(remote),remote.deleted)){
         fileId=await uploadRemote(fileId,m);
       }
@@ -2004,7 +2343,7 @@ const Core=(function(){
   });
 
   /* 画面の切り替え(記録 / グラフ / 設定)。期間・支払方法の欄は、記録とグラフで共有 */
-  const VIEWS={records:["viewRecords","tabRecords"],fixed:["viewFixed","tabFixed"],chart:["viewChart","tabChart"],money:["viewMoney","tabMoney"],settings:["viewSettings","tabSettings"]};
+  const VIEWS={records:["viewRecords","tabRecords"],fixed:["viewFixed","tabFixed"],chart:["viewChart","tabChart"],money:["viewMoney","tabMoney"],assets:["viewAssets","tabAssets"],settings:["viewSettings","tabSettings"]};
   const viewFromHash=()=>{const h=location.hash.slice(1);return VIEWS[h]?h:"records";};
   function showView(v,fromUser){
     Object.keys(VIEWS).forEach(k=>{
@@ -2012,7 +2351,7 @@ const Core=(function(){
       const t=$(VIEWS[k][1]);
       if(k===v) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current");
     });
-    $("period").hidden=(v==="settings"||v==="fixed"||v==="money");
+    $("period").hidden=(v==="settings"||v==="fixed"||v==="money"||v==="assets");
     if(v==="settings"&&!cfg.clientId) $("syncDetails").open=true;
     if(fromUser){
       try{history.replaceState(null,"","#"+v);}catch(e){}
@@ -2026,7 +2365,7 @@ const Core=(function(){
   const had=load();
   if(!had){state.items=makeSamples();save();}
   loadCfg();
-  F.date.value=today(); X.month.value=curYm(); D.date.value=today(); I.month.value=curYm();
+  F.date.value=today(); X.month.value=curYm(); D.date.value=today(); I.month.value=curYm(); R_.month.value=today().slice(0,7); W_.month.value=today().slice(0,7);
   const r0=presetRange("month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
   render();
   $("originText").textContent=location.origin;
