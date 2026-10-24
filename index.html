@@ -479,7 +479,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 
     <section class="panel" aria-labelledby="h-fc">
       <h2 id="h-fc">固定費を引いた残高</h2>
-      <label class="f">口座<select id="fcAcct"></select></label>
       <div id="fcBody"></div>
     </section>
 
@@ -1390,20 +1389,16 @@ const Core=(function(){
     const sel=$("dAcct"), keep=sel.value;
     sel.innerHTML='<option value="">未指定</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");
     if(keep&&state.accounts.some(a=>a.id===keep)) sel.value=keep;
-    // 選んだ1口座の残高 − 未払いの固定費(今月と以前の月)
+    // チェックを入れた口座の残高合計 − 未払いの固定費(今月と以前の月)
     {
-      const fs=$("fcAcct"), ok=state.accounts.some(a=>a.id===cfg.fcAcct);
-      fs.innerHTML='<option value="">口座を選ぶ</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");
-      fs.value=ok?cfg.fcAcct:"";
-      const acc=state.accounts.find(a=>a.id===fs.value);
-      if(!acc){ $("fcBody").innerHTML='<p class="empty">'+(state.accounts.length?'口座を選ぶと、その残高から未払いの固定費を引いた額が出ます。':'先に「銀行口座残高」に口座を追加してください。')+'</p>'; }
+      if(!state.accounts.length||!M.selectedCount){ $("fcBody").innerHTML='<p class="empty">'+(state.accounts.length?'「銀行口座残高」で、引く対象の口座にチェックを入れてください。':'先に「銀行口座残高」に口座を追加してください。')+'</p>'; }
       else{
         const paidSet=Core.matchPaid(state.fixed,realItems(),periods), cy=curYm(), sm=a=>a.reduce((t,f)=>t+f.amount,0);
         const now=state.fixed.filter(f=>f.month===cy&&!paidSet.has(f.id)), prior=state.fixed.filter(f=>f.month<cy&&!paidSet.has(f.id));
-        const rest=acc.balance-sm(now)-sm(prior);
-        $("fcBody").innerHTML='<div class="mhero"><span class="lbl">'+esc(acc.name)+'の残高 − 未払いの固定費</span><span class="big">'+yenS(rest)+'</span></div>'+
-          '<dl class="msum3"><div><dt>口座残高</dt><dd>'+yenS(acc.balance)+'</dd></div><div><dt>'+ymLabel(cy)+'の未払分</dt><dd>'+yen(sm(now))+'</dd></div><div><dt>以前の月の未払分</dt><dd>'+yen(sm(prior))+'</dd></div></dl>'+
-          '<p class="note">未来の月の固定費は含みません。「固定費」タブで支払済になったものは引きません。</p>';
+        const rest=M.total-sm(now)-sm(prior);
+        $("fcBody").innerHTML='<div class="mhero"><span class="lbl">チェックした'+M.selectedCount+'口座の残高 − 未払いの固定費</span><span class="big">'+yenS(rest)+'</span></div>'+
+          '<dl class="msum3"><div><dt>口座残高の合計</dt><dd>'+yenS(M.total)+'</dd></div><div><dt>'+ymLabel(cy)+'の未払分</dt><dd>'+yen(sm(now))+'</dd></div><div><dt>以前の月の未払分</dt><dd>'+yen(sm(prior))+'</dd></div></dl>'+
+          '<p class="note">対象は、「銀行口座残高」でチェックを入れた口座です。未来の月の固定費は含みません。「固定費」タブで支払済になったものは引きません。</p>';
       }
     }
     $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
@@ -1451,7 +1446,6 @@ const Core=(function(){
         '<div class="r-act"><button type="button" class="small" data-act="in-edit" data-id="'+esc(i.id)+'">編集</button>'+delBtn("in-del",i.id)+'</div></li>';
     }).join("")+'</ul>':'<p class="empty">まだ給与の記録がありません。</p>';
   }
-  $("fcAcct").addEventListener("change",e=>{cfg.fcAcct=e.target.value; saveCfg(); render();});
   $("acBody").addEventListener("change",e=>{
     const c=e.target.closest("[data-ac-sel]"); if(!c) return;
     const a=state.accounts.find(x=>x.id===c.dataset.acSel); if(!a) return;
@@ -1840,7 +1834,7 @@ const Core=(function(){
   const PRESET_CLIENT_ID=""; // ここにクライアントIDを貼っておくと、スマホとPCで入力しなくて済みます
   const SYNC_FILE="kaimono-shukei.json";
   const SCOPE="https://www.googleapis.com/auth/drive.appdata";
-  let cfg={clientId:"",connected:false,payday:25,pOver:{},fcAcct:""};
+  let cfg={clientId:"",connected:false,payday:25,pOver:{}};
   let periods=Core.makePeriods(25,{});
   function rebuildPeriods(){periods=Core.makePeriods(cfg.payday,cfg.pOver);}
   let token=null, tokenExp=0, syncing=false, fileId=null, syncTimer=null;
@@ -1852,7 +1846,6 @@ const Core=(function(){
     cfg.connected=!!o.connected;
     const pd=Number(o.payday);
     cfg.payday=(o.payday===undefined||o.payday===null||!Number.isFinite(pd)||pd<0||pd>31)?25:Math.floor(pd);
-    cfg.fcAcct=typeof o.fcAcct==="string"?o.fcAcct:"";
     cfg.pOver={};
     if(o.pOver&&typeof o.pOver==="object") Object.keys(o.pOver).forEach(k=>{const v=o.pOver[k]; if(/^\d{4}-\d{2}$/.test(k)&&v&&Core.validDate(String(v.from))&&Core.validDate(String(v.to))&&v.from<=v.to) cfg.pOver[k]={from:v.from,to:v.to};});
     rebuildPeriods();
