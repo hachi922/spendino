@@ -271,7 +271,18 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .plk{border-top:1px solid var(--line); padding-top:10px; margin-top:10px}
 .plk h3{margin:0 0 6px; font-size:.9rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 .atbl{width:100%; table-layout:fixed; border-collapse:collapse; font-size:.72rem; font-family:var(--font-num)}
-.atbl th:first-child,.atbl td:first-child{width:19%}
+.atbl th:first-child,.atbl td:first-child{width:24%}
+.atbl tr.dr{cursor:pointer}
+.atbl tr.dr.on td{background:var(--surface-2)}
+.atbl tr.gr{display:none}
+.atbl tr.gr td{text-align:left; border-top:0; padding:0 3px 5px; color:var(--muted); background:var(--surface-2)}
+.atbl tr.dr.on + tr.gr{display:table-row}
+@media (hover:hover){.atbl tr.dr:hover + tr.gr{display:table-row}.atbl tr.dr:hover td{background:var(--surface-2)}}
+.assetview .panel{position:relative}
+.info{display:inline-block; font-size:.85rem; font-weight:400; color:var(--muted); cursor:help; padding:0 4px; border-radius:6px}
+.info:hover,.info:focus-visible,.info.on{color:var(--accent)}
+.info .ibox{display:none; position:absolute; left:12px; right:12px; top:2.6rem; z-index:6; padding:8px 10px; background:var(--surface); color:var(--fg); border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.18); font-size:.76rem; line-height:1.55; font-weight:400; text-align:left; white-space:normal; cursor:default}
+.info:hover .ibox,.info:focus .ibox,.info.on .ibox{display:block}
 .atbl th,.atbl td{padding:4px 3px; text-align:right; border-top:1px solid var(--line); white-space:nowrap}
 .atbl th{white-space:normal; font-family:var(--font-body); font-weight:500; color:var(--muted); font-size:.7rem}
 .atbl th:first-child,.atbl td:first-child{text-align:left}
@@ -568,16 +579,14 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 
   <main class="moneyview assetview" id="viewAssets" hidden>
     <section class="panel" aria-labelledby="h-asum">
-      <h2 id="h-asum">資産のイメージ</h2>
+      <h2 id="h-asum">資産のイメージ <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">元本は積み立てた額、運用益は評価額から元本を引いた額です。試算は、想定年利で月ごとに複利計算した見込みで、将来を保証するものではありません。銀行預金は試算せず、最新の記録の金額のまま合計に足します。</span></span></h2>
       <div id="asSum"></div>
-      <p class="note" id="asNote"></p>
     </section>
 
     <details class="panel fold" id="plFold">
-      <summary><h2 id="h-pl"><span>試算の設定 <small id="plCount"></small></span></h2></summary>
+      <summary><h2 id="h-pl"><span>試算の設定 <small id="plCount"></small> <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">元手は「開始月」の時点の金額です。積立は開始月の翌月から数えます。投資期間(開始月〜終了月)は手動で指定します。</span></span></span></h2></summary>
       <div class="secbody">
       <form id="plForm" novalidate autocomplete="off">
-        <p class="note">元手は「開始月」の時点の金額です。積立は開始月の翌月から数えます。投資期間(開始月〜終了月)は手動で指定します。</p>
         <div id="plFields"></div>
         <div class="actions"><button type="submit" class="primary">保存</button></div>
         <p class="msg" id="plMsg" role="status" aria-live="polite"></p>
@@ -604,7 +613,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     </details>
 
     <details class="panel fold" open>
-      <summary><h2 id="h-fl"><span>NISAの追加投資・取り崩し <small id="flCount"></small></span><button type="button" class="small tg" data-form="fl" id="flToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <summary><h2 id="h-fl"><span>NISAの追加投資・取り崩し <small id="flCount"></small> <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">試算の設定の期間内の分だけ、つみたてNISAの試算に反映します。取り崩しでは、元本も同じ割合で減らします。</span></span></span><button type="button" class="small tg" data-form="fl" id="flToggle" aria-expanded="false">＋ 追加</button></h2></summary>
       <div class="secbody">
       <form id="flForm" class="mform" novalidate autocomplete="off" hidden>
         <div class="fields">
@@ -617,7 +626,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
         <p class="msg" id="wMsg" role="status" aria-live="polite"></p>
       </form>
       <div id="flBody"></div>
-      <p class="note">試算の設定の期間内の分だけ、つみたてNISAの試算に反映します。</p>
       </div>
     </details>
 
@@ -626,7 +634,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <div class="seg" id="asKinds" role="group" aria-label="表示する資産"></div>
       <div class="alegend" aria-hidden="true"><span><i style="border-color:var(--s1)"></i>評価額(試算)</span><span><i class="dash" style="border-color:var(--other)"></i>元本(試算)</span><span><i class="dot"></i>評価額(記録)</span></div>
       <div id="asChart" class="achart"></div>
-      <details class="mfold" id="asTbl" open style="margin-top:8px"><summary><span class="m-name">表</span><span class="m-meta">年末ごと</span></summary><div class="mbody" style="overflow-x:auto"><table class="atbl"><thead><tr><th>年月</th><th>元本(円)</th><th>評価額(円)</th><th>運用益(円)</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
+      <details class="mfold" id="asTbl" open style="margin-top:8px"><summary><span class="m-name">推移表</span><span class="m-meta">年末ごと · 行にタッチで運用益</span></summary><div class="mbody" style="overflow-x:auto"><table class="atbl"><thead><tr><th>年月</th><th>元本(円)</th><th>評価額(円)</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
     </section>
   </main>
 
@@ -1591,7 +1599,6 @@ const Core=(function(){
     $("asSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">いまの資産(記録・'+names+')</span><span class="big">'+(has?yenS(nowV):'—')+'</span>'+(has?gainSub(nowV,nowP):'<span class="sub">月次の記録を入れてください</span>')+'</div>'+
       '<div class="mcell"><span class="lbl">'+(end?ymLabel(end.ym)+'の試算':'期間末の試算')+'</span><span class="big">'+(end?yenS(end.value):'—')+'</span>'+(end?gainSub(end.value,end.principal):'<span class="sub">「試算の設定」を入れてください</span>')+'</div></div>'+
       '<dl class="msum3">'+KINDS.map(k=>{const r=latestRec(k); return '<div><dt>'+KN[k]+'</dt><dd>'+(r?yenS(r.value):'—')+'</dd></div>';}).join("")+'</dl>';
-    $("asNote").textContent="元本は積み立てた額、運用益は評価額から元本を引いた額です。試算は、想定年利で月ごとに複利計算した見込みで、将来を保証するものではありません。銀行預金は試算せず、最新の記録の金額のまま合計に足します。";
     renderAssetChart(S);
     // 試算の設定の見出し
     const nPlan=PLAN_KINDS.filter(k=>{const pl=planOf(k); return pl&&pl.from&&pl.to;}).length;
@@ -1662,8 +1669,8 @@ const Core=(function(){
     svg.addEventListener("pointermove",show); svg.addEventListener("pointerdown",show); svg.addEventListener("pointerleave",hide);
     // 表(年末ごと)
     const src=sim.length?sim:act, seen=new Set(), rows=src.filter((r,i)=>(i===0||i===src.length-1||r.ym.slice(5,7)==="12")&&!seen.has(r.ym)&&seen.add(r.ym));
-    const num=n=>Math.round(n).toLocaleString("ja-JP"), gn=n=>(n>0?"+":n<0?"−":"")+num(Math.abs(n));
-    tb.innerHTML=rows.map(r=>'<tr><td>'+r.ym.slice(0,4)+'/'+r.ym.slice(5,7)+'</td><td>'+num(r.principal)+'</td><td>'+num(r.value)+'</td><td>'+gn(r.gain)+'</td></tr>').join("");
+    const num=n=>Math.round(n).toLocaleString("ja-JP");
+    tb.innerHTML=rows.map(r=>'<tr class="dr" tabindex="0"><td>'+r.ym.slice(0,4)+'/'+r.ym.slice(5,7)+'</td><td>'+num(r.principal)+'</td><td>'+num(r.value)+'</td></tr><tr class="gr"><td colspan="3">運用益 '+sgn(r.gain)+(r.principal>0?'('+(r.gain/r.principal*100).toFixed(1)+'%)':'')+'</td></tr>').join("");
   }
   function renderMoney(){
     const t=today(), M=Core.moneySummary(state.accounts,state.debits,state.income,t,curYm());
@@ -1779,6 +1786,9 @@ const Core=(function(){
     });
     ui.plDirty=false; if(n) changed(n); render(); say("plMsg",n?"保存しました。":"変更はありません。");
   });
+  $("asTblBody").addEventListener("click",e=>{const r=e.target.closest("tr.dr"); if(r) r.classList.toggle("on");});
+  $("asTblBody").addEventListener("keydown",e=>{const r=e.target.closest("tr.dr"); if(r&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); r.classList.toggle("on");}});
+  document.addEventListener("click",e=>{const t=e.target.closest(".info"); document.querySelectorAll(".info.on").forEach(x=>{if(x!==t) x.classList.remove("on");}); if(t){e.preventDefault(); e.stopPropagation(); t.classList.toggle("on");}},true);
   $("asKinds").addEventListener("click",e=>{const b=e.target.closest("[data-ak]"); if(!b) return; ui.asKind=b.dataset.ak; renderAssets();});
   $("rcBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
   $("acBody").addEventListener("change",e=>{
@@ -2372,6 +2382,29 @@ const Core=(function(){
   }
   Object.keys(VIEWS).forEach(k=>$(VIEWS[k][1]).addEventListener("click",()=>showView(k,true)));
   window.addEventListener("hashchange",()=>showView(viewFromHash()));
+  /* 横にスワイプして、画面(タブ)を切り替える。入力欄・グラフ・横に動く表の上では動かさない */
+  {
+    const ORDER=["records","fixed","chart","money","assets"]; let st=null;
+    const blocked=el=>{
+      for(let n=el;n&&n!==document.body;n=n.parentElement){
+        if(/^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName)||(n.classList&&(n.classList.contains("achart")||n.classList.contains("ibox")))) return true;
+        if(n.scrollWidth>n.clientWidth+2&&/(auto|scroll)/.test(getComputedStyle(n).overflowX)) return true;
+      }
+      return false;
+    };
+    document.addEventListener("touchstart",e=>{
+      const t=e.touches&&e.touches[0]; st=(t&&e.touches.length===1&&!blocked(e.target))?{x:t.clientX,y:t.clientY,at:Date.now()}:null;
+    },{passive:true});
+    document.addEventListener("touchend",e=>{
+      const s0=st; st=null; const t=e.changedTouches&&e.changedTouches[0]; if(!s0||!t) return;
+      const dx=t.clientX-s0.x, dy=t.clientY-s0.y;
+      if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.8||Date.now()-s0.at>700) return;
+      const cur=ORDER.indexOf(viewFromHash()); if(cur<0) return;
+      const nx=cur+(dx<0?1:-1); if(nx<0||nx>=ORDER.length) return;
+      showView(ORDER[nx],true);
+    },{passive:true});
+  }
+
 
   /* 起動 */
   const had=load();
