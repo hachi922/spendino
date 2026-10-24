@@ -279,6 +279,10 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .atbl tr.dr.on + tr.gr{display:table-row}
 @media (hover:hover){.atbl tr.dr:hover + tr.gr{display:table-row}.atbl tr.dr:hover td{background:var(--surface-2)}}
 .assetview .panel{position:relative}
+html{overscroll-behavior-y:contain}
+#ptr{position:fixed; top:-34px; left:50%; transform:translate(-50%,0); z-index:60; padding:6px 14px; border-radius:999px; background:var(--surface); color:var(--muted); border:1px solid var(--line); box-shadow:0 2px 10px rgba(0,0,0,.18); font-size:.78rem; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .12s}
+#ptr.show{opacity:1}
+#ptr.ready{color:var(--accent-fg); background:var(--accent); border-color:var(--accent)}
 .info{display:inline-block; font-size:.85rem; font-weight:400; color:var(--muted); cursor:help; padding:0 4px; border-radius:6px}
 .info:hover,.info:focus-visible,.info.on{color:var(--accent)}
 .info .ibox{display:none; position:absolute; left:12px; right:12px; top:2.6rem; z-index:6; padding:8px 10px; background:var(--surface); color:var(--fg); border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.18); font-size:.76rem; line-height:1.55; font-weight:400; text-align:left; white-space:normal; cursor:default}
@@ -2382,6 +2386,31 @@ const Core=(function(){
   }
   Object.keys(VIEWS).forEach(k=>$(VIEWS[k][1]).addEventListener("click",()=>showView(k,true)));
   window.addEventListener("hashchange",()=>showView(viewFromHash()));
+  /* 画面の一番上で下に引っ張ると、ページを再読み込みする(データは端末に保存済みなので消えません) */
+  {
+    const el=document.createElement("div"); el.id="ptr"; el.setAttribute("aria-hidden","true"); el.textContent="↓ 引っ張って再読み込み"; document.body.appendChild(el);
+    const TH=90; let p=null;
+    const skip=t=>!!(t&&t.closest&&t.closest("input,select,textarea,.achart,.ibox"));
+    const reset=()=>{el.classList.remove("show","ready"); el.style.transform="";};
+    document.addEventListener("touchstart",e=>{
+      const t=e.touches&&e.touches[0]; p=(t&&e.touches.length===1&&(window.scrollY||0)<=0&&!skip(e.target))?{x:t.clientX,y:t.clientY}:null;
+    },{passive:true});
+    document.addEventListener("touchmove",e=>{
+      if(!p) return; const t=e.touches&&e.touches[0]; if(!t) return;
+      const dy=t.clientY-p.y, dx=t.clientX-p.x;
+      if(dy<=8||Math.abs(dx)>dy*0.8||(window.scrollY||0)>0){reset(); return;}
+      const k=Math.min(dy,TH*1.4);
+      el.classList.add("show"); el.classList.toggle("ready",dy>=TH);
+      el.textContent=dy>=TH?"↑ 離すと再読み込み":"↓ 引っ張って再読み込み";
+      el.style.transform="translate(-50%,"+Math.round(k*0.5)+"px)";
+    },{passive:true});
+    document.addEventListener("touchend",e=>{
+      const ready=el.classList.contains("ready"); reset(); const s0=p; p=null;
+      if(ready&&s0) setTimeout(()=>location.reload(),60);
+    },{passive:true});
+    document.addEventListener("touchcancel",()=>{p=null; reset();},{passive:true});
+  }
+
   /* 横にスワイプして、画面(タブ)を切り替える。入力欄・グラフ・横に動く表の上では動かさない */
   {
     const ORDER=["records","fixed","chart","money","assets"]; let st=null;
