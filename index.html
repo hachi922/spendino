@@ -270,9 +270,10 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .achart .tip b{display:block; font-weight:700}
 .plk{border-top:1px solid var(--line); padding-top:10px; margin-top:10px}
 .plk h3{margin:0 0 6px; font-size:.9rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-.atbl{width:100%; border-collapse:collapse; font-size:.78rem; font-family:var(--font-num)}
-.atbl th,.atbl td{padding:4px 6px; text-align:right; border-top:1px solid var(--line); white-space:nowrap}
-.atbl th{font-family:var(--font-body); font-weight:500; color:var(--muted); font-size:.7rem}
+.atbl{width:100%; table-layout:fixed; border-collapse:collapse; font-size:.72rem; font-family:var(--font-num)}
+.atbl th:first-child,.atbl td:first-child{width:19%}
+.atbl th,.atbl td{padding:4px 3px; text-align:right; border-top:1px solid var(--line); white-space:nowrap}
+.atbl th{white-space:normal; font-family:var(--font-body); font-weight:500; color:var(--muted); font-size:.7rem}
 .atbl th:first-child,.atbl td:first-child{text-align:left}
 .assetview .fields{grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:6px 8px}
 .assetview .fields .full{grid-column:1 / -1}
@@ -625,7 +626,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <div class="seg" id="asKinds" role="group" aria-label="表示する資産"></div>
       <div class="alegend" aria-hidden="true"><span><i style="border-color:var(--s1)"></i>評価額(試算)</span><span><i class="dash" style="border-color:var(--other)"></i>元本(試算)</span><span><i class="dot"></i>評価額(記録)</span></div>
       <div id="asChart" class="achart"></div>
-      <details class="mfold" id="asTbl" open style="margin-top:8px"><summary><span class="m-name">表</span><span class="m-meta">年末ごと</span></summary><div class="mbody"><table class="atbl"><thead><tr><th>年月</th><th>元本</th><th>評価額</th><th>運用益</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
+      <details class="mfold" id="asTbl" open style="margin-top:8px"><summary><span class="m-name">表</span><span class="m-meta">年末ごと</span></summary><div class="mbody" style="overflow-x:auto"><table class="atbl"><thead><tr><th>年月</th><th>元本(円)</th><th>評価額(円)</th><th>運用益(円)</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
     </section>
   </main>
 
@@ -1661,7 +1662,8 @@ const Core=(function(){
     svg.addEventListener("pointermove",show); svg.addEventListener("pointerdown",show); svg.addEventListener("pointerleave",hide);
     // 表(年末ごと)
     const src=sim.length?sim:act, seen=new Set(), rows=src.filter((r,i)=>(i===0||i===src.length-1||r.ym.slice(5,7)==="12")&&!seen.has(r.ym)&&seen.add(r.ym));
-    tb.innerHTML=rows.map(r=>'<tr><td>'+r.ym.slice(0,4)+'/'+r.ym.slice(5,7)+'</td><td>'+yen(r.principal)+'</td><td>'+yenS(r.value)+'</td><td>'+sgn(r.gain)+'</td></tr>').join("");
+    const num=n=>Math.round(n).toLocaleString("ja-JP"), gn=n=>(n>0?"+":n<0?"−":"")+num(Math.abs(n));
+    tb.innerHTML=rows.map(r=>'<tr><td>'+r.ym.slice(0,4)+'/'+r.ym.slice(5,7)+'</td><td>'+num(r.principal)+'</td><td>'+num(r.value)+'</td><td>'+gn(r.gain)+'</td></tr>').join("");
   }
   function renderMoney(){
     const t=today(), M=Core.moneySummary(state.accounts,state.debits,state.income,t,curYm());
