@@ -274,6 +274,11 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .atbl th,.atbl td{padding:4px 6px; text-align:right; border-top:1px solid var(--line); white-space:nowrap}
 .atbl th{font-family:var(--font-body); font-weight:500; color:var(--muted); font-size:.7rem}
 .atbl th:first-child,.atbl td:first-child{text-align:left}
+.assetview .fields{grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:6px 8px}
+.assetview .fields .full{grid-column:1 / -1}
+.assetview .plk{padding-top:6px; margin-top:6px}
+.assetview .plk h3{margin-bottom:4px}
+.assetview .mform .actions{margin-top:6px}
 .assetview .seg{flex-wrap:wrap}
 .assetview .seg button{padding:1px 9px}
 .moneyview{max-width:760px; display:grid; gap:10px}
@@ -504,7 +509,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <p class="note" id="mNote"></p>
     </section>
 
-
     <details class="panel fold" id="acFold">
       <summary><h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span><button type="button" class="small tg" data-form="ac" id="acToggle" aria-expanded="false">＋ 追加</button></h2></summary>
       <div class="secbody">
@@ -565,14 +569,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <p class="note" id="asNote"></p>
     </section>
 
-    <section class="panel" aria-labelledby="h-achart">
-      <h2 id="h-achart">推移と試算</h2>
-      <div class="seg" id="asKinds" role="group" aria-label="表示する資産"></div>
-      <div class="alegend" aria-hidden="true"><span><i style="border-color:var(--s1)"></i>評価額(試算)</span><span><i class="dash" style="border-color:var(--other)"></i>元本(試算)</span><span><i class="dot"></i>評価額(記録)</span></div>
-      <div id="asChart" class="achart"></div>
-      <details class="mfold" id="asTbl" style="margin-top:8px"><summary><span class="m-name">表で見る</span><span class="m-meta">年末ごと</span></summary><div class="mbody"><table class="atbl"><thead><tr><th>年月</th><th>元本</th><th>評価額</th><th>運用益</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
-    </section>
-
     <details class="panel fold" id="plFold">
       <summary><h2 id="h-pl"><span>試算の設定 <small id="plCount"></small></span></h2></summary>
       <div class="secbody">
@@ -590,7 +586,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <div class="secbody">
       <form id="rcForm" class="mform" novalidate autocomplete="off" hidden>
         <div class="fields">
-          <label class="f">種類<select id="rKind"><option value="nisa">つみたてNISA</option><option value="ideco">iDeCo</option><option value="cash">現金預金</option></select></label>
+          <label class="f">種類<select id="rKind"><option value="nisa">つみたてNISA</option><option value="ideco">iDeCo</option><option value="cash">銀行預金</option></select></label>
           <label class="f">月<input type="month" id="rMonth" placeholder="2026-10"></label>
           <label class="f">元本(円)<input type="text" id="rPrin" inputmode="numeric" placeholder="積み立てた累計"></label>
           <label class="f">評価額(円)<input type="text" id="rVal" inputmode="numeric" placeholder="いまの金額"></label>
@@ -620,6 +616,14 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <p class="note">試算の設定の期間内の分だけ、つみたてNISAの試算に反映します。</p>
       </div>
     </details>
+
+    <section class="panel" aria-labelledby="h-achart">
+      <h2 id="h-achart">推移と試算</h2>
+      <div class="seg" id="asKinds" role="group" aria-label="表示する資産"></div>
+      <div class="alegend" aria-hidden="true"><span><i style="border-color:var(--s1)"></i>評価額(試算)</span><span><i class="dash" style="border-color:var(--other)"></i>元本(試算)</span><span><i class="dot"></i>評価額(記録)</span></div>
+      <div id="asChart" class="achart"></div>
+      <details class="mfold" id="asTbl" open style="margin-top:8px"><summary><span class="m-name">表</span><span class="m-meta">年末ごと</span></summary><div class="mbody"><table class="atbl"><thead><tr><th>年月</th><th>元本</th><th>評価額</th><th>運用益</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
+    </section>
   </main>
 
   <main class="settings" id="viewSettings" hidden>
@@ -838,7 +842,7 @@ const Core=(function(){
   }
 
   /* 資産運用: 月次の記録(rec)・NISAの追加投資/取り崩し(flow)・試算の設定(plan) */
-  const ASSET_KINDS=["nisa","ideco","cash"], ASSET_NAMES={nisa:"つみたてNISA",ideco:"iDeCo",cash:"現金預金"};
+  const ASSET_KINDS=["nisa","ideco","cash"], ASSET_NAMES={nisa:"つみたてNISA",ideco:"iDeCo",cash:"銀行預金"};
   const monthNo=ym=>Number(ym.slice(0,4))*12+Number(ym.slice(5,7))-1;
   const ymFromNo=n=>Math.floor(n/12)+"-"+String(n%12+1).padStart(2,"0");
   function makeAsset(o){
@@ -1542,7 +1546,7 @@ const Core=(function(){
   function delBtn(act,id){const armed=ui.mPending===id; return '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="'+act+'" data-id="'+esc(id)+'">'+(armed?'削除する?':'削除')+'</button>';}
 
   /* 資産運用 */
-  const KN=Core.ASSET_NAMES, KINDS=Core.ASSET_KINDS;
+  const KN=Core.ASSET_NAMES, KINDS=Core.ASSET_KINDS, PLAN_KINDS=["nisa","ideco"];
   const assetsOf=t=>state.assets.filter(a=>a.t===t);
   const planOf=k=>state.assets.find(a=>a.t==="plan"&&a.kind===k)||null;
   const latestRec=k=>assetsOf("rec").filter(r=>r.kind===k).sort((a,b)=>a.month<b.month?1:a.month>b.month?-1:(b.updatedAt||0)-(a.updatedAt||0))[0]||null;
@@ -1552,21 +1556,24 @@ const Core=(function(){
   function niceMax(v){if(!(v>0)) return 1; const e=Math.pow(10,Math.floor(Math.log10(v))), f=v/e; for(const c of [1,1.2,1.6,2,2.4,3.2,4,5,6,8,10]) if(f<=c+1e-9) return c*e; return 10*e;}
   function assetSeriesFor(kind){
     const flows=assetsOf("flow"), ks=KINDS.filter(k=>kind==="all"||k===kind);
-    return {sim:Core.sumSeries(ks.map(k=>Core.simulate(planOf(k),flows.filter(f=>f.kind===k)))), act:Core.actualSeries(assetsOf("rec").filter(r=>ks.indexOf(r.kind)>=0))};
+    const sim=Core.sumSeries(ks.filter(k=>PLAN_KINDS.indexOf(k)>=0).map(k=>Core.simulate(planOf(k),flows.filter(f=>f.kind===k))));
+    // 銀行預金は試算せず、最新の記録の金額のまま合計に足す
+    const cr=ks.indexOf("cash")>=0&&ks.length>1?latestRec("cash"):null;
+    if(cr) sim.forEach(r=>{r.principal+=cr.principal; r.value+=cr.value; r.gain=r.value-r.principal;});
+    return {sim:sim, act:Core.actualSeries(assetsOf("rec").filter(r=>ks.indexOf(r.kind)>=0))};
   }
   const gainSub=(v,p)=>'<span class="sub">元本 '+yen(p)+'</span><span class="sub">運用益 '+sgn(v-p)+(p>0?'('+((v-p)/p*100).toFixed(1)+'%)':'')+'</span>';
   function planFormHtml(){
-    return KINDS.map(k=>'<div class="plk"><h3>'+KN[k]+'<button type="button" class="small" data-act="pl-latest" data-kind="'+k+'">最新の記録を元手に</button></h3><div class="fields">'+
+    return PLAN_KINDS.map(k=>'<div class="plk"><h3>'+KN[k]+'<button type="button" class="small" data-act="pl-latest" data-kind="'+k+'">最新の記録を元手に</button></h3><div class="fields">'+
       '<label class="f">元手(円)<input type="text" inputmode="numeric" data-pl="'+k+':init" placeholder="0"></label>'+
       '<label class="f">毎月の積立(円)<input type="text" inputmode="numeric" data-pl="'+k+':monthly" placeholder="30000"></label>'+
-      '<label class="f">想定年利(%)<input type="text" inputmode="decimal" data-pl="'+k+':rate" placeholder="'+(k==="cash"?"0.2":"5")+'"></label>'+
-      '<span></span>'+
+      '<label class="f">想定年利(%)<input type="text" inputmode="decimal" data-pl="'+k+':rate" placeholder="5"></label>'+
       '<label class="f">開始月<input type="month" data-pl="'+k+':from"></label>'+
       '<label class="f">終了月<input type="month" data-pl="'+k+':to"></label></div></div>').join("");
   }
   function fillPlanForm(){
     const f=$("plForm"); if(ui.plDirty||f.contains(document.activeElement)) return;
-    KINDS.forEach(k=>{
+    PLAN_KINDS.forEach(k=>{
       const pl=planOf(k), set=(n,v)=>{f.querySelector('[data-pl="'+k+':'+n+'"]').value=v;};
       set("init",pl&&pl.init?String(pl.init):""); set("monthly",pl&&pl.monthly?String(pl.monthly):""); set("rate",pl&&pl.rate?String(pl.rate):""); set("from",pl?pl.from:""); set("to",pl?pl.to:"");
     });
@@ -1580,10 +1587,10 @@ const Core=(function(){
     $("asSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">いまの資産(記録・'+names+')</span><span class="big">'+(has?yenS(nowV):'—')+'</span>'+(has?gainSub(nowV,nowP):'<span class="sub">月次の記録を入れてください</span>')+'</div>'+
       '<div class="mcell"><span class="lbl">'+(end?ymLabel(end.ym)+'の試算':'期間末の試算')+'</span><span class="big">'+(end?yenS(end.value):'—')+'</span>'+(end?gainSub(end.value,end.principal):'<span class="sub">「試算の設定」を入れてください</span>')+'</div></div>'+
       '<dl class="msum3">'+KINDS.map(k=>{const r=latestRec(k); return '<div><dt>'+KN[k]+'</dt><dd>'+(r?yenS(r.value):'—')+'</dd></div>';}).join("")+'</dl>';
-    $("asNote").textContent="元本は積み立てた額、運用益は評価額から元本を引いた額です。試算は、想定年利で月ごとに複利計算した見込みで、将来を保証するものではありません。";
+    $("asNote").textContent="元本は積み立てた額、運用益は評価額から元本を引いた額です。試算は、想定年利で月ごとに複利計算した見込みで、将来を保証するものではありません。銀行預金は試算せず、最新の記録の金額のまま合計に足します。";
     renderAssetChart(S);
     // 試算の設定の見出し
-    const nPlan=KINDS.filter(k=>{const pl=planOf(k); return pl&&pl.from&&pl.to;}).length;
+    const nPlan=PLAN_KINDS.filter(k=>{const pl=planOf(k); return pl&&pl.from&&pl.to;}).length;
     $("plCount").textContent=nPlan?nPlan+"種類を設定済み":"未設定";
     fillPlanForm();
     // 月次の記録(種類ごとに折りたたみ)
@@ -1634,7 +1641,7 @@ const Core=(function(){
       g+=act.map(r=>'<circle cx="'+X(mnOf(r.ym)).toFixed(1)+'" cy="'+Y(r.value).toFixed(1)+'" r="3.2" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>').join("");
     }
     g+='<line class="cross" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1" style="display:none"/>';
-    box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(sim.length?ymLabel(sim[0].ym)+'から'+ymLabel(sim[sim.length-1].ym)+'の試算':'月次の記録')+'の推移グラフ。表でも確認できます">'+g+'</svg><div class="tip" hidden></div>';
+    box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(sim.length?ymLabel(sim[0].ym)+'から'+ymLabel(sim[sim.length-1].ym)+'の試算':'月次の記録')+'の推移グラフ。すぐ下の表でも確認できます">'+g+'</svg><div class="tip" hidden></div>';
     const simBy={}, actBy={}; sim.forEach(r=>{simBy[mnOf(r.ym)]=r;}); act.forEach(r=>{actBy[mnOf(r.ym)]=r;});
     const svg=box.querySelector("svg"), cross=svg.querySelector(".cross"), tip=box.querySelector(".tip");
     function show(ev){
@@ -1748,7 +1755,7 @@ const Core=(function(){
   $("wCancel").addEventListener("click",()=>{endFl();say("wMsg","編集をやめました。");});
   $("plForm").addEventListener("submit",e=>{
     e.preventDefault(); const f=$("plForm"), now=Date.now(), outs=[];
-    for(const k of KINDS){
+    for(const k of PLAN_KINDS){
       const g=n=>f.querySelector('[data-pl="'+k+':'+n+'"]').value.trim();
       const init=g("init")===""?0:Core.parseAmount(g("init")), monthly=g("monthly")===""?0:Core.parseAmount(g("monthly"));
       const rate=g("rate")===""?0:Number(g("rate").normalize("NFKC").replace(/[%％\s]/g,"")), from=g("from"), to=g("to");
