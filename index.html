@@ -101,6 +101,10 @@ input[type=text],input[type=date],input[type=month],select{
 @media (hover:hover) and (pointer:fine){
   input[type=text],input[type=date],input[type=month],select{font-size:14px; min-height:32px}
 }
+input[type=date],input[type=month]{-webkit-appearance:none; appearance:none; display:block; box-sizing:border-box; max-width:100%; height:38px; line-height:1.2; text-align:center}
+input[type=date]::-webkit-date-and-time-value,input[type=month]::-webkit-date-and-time-value{text-align:center; min-height:1.2em; margin:0}
+@media (hover:hover) and (pointer:fine){input[type=date],input[type=month]{height:32px}}
+.fields{align-items:end}
 label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0}
 
 /* 支払方法の色 */
@@ -264,6 +268,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .mform{margin:0 0 4px; padding:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px}
 .mform[hidden]{display:none}
 .tg{flex:none}
+form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 .moneyview .fold > summary h2{font-size:.92rem}
 .moneyview .secbody .mform{margin-top:0}
 .ck{display:inline-flex; align-items:center; margin-right:6px; vertical-align:-2px}
@@ -306,7 +311,8 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .mfold[open] > summary::after,.yfold[open] > summary::after{transform:rotate(-135deg); margin-bottom:-3px}
 .m-name{font-family:var(--font-display); font-weight:700; flex:none}
 .m-meta{flex:1; min-width:0; color:var(--muted); font-size:.74rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.m-total{font-family:var(--font-num); white-space:nowrap}
+.m-total{font-family:var(--font-num); white-space:nowrap; display:flex; flex-direction:column; align-items:flex-end; line-height:1.25}
+.m-total .allow{font-family:var(--font-body); font-size:.66rem; color:var(--muted); font-weight:400}
 .mfold > .mbody,.yfold > .ybody{padding:0 10px 8px}
 .yfold{border:1px solid var(--line); border-radius:8px; margin:0 0 8px; background:var(--surface-2)}
 .yfold > summary .m-name{font-size:.95rem}
@@ -392,7 +398,8 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 
   <main class="layout" id="viewRecords">
     <form class="panel" id="form" novalidate autocomplete="off" aria-labelledby="formTitle">
-      <h2 id="formTitle">購入品・支払済サービスを追加</h2>
+      <h2><span id="formTitle">購入品・支払済サービスを追加</span><button type="button" class="small tg" id="fToggle" aria-expanded="false" aria-controls="fBody">＋ 追加</button></h2>
+      <div class="fbody" id="fBody" hidden>
       <div class="fields">
         <label class="f">日付<input type="date" id="fDate"></label>
         <label class="f">金額(円)<input type="text" id="fAmount" inputmode="numeric" placeholder="1280"></label>
@@ -408,6 +415,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
         <button type="button" id="fCancel" hidden>編集をやめる</button>
       </div>
       <p class="msg" id="formMsg" role="status" aria-live="polite"></p>
+      </div>
     </form>
 
     <details class="panel fold" id="breakdown" open>
@@ -424,7 +432,8 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 
   <main class="fixedview" id="viewFixed" hidden>
     <form class="panel" id="fxForm" novalidate autocomplete="off" aria-labelledby="fxTitle">
-      <h2 id="fxTitle">固定費を追加</h2>
+      <h2><span id="fxTitle">固定費を追加</span><button type="button" class="small tg" id="xToggle" aria-expanded="false" aria-controls="xBody">＋ 追加</button></h2>
+      <div class="fbody" id="xBody" hidden>
       <div class="fields">
         <label class="f">月<input type="month" id="xMonth" placeholder="2026-10"></label>
         <label class="f">金額(円)<input type="text" id="xAmount" inputmode="numeric" placeholder="7800"></label>
@@ -439,6 +448,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
         <button type="button" id="xCopy" title="選んだ月より前の、直近の月の項目をコピーします">前の月からコピー</button>
       </div>
       <p class="msg" id="xMsg" role="status" aria-live="polite"></p>
+      </div>
     </form>
     <section class="panel" aria-labelledby="h-fx">
       <h2 id="h-fx">月ごとの固定費 <small id="fxCount"></small></h2>
@@ -467,7 +477,13 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
       <p class="note" id="mNote"></p>
     </section>
 
-    <details class="panel fold" open>
+    <section class="panel" aria-labelledby="h-fc">
+      <h2 id="h-fc">固定費を引いた残高</h2>
+      <label class="f">口座<select id="fcAcct"></select></label>
+      <div id="fcBody"></div>
+    </section>
+
+    <details class="panel fold" id="acFold">
       <summary><h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span><button type="button" class="small tg" data-form="ac" id="acToggle" aria-expanded="false">＋ 追加</button></h2></summary>
       <div class="secbody">
       <form id="acForm" class="mform" novalidate autocomplete="off" hidden>
@@ -1272,11 +1288,13 @@ const Core=(function(){
         '<div class="r-act">'+(pd?'':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
         '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="fx-del" data-id="'+esc(f.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
     }).join("");
+    const incs=state.income.filter(i=>i.month===g.ym), incSum=incs.reduce((t,i)=>t+i.amount,0);
+    const allow=incs.length?'<small class="allow" title="その月の給与 '+yen(incSum)+' − 固定費の合計 '+yen(g.total)+'">小遣い '+yenS(incSum-g.total)+'</small>':'';
     const np=g.items.filter(f=>paid.has(f.id)).length;
     const unpaidAmt=g.items.reduce((a,f)=>a+(paid.has(f.id)?0:f.amount),0);
     const per=periods.of(g.ym), perTxt=(cfg.payday||per.custom)?'<span class="m-per">'+shortD(per.from)+'〜'+shortD(per.to)+(per.custom?'(手動)':'')+' · </span>':"";
     const meta=perTxt+(np?"支払済 "+np+"/":"")+g.items.length+"件"+(g.items.length>np?'<span class="unpaid-amt"> · 未払分 '+yen(unpaidAmt)+'</span>':' · すべて支払済')+(g.delta===null?"":'<span class="delta"> · 前月比 '+sgn(g.delta)+'</span>');
-    return '<details class="mfold" data-key="'+g.ym+'"'+(open?' open':'')+'><summary><span class="m-name">'+Number(g.ym.slice(5,7))+'月</span><span class="m-meta">'+meta+'</span><span class="m-total">'+yen(g.total)+'</span></summary><div class="mbody">'+perHtml(g.ym)+'<ul class="rows">'+rows+'</ul></div></details>';
+    return '<details class="mfold" data-key="'+g.ym+'"'+(open?' open':'')+'><summary><span class="m-name">'+Number(g.ym.slice(5,7))+'月</span><span class="m-meta">'+meta+'</span><span class="m-total">'+yen(g.total)+allow+'</span></summary><div class="mbody">'+perHtml(g.ym)+'<ul class="rows">'+rows+'</ul></div></details>';
   }
   function renderFixed(){
     renderFxSelect();
@@ -1294,6 +1312,7 @@ const Core=(function(){
       sm.innerHTML=(monthItems.length?'<div><dt>'+ymLabel(open0)+'の固定費</dt><dd>'+yen(sumAll(monthItems))+'</dd></div>'+
         '<div><dt>支払済</dt><dd>'+yen(sumAll(monthItems)-sumAll(unpaidNow))+'</dd></div>'+
         '<div class="unpaid'+(unpaidNow.length?'':' zero')+'"><dt>未払分</dt><dd>'+yen(sumAll(unpaidNow))+'</dd></div>':'<div class="unpaid zero"><dt>'+ymLabel(open0)+'の未払分</dt><dd>'+yen(0)+'</dd></div>')+
+        (()=>{const inc=state.income.filter(i=>i.month===open0).reduce((t,i)=>t+i.amount,0); return state.income.some(i=>i.month===open0)&&monthItems.length?'<p class="prior">'+Number(open0.slice(5,7))+'月分の小遣い(給与 '+yen(inc)+' − 固定費 '+yen(sumAll(monthItems))+')= '+yenS(inc-sumAll(monthItems))+'</p>':'';})()+
         (priorUnpaid.length?'<p class="prior">以前の月の未払分 '+yen(sumAll(priorUnpaid))+'('+priorUnpaid.length+'件)。記録に支払いがない月が含まれます。</p>':'');
     }
     $("fxPick").innerHTML=Array.from(new Set(state.fixed.filter(f=>f.month===open0&&!paid.has(f.id)).map(f=>f.name))).map(n=>'<option value="'+esc(n)+'">').join("");
@@ -1371,6 +1390,22 @@ const Core=(function(){
     const sel=$("dAcct"), keep=sel.value;
     sel.innerHTML='<option value="">未指定</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");
     if(keep&&state.accounts.some(a=>a.id===keep)) sel.value=keep;
+    // 選んだ1口座の残高 − 未払いの固定費(今月と以前の月)
+    {
+      const fs=$("fcAcct"), ok=state.accounts.some(a=>a.id===cfg.fcAcct);
+      fs.innerHTML='<option value="">口座を選ぶ</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");
+      fs.value=ok?cfg.fcAcct:"";
+      const acc=state.accounts.find(a=>a.id===fs.value);
+      if(!acc){ $("fcBody").innerHTML='<p class="empty">'+(state.accounts.length?'口座を選ぶと、その残高から未払いの固定費を引いた額が出ます。':'先に「銀行口座残高」に口座を追加してください。')+'</p>'; }
+      else{
+        const paidSet=Core.matchPaid(state.fixed,realItems(),periods), cy=curYm(), sm=a=>a.reduce((t,f)=>t+f.amount,0);
+        const now=state.fixed.filter(f=>f.month===cy&&!paidSet.has(f.id)), prior=state.fixed.filter(f=>f.month<cy&&!paidSet.has(f.id));
+        const rest=acc.balance-sm(now)-sm(prior);
+        $("fcBody").innerHTML='<div class="mhero"><span class="lbl">'+esc(acc.name)+'の残高 − 未払いの固定費</span><span class="big">'+yenS(rest)+'</span></div>'+
+          '<dl class="msum3"><div><dt>口座残高</dt><dd>'+yenS(acc.balance)+'</dd></div><div><dt>'+ymLabel(cy)+'の未払分</dt><dd>'+yen(sm(now))+'</dd></div><div><dt>以前の月の未払分</dt><dd>'+yen(sm(prior))+'</dd></div></dl>'+
+          '<p class="note">未来の月の固定費は含みません。「固定費」タブで支払済になったものは引きません。</p>';
+      }
+    }
     $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
     // まとめ
     $("mSum").innerHTML='<div class="mhero"><span class="lbl">銀行口座残高の合計'+(M.accountCount&&M.selectedCount<M.accountCount?'(選んだ'+M.selectedCount+'口座 / 全'+M.accountCount+'口座)':'')+'</span><span class="big">'+yenS(M.total)+'</span></div>'+
@@ -1416,6 +1451,7 @@ const Core=(function(){
         '<div class="r-act"><button type="button" class="small" data-act="in-edit" data-id="'+esc(i.id)+'">編集</button>'+delBtn("in-del",i.id)+'</div></li>';
     }).join("")+'</ul>':'<p class="empty">まだ給与の記録がありません。</p>';
   }
+  $("fcAcct").addEventListener("change",e=>{cfg.fcAcct=e.target.value; saveCfg(); render();});
   $("acBody").addEventListener("change",e=>{
     const c=e.target.closest("[data-ac-sel]"); if(!c) return;
     const a=state.accounts.find(x=>x.id===c.dataset.acSel); if(!a) return;
@@ -1426,6 +1462,7 @@ const Core=(function(){
   const A={name:$("aName"),bal:$("aBal"),memo:$("aMemo")}, D={date:$("dDate"),amount:$("dAmount"),card:$("dCard"),acct:$("dAcct"),memo:$("dMemo")}, I={month:$("iMonth"),amount:$("iAmount"),name:$("iName"),memo:$("iMemo")};
   function showForm(k,on){
     const f=$({ac:"acForm",di:"diForm","in":"inForm"}[k]), b=$(k+"Toggle");
+    if(on&&k==="ac") $("acFold").open=true;
     f.hidden=!on; b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));
   }
   document.querySelectorAll(".tg[data-form]").forEach(b=>b.addEventListener("click",e=>{
@@ -1608,6 +1645,15 @@ const Core=(function(){
   });
   $("fCancel").addEventListener("click",()=>{endEdit();resetEntry();render();say("formMsg","編集をやめました。");});
 
+  /* 入力欄の折り畳み(記録・固定費)。編集を始めると自動で開く */
+  function setBody(btnId,bodyId,on){
+    const b=$(btnId), bd=$(bodyId); bd.hidden=!on; b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));
+  }
+  [["fToggle","fBody"],["xToggle","xBody"]].forEach(p=>$(p[0]).addEventListener("click",()=>{
+    const on=$(p[1]).hidden; setBody(p[0],p[1],on);
+    if(on){const i=$(p[1]).querySelector("input"); if(i) i.focus();}
+  }));
+
   /* 期間・支払方法の入力 */
   $("presets").addEventListener("click",e=>{
     const b=e.target.closest("[data-preset]"); if(!b) return;
@@ -1634,7 +1680,7 @@ const Core=(function(){
       ui.editingId=id; ui.editingBlank=!it.method;
       renderMethodSelect();
       F.date.value=it.date; F.name.value=it.name; F.amount.value=String(it.amount); F.method.value=it.method||""; F.cat.value=it.category; F.memo.value=it.memo||"";
-      $("formTitle").textContent="記録を編集"; $("fSubmit").textContent="更新"; $("fCancel").hidden=false;
+      $("formTitle").textContent="記録を編集"; $("fSubmit").textContent="更新"; $("fCancel").hidden=false; setBody("fToggle","fBody",true);
       $("form").scrollIntoView({block:"nearest",behavior:"smooth"}); F.name.focus();
     } else if(act==="del"){
       if(ui.pendingDelete===id){
@@ -1690,7 +1736,7 @@ const Core=(function(){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
       ui.fxEditing=id; ui.fxEditingBlank=!f.method; renderFxSelect();
       X.month.value=f.month; X.name.value=f.name; X.amount.value=String(f.amount); X.method.value=f.method||""; X.memo.value=f.memo||"";
-      $("fxTitle").textContent="固定費を編集"; $("xSubmit").textContent="更新"; $("xCancel").hidden=false;
+      $("fxTitle").textContent="固定費を編集"; $("xSubmit").textContent="更新"; $("xCancel").hidden=false; setBody("xToggle","xBody",true);
       $("fxForm").scrollIntoView({block:"nearest",behavior:"smooth"}); X.name.focus();
     } else if(act==="fx-del"){
       if(ui.fxPendingDelete===id){
@@ -1794,7 +1840,7 @@ const Core=(function(){
   const PRESET_CLIENT_ID=""; // ここにクライアントIDを貼っておくと、スマホとPCで入力しなくて済みます
   const SYNC_FILE="kaimono-shukei.json";
   const SCOPE="https://www.googleapis.com/auth/drive.appdata";
-  let cfg={clientId:"",connected:false,payday:25,pOver:{}};
+  let cfg={clientId:"",connected:false,payday:25,pOver:{},fcAcct:""};
   let periods=Core.makePeriods(25,{});
   function rebuildPeriods(){periods=Core.makePeriods(cfg.payday,cfg.pOver);}
   let token=null, tokenExp=0, syncing=false, fileId=null, syncTimer=null;
@@ -1806,6 +1852,7 @@ const Core=(function(){
     cfg.connected=!!o.connected;
     const pd=Number(o.payday);
     cfg.payday=(o.payday===undefined||o.payday===null||!Number.isFinite(pd)||pd<0||pd>31)?25:Math.floor(pd);
+    cfg.fcAcct=typeof o.fcAcct==="string"?o.fcAcct:"";
     cfg.pOver={};
     if(o.pOver&&typeof o.pOver==="object") Object.keys(o.pOver).forEach(k=>{const v=o.pOver[k]; if(/^\d{4}-\d{2}$/.test(k)&&v&&Core.validDate(String(v.from))&&Core.validDate(String(v.to))&&v.from<=v.to) cfg.pOver[k]={from:v.from,to:v.to};});
     rebuildPeriods();
@@ -1991,7 +2038,8 @@ const Core=(function(){
   const r0=presetRange("month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
   render();
   $("originText").textContent=location.origin;
-  $("breakdown").open=!!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches);
+  const wideScr=!!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches);
+  $("breakdown").open=wideScr; setBody("fToggle","fBody",wideScr); setBody("xToggle","xBody",wideScr);
   showView(viewFromHash());
 })();
 </script>
