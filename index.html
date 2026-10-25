@@ -603,25 +603,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       </div>
     </details>
 
-    <section class="panel" aria-labelledby="h-wd">
-      <h2 id="h-wd">取り崩しシミュレーション <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">試算の期間が終わった翌月から、毎月いくらずつ取り崩し、残りを運用したまま使っていくと、いつ資産が尽きるかを計算します。毎月の最初に取り崩し、残りを1か月運用します。開始時の資産は、空欄なら「試算」の期間末の合計(試算がなければ、いまの資産の記録)を使います。最長100年先まで計算します。将来を保証するものではありません。</span></span></h2>
-      <form id="wdForm" novalidate autocomplete="off">
-        <div class="fields wd3">
-          <label class="f">毎月の取り崩し(円)<input type="text" id="wdAmt" inputmode="numeric" placeholder="150000"></label>
-          <label class="f">運用利回り(年%)<input type="text" id="wdRate" inputmode="decimal" placeholder="3"></label>
-          <button type="submit" class="primary wdgo">計算</button>
-        </div>
-        <details class="mfold" id="wdAdv" style="margin-top:6px"><summary><span class="m-name">開始時の資産・開始月を指定する</span><span class="m-meta">空欄なら自動</span></summary><div class="mbody"><div class="fields">
-          <label class="f">開始時の資産(円)<input type="text" id="wdInit" inputmode="numeric" placeholder="自動"></label>
-          <label class="f">取り崩し開始月<input type="month" id="wdFrom"></label>
-        </div></div></details>
-        <p class="msg" id="wdMsg" role="status" aria-live="polite"></p>
-      </form>
-      <div id="wdSum"></div>
-      <div id="wdChart" class="achart"></div>
-      <details class="mfold" id="wdTbl" open style="margin-top:8px"><summary><span class="m-name">取り崩しの推移表</span><span class="m-meta">年末ごと</span></summary><div class="mbody" style="overflow-x:auto"><table class="atbl"><thead><tr><th>年月</th><th>残高(円)</th><th>取り崩し累計(円)</th></tr></thead><tbody id="wdTblBody"></tbody></table></div></details>
-    </section>
-
     <details class="panel fold" open>
       <summary><h2 id="h-rc"><span>月次の記録 <small id="rcCount"></small></span><button type="button" class="small tg" data-form="rc" id="rcToggle" aria-expanded="false">＋ 追加</button></h2></summary>
       <div class="secbody">
@@ -663,6 +644,25 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <div class="alegend" aria-hidden="true"><span><i style="border-color:var(--s1)"></i>評価額(試算)</span><span><i class="dash" style="border-color:var(--other)"></i>元本(試算)</span><span><i class="dot"></i>評価額(記録)</span></div>
       <div id="asChart" class="achart"></div>
       <details class="mfold" id="asTbl" open style="margin-top:8px"><summary><span class="m-name">推移表</span><span class="m-meta">年末ごと · 行にタッチで運用益</span></summary><div class="mbody" style="overflow-x:auto"><table class="atbl"><thead><tr><th>年月</th><th>元本(円)</th><th>評価額(円)</th></tr></thead><tbody id="asTblBody"></tbody></table></div></details>
+    </section>
+
+    <section class="panel" aria-labelledby="h-wd">
+      <h2 id="h-wd">取り崩しシミュレーション <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">試算の期間が終わった翌月から、毎月いくらずつ取り崩し、残りを運用したまま使っていくと、いつ資産が尽きるかを計算します。毎月の最初に取り崩し、残りを1か月運用します。開始時の資産は、空欄なら「試算」の期間末の合計(試算がなければ、いまの資産の記録)を使います。最長100年先まで計算します。将来を保証するものではありません。</span></span></h2>
+      <form id="wdForm" novalidate autocomplete="off">
+        <div class="fields wd3">
+          <label class="f">毎月の取り崩し(円)<input type="text" id="wdAmt" inputmode="numeric" placeholder="150000"></label>
+          <label class="f">運用利回り(年%)<input type="text" id="wdRate" inputmode="decimal" placeholder="3"></label>
+          <button type="submit" class="primary wdgo">計算</button>
+        </div>
+        <details class="mfold" id="wdAdv" style="margin-top:6px"><summary><span class="m-name">開始時の資産・開始月を指定する</span><span class="m-meta">空欄なら自動</span></summary><div class="mbody"><div class="fields">
+          <label class="f">開始時の資産(円)<input type="text" id="wdInit" inputmode="numeric" placeholder="自動"></label>
+          <label class="f">取り崩し開始月<input type="month" id="wdFrom"></label>
+        </div></div></details>
+        <p class="msg" id="wdMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="wdSum"></div>
+      <div id="wdChart" class="achart"></div>
+      <details class="mfold" id="wdTbl" open style="margin-top:8px"><summary><span class="m-name">取り崩しの推移表</span><span class="m-meta">年末ごと</span></summary><div class="mbody" style="overflow-x:auto"><table class="atbl"><thead><tr><th>年月</th><th>残高(円)</th><th>取り崩し累計(円)</th></tr></thead><tbody id="wdTblBody"></tbody></table></div></details>
     </section>
   </main>
 
@@ -1704,8 +1704,7 @@ const Core=(function(){
     }
     tbl.hidden=false;
     const last=D.rows[D.rows.length-1], hero=D.capped?'100年先まで尽きません':ymLabel(D.depleted)+'に尽きます';
-    sum.innerHTML='<div class="mhero wdhero" style="margin-top:6px"><span class="lbl">資産が尽きる時期</span><span class="big">'+hero+'</span>'+
-      '<span class="sub" style="display:block;font-size:.72rem;color:var(--muted)">'+(D.capped?'運用益が取り崩しを上回り、100年後も '+yen(last.balance)+' 残ります':ymLabel(src.from)+'から数えて '+spanTxt(D.months)+'(取り崩し総額 '+yen(D.total)+')')+'</span></div>'+
+    sum.innerHTML='<p class="note wdsub" style="margin:8px 0 0">'+(D.capped?'運用益が取り崩しを上回り、100年後も '+yen(last.balance)+' 残ります':ymLabel(src.from)+'から数えて '+spanTxt(D.months)+'(取り崩し総額 '+yen(D.total)+')')+'</p>'+
       '<dl class="msum3"><div><dt>開始時の資産</dt><dd>'+yen(src.bal)+'</dd></div><div><dt>毎月の取り崩し</dt><dd>'+yen(wd.monthly)+'</dd></div><div><dt>運用利回り</dt><dd>'+wd.rate+'%</dd></div></dl>'+
       '<p class="note" style="margin-top:6px">開始時の資産は、'+esc(src.src)+'を使っています。'+ymLabel(src.from)+'から取り崩します。</p>';
     // グラフ
