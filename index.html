@@ -272,6 +272,8 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .plk h3{margin:0 0 6px; font-size:.9rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 .atbl{width:100%; table-layout:fixed; border-collapse:collapse; font-size:.72rem; font-family:var(--font-num)}
 .atbl th:first-child,.atbl td:first-child{width:24%}
+.atbl td small{display:block; font-family:var(--font-body); font-size:.62rem; color:var(--muted)}
+.atbl tr.end td{color:var(--danger)}
 .atbl tr.dr{cursor:pointer}
 .atbl tr.dr.on td{background:var(--surface-2)}
 .atbl tr.gr{display:none}
@@ -298,6 +300,9 @@ html{overscroll-behavior-y:contain}
 .assetview .plk{padding-top:6px; margin-top:6px}
 .assetview .plk h3{margin-bottom:4px}
 .assetview .mform .actions{margin-top:6px}
+.assetview .fields.wd3{grid-template-columns:repeat(3,minmax(0,1fr)); align-items:end}
+.wdgo{min-height:38px}
+.wdhero .big{font-size:clamp(1.15rem,5.8vw,1.8rem)}
 .assetview .seg{flex-wrap:wrap}
 .assetview .seg button{padding:1px 9px}
 .moneyview{max-width:760px; display:grid; gap:10px}
@@ -598,6 +603,25 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       </div>
     </details>
 
+    <section class="panel" aria-labelledby="h-wd">
+      <h2 id="h-wd">取り崩しシミュレーション <span class="info" tabindex="0" role="button" aria-label="説明を見る">ⓘ<span class="ibox">試算の期間が終わった翌月から、毎月いくらずつ取り崩し、残りを運用したまま使っていくと、いつ資産が尽きるかを計算します。毎月の最初に取り崩し、残りを1か月運用します。開始時の資産は、空欄なら「試算」の期間末の合計(試算がなければ、いまの資産の記録)を使います。最長100年先まで計算します。将来を保証するものではありません。</span></span></h2>
+      <form id="wdForm" novalidate autocomplete="off">
+        <div class="fields wd3">
+          <label class="f">毎月の取り崩し(円)<input type="text" id="wdAmt" inputmode="numeric" placeholder="150000"></label>
+          <label class="f">運用利回り(年%)<input type="text" id="wdRate" inputmode="decimal" placeholder="3"></label>
+          <button type="submit" class="primary wdgo">計算</button>
+        </div>
+        <details class="mfold" id="wdAdv" style="margin-top:6px"><summary><span class="m-name">開始時の資産・開始月を指定する</span><span class="m-meta">空欄なら自動</span></summary><div class="mbody"><div class="fields">
+          <label class="f">開始時の資産(円)<input type="text" id="wdInit" inputmode="numeric" placeholder="自動"></label>
+          <label class="f">取り崩し開始月<input type="month" id="wdFrom"></label>
+        </div></div></details>
+        <p class="msg" id="wdMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="wdSum"></div>
+      <div id="wdChart" class="achart"></div>
+      <details class="mfold" id="wdTbl" open style="margin-top:8px"><summary><span class="m-name">取り崩しの推移表</span><span class="m-meta">年末ごと</span></summary><div class="mbody" style="overflow-x:auto"><table class="atbl"><thead><tr><th>年月</th><th>残高(円)</th><th>取り崩し累計(円)</th></tr></thead><tbody id="wdTblBody"></tbody></table></div></details>
+    </section>
+
     <details class="panel fold" open>
       <summary><h2 id="h-rc"><span>月次の記録 <small id="rcCount"></small></span><button type="button" class="small tg" data-form="rc" id="rcToggle" aria-expanded="false">＋ 追加</button></h2></summary>
       <div class="secbody">
@@ -863,6 +887,12 @@ const Core=(function(){
   const ymFromNo=n=>Math.floor(n/12)+"-"+String(n%12+1).padStart(2,"0");
   function makeAsset(o){
     const kind=cleanStr(o.kind,10), t=cleanStr(o.t,10);
+    if(t==="wd"){
+      const monthly=parseAmount(o.monthly), init=parseAmount(o.init), rate=Number(String(o.rate==null||o.rate===""?0:o.rate).normalize("NFKC").replace(/[%％\s]/g,""));
+      const from=o.from?normMonth(o.from):"";
+      if(o.from&&!from) return null;
+      return Object.assign({id:"plan-wd",t:"wd",kind:"wd",monthly:monthly===null?0:Math.max(0,monthly),init:init===null?0:Math.max(0,init),rate:Number.isFinite(rate)?Math.max(-50,Math.min(100,rate)):0,from:from,to:""},stampsOf(o));
+    }
     if(ASSET_KINDS.indexOf(kind)<0) return null;
     if(t==="rec"){
       const month=normMonth(o.month), principal=parseAmount(o.principal), value=parseAmount(o.value);
@@ -899,6 +929,21 @@ const Core=(function(){
     return rows;
   }
   /* 種類ごとの試算を月ごとに合算。始まる前は0、終わった後は最後の値のまま */
+  /* 取り崩し: 開始月の月初に取り崩し、残りを1か月運用する。残高が取り崩し額に足りなくなった月で尽きる(最長100年) */
+  function drawdown(o){
+    if(!o||!/^\d{4}-\d{2}$/.test(o.from||"")) return null;
+    const start=Math.max(0,o.start||0), w=Math.max(0,o.monthly||0), r=Math.pow(1+(o.rate||0)/100,1/12)-1, MAX=1200;
+    const rows=[{ym:ymAdd(o.from,-1),balance:Math.round(start),out:0}];
+    if(start<=0) return {rows:rows,depleted:ymAdd(o.from,-1),months:0,capped:false,total:0};
+    if(w<=0) return {rows:rows,depleted:null,months:0,capped:false,total:0,idle:true};
+    let v=start, out=0;
+    for(let i=0;i<MAX;i++){
+      const ym=ymAdd(o.from,i), pay=Math.min(w,v); v-=pay; out+=pay; v=v*(1+r);
+      if(pay<w||v<0.5){rows.push({ym:ym,balance:0,out:Math.round(out)}); return {rows:rows,depleted:ym,months:i+1,capped:false,total:Math.round(out)};}
+      rows.push({ym:ym,balance:Math.round(v),out:Math.round(out)});
+    }
+    return {rows:rows,depleted:null,months:MAX,capped:true,total:Math.round(out)};
+  }
   function sumSeries(list){
     const all=list.filter(x=>x.length); if(!all.length) return [];
     const a=all.map(x=>monthNo(x[0].ym)), b=all.map(x=>monthNo(x[x.length-1].ym));
@@ -1204,7 +1249,7 @@ const Core=(function(){
     return {list:list,count:count,total:total,days:days,avg:avg,largest:largest,cats:cats,months:months,byMethod:byMethod,periodTotal:periodTotal,periodCount:periodList.length};
   }
 
-  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,makeAsset,simulate,sumSeries,actualSeries,ASSET_KINDS,ASSET_NAMES,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
+  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,makeAsset,simulate,drawdown,sumSeries,actualSeries,ASSET_KINDS,ASSET_NAMES,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
 })();
 </script>
 
@@ -1230,7 +1275,7 @@ const Core=(function(){
 
   let state={items:[],fixed:[],income:[],accounts:[],debits:[],assets:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
   let storageOk=true;
-  const ui={acEditing:null,diEditing:null,inEditing:null,mPending:null,mOpen:{},fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,asKind:"all",rcEditing:null,flEditing:null,plDirty:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
+  const ui={acEditing:null,diEditing:null,inEditing:null,mPending:null,mOpen:{},fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,wdDirty:false,asKind:"all",rcEditing:null,flEditing:null,plDirty:false,fxPendingDelete:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
   const timers={};
 
   /* 保存 */
@@ -1238,7 +1283,7 @@ const Core=(function(){
   const validAccount=a=>a&&typeof a==="object"&&typeof a.name==="string"&&Number.isFinite(a.balance)&&a.id;
   const validIncome=i=>i&&typeof i==="object"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(String(i.month))&&Number.isFinite(i.amount)&&i.id;
   const validDebit=d=>d&&typeof d==="object"&&Core.validDate(String(d.date))&&typeof d.card==="string"&&Number.isFinite(d.amount)&&d.id;
-  const validAsset=a=>a&&typeof a==='object'&&['rec','flow','plan'].indexOf(a.t)>=0&&['nisa','ideco','cash'].indexOf(a.kind)>=0&&a.id;
+  const validAsset=a=>a&&typeof a==='object'&&['rec','flow','plan','wd'].indexOf(a.t)>=0&&['nisa','ideco','cash','wd'].indexOf(a.kind)>=0&&a.id;
   const stampFix=x=>{if(typeof x.updatedAt!=="number") x.updatedAt=typeof x.createdAt==="number"?x.createdAt:0; return x;};
   function validFixed(f){return f&&typeof f=="object"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(String(f.month))&&typeof f.name==="string"&&Number.isFinite(f.amount)&&f.id;}
   function load(){
@@ -1608,6 +1653,7 @@ const Core=(function(){
     const nPlan=PLAN_KINDS.filter(k=>{const pl=planOf(k); return pl&&pl.from&&pl.to;}).length;
     $("plCount").textContent=nPlan?nPlan+"種類を設定済み":"未設定";
     fillPlanForm();
+    renderDrawdown();
     // 月次の記録(種類ごとに折りたたみ)
     const recs=assetsOf("rec");
     $("rcCount").textContent=recs.length?recs.length+"件":"";
@@ -1628,6 +1674,70 @@ const Core=(function(){
       return '<li class="frow"><div class="r-name"><span class="dchip">'+f.month.slice(0,4)+'/'+f.month.slice(5,7)+'</span>'+(f.type==="out"?'取り崩し':'追加投資')+'</div><div class="r-amt">'+(f.type==="out"?'−':'+')+yen(f.amount)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
         '<div class="r-act"><button type="button" class="small" data-act="fl-edit" data-id="'+esc(f.id)+'">編集</button>'+delBtn("fl-del",f.id)+'</div></li>';
     }).join("")+'</ul>':'<p class="empty">追加投資や取り崩しはありません。</p>';
+  }
+
+  /* 取り崩しシミュレーション */
+  const wdOf=()=>state.assets.find(a=>a.t==="wd")||null;
+  function wdSource(){
+    const wd=wdOf(), all=assetSeriesFor("all"), end=all.sim[all.sim.length-1];
+    let bal=0, src="", has=false;
+    if(wd&&wd.init>0){bal=wd.init; src="指定した金額"; has=true;}
+    else if(end){bal=end.value; src="試算の期間末("+ymLabel(end.ym)+")の合計"; has=true;}
+    else{let v=0,any=false; KINDS.forEach(k=>{const r=latestRec(k); if(r){v+=r.value;any=true;}}); if(any){bal=v; src="いまの資産(記録)"; has=true;}}
+    let from=wd&&wd.from?wd.from:(end?Core.ymAdd(end.ym,1):today().slice(0,7));
+    return {bal:bal,from:from,src:src,has:has};
+  }
+  function fillWdForm(){
+    const f=$("wdForm"); if(ui.wdDirty||f.contains(document.activeElement)) return;
+    const wd=wdOf(); $("wdAmt").value=wd&&wd.monthly?String(wd.monthly):""; $("wdRate").value=wd&&wd.rate?String(wd.rate):""; $("wdInit").value=wd&&wd.init?String(wd.init):""; $("wdFrom").value=wd?wd.from:"";
+  }
+  const spanTxt=n=>{const y=Math.floor(n/12), m=n%12; return (y?y+"年":"")+(m||!y?m+"か月":"");};
+  function renderDrawdown(){
+    fillWdForm();
+    const wd=wdOf(), box=$("wdChart"), sum=$("wdSum"), tb=$("wdTblBody"), tbl=$("wdTbl");
+    const src=wdSource();
+    const D=(wd&&wd.monthly>0&&src.has)?Core.drawdown({start:src.bal,monthly:wd.monthly,rate:wd.rate,from:src.from}):null;
+    $("wdAdv").querySelector(".m-meta").textContent=wd&&(wd.init>0||wd.from)?"指定あり":"空欄なら自動";
+    if(!D){
+      sum.innerHTML='<p class="empty">'+(!src.has?'先に「月次の記録」か「試算の設定」を入れてください。':'毎月の取り崩し額を入れて「計算」を押すと、資産がいつ尽きるかが出ます。')+'</p>';
+      box.innerHTML=""; tb.innerHTML=""; tbl.hidden=true; return;
+    }
+    tbl.hidden=false;
+    const last=D.rows[D.rows.length-1], hero=D.capped?'100年先まで尽きません':ymLabel(D.depleted)+'に尽きます';
+    sum.innerHTML='<div class="mhero wdhero" style="margin-top:6px"><span class="lbl">資産が尽きる時期</span><span class="big">'+hero+'</span>'+
+      '<span class="sub" style="display:block;font-size:.72rem;color:var(--muted)">'+(D.capped?'運用益が取り崩しを上回り、100年後も '+yen(last.balance)+' 残ります':ymLabel(src.from)+'から数えて '+spanTxt(D.months)+'(取り崩し総額 '+yen(D.total)+')')+'</span></div>'+
+      '<dl class="msum3"><div><dt>開始時の資産</dt><dd>'+yen(src.bal)+'</dd></div><div><dt>毎月の取り崩し</dt><dd>'+yen(wd.monthly)+'</dd></div><div><dt>運用利回り</dt><dd>'+wd.rate+'%</dd></div></dl>'+
+      '<p class="note" style="margin-top:6px">開始時の資産は、'+esc(src.src)+'を使っています。'+ymLabel(src.from)+'から取り崩します。</p>';
+    // グラフ
+    const rows=D.rows, ms=rows.map(r=>mnOf(r.ym)), lo=ms[0], hi=ms[ms.length-1], span=Math.max(hi-lo,1);
+    const W=360,H=200,L=46,R=18,T=14,B=26, X=m=>L+(m-lo)/span*(W-L-R);
+    const maxV=niceMax(Math.max.apply(null,rows.map(r=>r.balance))*1.02), Y=v=>T+(1-Math.max(v,0)/maxV)*(H-T-B);
+    let g="";
+    for(let i=0;i<=4;i++){const v=maxV/4*i, y=Y(v).toFixed(1); g+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(L-5)+'" y="'+(+y+3)+'" text-anchor="end">'+fmtMan(v)+'</text>';}
+    const yrs=span/12, ticks=[];
+    if(yrs<=2){const st=Math.max(1,Math.round(span/4)); for(let m=lo;m<=hi;m+=st) ticks.push(m);}
+    else{const st=yrs>40?10:yrs>20?5:yrs>8?2:1; for(let m=lo;m<=hi;m++){if(m%12===0&&Math.floor(m/12)%st===0) ticks.push(m);}}
+    ticks.forEach(m=>{const ym=ymOfNo(m); g+='<text x="'+X(m).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+(yrs<=2?ym.slice(2,4)+"/"+Number(ym.slice(5,7)):ym.slice(0,4))+'</text>';});
+    const path=rows.map((r,i)=>(i?"L":"M")+X(mnOf(r.ym)).toFixed(1)+" "+Y(r.balance).toFixed(1)).join("");
+    g+='<path d="'+path+'L'+X(hi).toFixed(1)+' '+Y(0).toFixed(1)+'L'+X(lo).toFixed(1)+' '+Y(0).toFixed(1)+'Z" fill="var(--s1)" opacity=".13"/><path d="'+path+'" fill="none" stroke="var(--s1)" stroke-width="2"/>';
+    if(!D.capped) g+='<circle cx="'+X(hi).toFixed(1)+'" cy="'+Y(0).toFixed(1)+'" r="4" fill="var(--danger)" stroke="var(--surface)" stroke-width="1.5"/><text x="'+(X(hi)-6).toFixed(1)+'" y="'+(Y(0)-8).toFixed(1)+'" text-anchor="end" style="fill:var(--danger)">'+ymLabel(D.depleted)+'</text>';
+    g+='<line class="cross" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1" style="display:none"/>';
+    box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="取り崩しによる資産の残高の推移。'+(D.capped?'100年先まで尽きません':ymLabel(D.depleted)+'に尽きます')+'。すぐ下の表でも確認できます">'+g+'</svg><div class="tip" hidden></div>';
+    const by={}; rows.forEach(r=>{by[mnOf(r.ym)]=r;});
+    const svg=box.querySelector("svg"), cross=svg.querySelector(".cross"), tip=box.querySelector(".tip");
+    function show(ev){
+      const rc=svg.getBoundingClientRect(); if(!rc.width) return;
+      let m=Math.round(lo+((ev.clientX-rc.left)/rc.width*W-L)/(W-L-R)*span); m=Math.max(lo,Math.min(hi,m));
+      const r=by[m]; cross.setAttribute("x1",X(m)); cross.setAttribute("x2",X(m)); cross.style.display="";
+      tip.innerHTML='<b>'+ymLabel(ymOfNo(m))+'</b>'+(r?'残高 '+yen(r.balance)+'<br>取り崩し累計 '+yen(r.out):'');
+      tip.hidden=false; const w=tip.offsetWidth, lx=X(m)/W*rc.width; tip.style.left=Math.max(0,Math.min(rc.width-w,lx-w/2))+"px";
+    }
+    const hide=()=>{cross.style.display="none"; tip.hidden=true;};
+    svg.addEventListener("pointermove",show); svg.addEventListener("pointerdown",show); svg.addEventListener("pointerleave",hide);
+    // 表
+    const seen=new Set(), pick=rows.filter((r,i)=>(i===0||i===rows.length-1||r.ym.slice(5,7)==="12")&&!seen.has(r.ym)&&seen.add(r.ym));
+    const num=n=>Math.round(n).toLocaleString("ja-JP");
+    tb.innerHTML=pick.map((r,i)=>'<tr class="'+(!D.capped&&r.ym===D.depleted?'end':'')+'"><td>'+r.ym.slice(0,4)+'/'+r.ym.slice(5,7)+(i===0?'<small>開始前</small>':(!D.capped&&r.ym===D.depleted?'<small>尽きる</small>':''))+'</td><td>'+num(r.balance)+'</td><td>'+num(r.out)+'</td></tr>').join("");
   }
   function renderAssetChart(S){
     const box=$("asChart"), sim=S.sim, act=S.act, tb=$("asTblBody"), tbl=$("asTbl");
@@ -1793,6 +1903,19 @@ const Core=(function(){
   $("asTblBody").addEventListener("click",e=>{const r=e.target.closest("tr.dr"); if(r) r.classList.toggle("on");});
   $("asTblBody").addEventListener("keydown",e=>{const r=e.target.closest("tr.dr"); if(r&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); r.classList.toggle("on");}});
   document.addEventListener("click",e=>{const t=e.target.closest(".info"); document.querySelectorAll(".info.on").forEach(x=>{if(x!==t) x.classList.remove("on");}); if(t){e.preventDefault(); e.stopPropagation(); t.classList.toggle("on");}},true);
+  $("wdForm").addEventListener("input",()=>{ui.wdDirty=true;});
+  $("wdForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const amt=$("wdAmt").value.trim()===""?0:Core.parseAmount($("wdAmt").value), init=$("wdInit").value.trim()===""?0:Core.parseAmount($("wdInit").value);
+    const rate=$("wdRate").value.trim()===""?0:Number($("wdRate").value.trim().normalize("NFKC").replace(/[%％\s]/g,"")), from=$("wdFrom").value;
+    if(amt===null||amt<0) return say("wdMsg","毎月の取り崩しは0以上の数字で入力してください。",true);
+    if(!Number.isFinite(rate)||rate<-50||rate>100) return say("wdMsg","運用利回りは -50 〜 100 の数字で入力してください。",true);
+    if(init===null||init<0) return say("wdMsg","開始時の資産は0以上の数字で入力してください。",true);
+    const now=Date.now(), old=wdOf();
+    if(old){ if(old.monthly===amt&&old.rate===rate&&old.init===init&&old.from===from){ui.wdDirty=false; render(); return say("wdMsg","変更はありません。");} Object.assign(old,{monthly:amt,rate:rate,init:init,from:from,updatedAt:now}); }
+    else state.assets.push({id:"plan-wd",t:"wd",kind:"wd",monthly:amt,rate:rate,init:init,from:from,to:"",createdAt:now,updatedAt:now});
+    ui.wdDirty=false; changed(1); render(); say("wdMsg",amt>0?"計算しました。":"毎月の取り崩し額を入れてください。",amt<=0);
+  });
   $("asKinds").addEventListener("click",e=>{const b=e.target.closest("[data-ak]"); if(!b) return; ui.asKind=b.dataset.ak; renderAssets();});
   $("rcBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
   $("acBody").addEventListener("change",e=>{
