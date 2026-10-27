@@ -459,14 +459,13 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <div class="fbody" id="fBody" hidden>
       <div class="fields">
         <label class="f">日付<input type="date" id="fDate"></label>
-        <label class="f">金額(円)<input type="text" id="fAmount" inputmode="numeric" placeholder="1280"></label>
-        <label class="f full">品名<input type="text" id="fName" list="fxPick" maxlength="200" placeholder="コーヒー豆"></label>
+        <label class="f">金額(円)<input type="text" id="fAmount" autocomplete="off" inputmode="numeric" placeholder="1280"></label>
+        <label class="f full">品名<input type="text" id="fName" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="コーヒー豆"></label>
         <label class="f">支払方法<select id="fMethod"></select></label>
         <label class="f">カテゴリ<input type="text" id="fCat" list="cats" maxlength="50" placeholder="食費"></label>
-        <label class="f full">メモ(任意)<input type="text" id="fMemo" maxlength="200" placeholder="お店の名前など"></label>
+        <label class="f full">メモ(任意)<input type="text" id="fMemo" autocomplete="off" maxlength="200" placeholder="お店の名前など"></label>
       </div>
       <datalist id="cats"></datalist>
-      <datalist id="fxPick"></datalist>
       <div class="actions">
         <button type="submit" class="primary" id="fSubmit">追加</button>
         <button type="button" id="fCancel" hidden>編集をやめる</button>
@@ -1537,7 +1536,6 @@ const Core=(function(){
         (()=>{const inc=state.income.filter(i=>i.month===open0).reduce((t,i)=>t+i.amount,0); return state.income.some(i=>i.month===open0)&&monthItems.length?'<p class="prior">'+Number(open0.slice(5,7))+'月分の小遣い(給与 '+yen(inc)+' − 固定費 '+yen(sumAll(monthItems))+')= '+yenS(inc-sumAll(monthItems))+'</p>':'';})()+
         (priorUnpaid.length?'<p class="prior">以前の月の未払分 '+yen(sumAll(priorUnpaid))+'('+priorUnpaid.length+'件)。記録に支払いがない月が含まれます。</p>':'');
     }
-    $("fxPick").innerHTML=Array.from(new Set(state.fixed.filter(f=>f.month===open0&&!paid.has(f.id)).map(f=>f.name))).map(n=>'<option value="'+esc(n)+'">').join("");
     $("fxCount").textContent=state.fixed.length?state.fixed.length+"件":"";
     $("btnFixedCsv").hidden=!state.fixed.length;
     if(!groups.length){$("fxBody").innerHTML='<p class="empty">まだ固定費がありません。上のフォームで、月と項目を入れて追加できます。翌月以降は「前の月からコピー」で引き継げます。</p>';return;}
