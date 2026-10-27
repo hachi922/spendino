@@ -735,7 +735,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   </main>
   <nav class="btabs" aria-label="画面の切り替え">
     <button type="button" id="tabRecords" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
-    <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">資金</span></button>
+    <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">残高</span></button>
     <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
     <button type="button" id="tabAssets"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 18.5l5.5-6 4 3.5 7-8.5"/><path d="M15 7.5h5v5"/></svg><span class="tl">資産</span></button>
     <button type="button" id="tabChart"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
@@ -1460,10 +1460,10 @@ const Core=(function(){
   }
   function renderBackup(){
     const m=state.meta, real=realItems().length;
-    $("backupStatus").textContent="記録 "+real+"件"+(state.fixed.length?" / 固定費 "+state.fixed.length+"件":"")+(state.accounts.length||state.debits.length||state.income.length?" / 資金メモ "+(state.accounts.length+state.debits.length+state.income.length)+"件":"")+(state.assets.length?" / 資産運用 "+state.assets.length+"件":"")+" / 最終バックアップ: "+(m.lastBackupAt?stamp(m.lastBackupAt):"まだありません")+(m.changes?" / それ以降の変更 "+m.changes+"件":"");
+    $("backupStatus").textContent="記録 "+real+"件"+(state.fixed.length?" / 固定費 "+state.fixed.length+"件":"")+(state.accounts.length||state.debits.length||state.income.length?" / 残高メモ "+(state.accounts.length+state.debits.length+state.income.length)+"件":"")+(state.assets.length?" / 資産運用 "+state.assets.length+"件":"")+" / 最終バックアップ: "+(m.lastBackupAt?stamp(m.lastBackupAt):"まだありません")+(m.changes?" / それ以降の変更 "+m.changes+"件":"");
     const p=ui.plan;
     if(p){
-      $("importBox").innerHTML='<div class="import"><p><b>'+esc(p.name)+'</b> から '+p.items.length+'件'+(p.fixed&&p.fixed.length?'と固定費'+p.fixed.length+'件':'')+(p.moreN?'と資金メモ'+p.moreN+'件':'')+'を読み込めます'+(p.range?'('+p.range+')':'')+'。'+(p.skipped?' 読み取れない行が'+p.skipped+'件ありました。':'')+'</p>'+
+      $("importBox").innerHTML='<div class="import"><p><b>'+esc(p.name)+'</b> から '+p.items.length+'件'+(p.fixed&&p.fixed.length?'と固定費'+p.fixed.length+'件':'')+(p.moreN?'と残高メモ'+p.moreN+'件':'')+'を読み込めます'+(p.range?'('+p.range+')':'')+'。'+(p.skipped?' 読み取れない行が'+p.skipped+'件ありました。':'')+'</p>'+
         '<div class="btns"><button type="button" class="primary" data-act="merge">いまの記録に追加</button>'+
         '<button type="button" class="danger'+(ui.replaceArmed?' armed':'')+'" data-act="replace">'+(ui.replaceArmed?'もう一度押すと、いまの記録をすべて置き換えます':'すべて置き換え')+'</button>'+
         '<button type="button" data-act="cancel-import">やめる</button></div>'+
@@ -2311,7 +2311,7 @@ const Core=(function(){
       if(p.hasMore) ["income","accounts","debits","assets"].forEach(k=>{const rm=Core.mergeList(state[k],p.more[k]||[],Core.COL_KEYS[k]); state[k]=rm.items; moreAdded+=rm.added;});
       const addedAll=r.added+rf.added+moreAdded;
       if(addedAll) changed(addedAll); else save();
-      say("backupMsg",r.added+"件"+(rf.added?"と固定費"+rf.added+"件":"")+(moreAdded?"と資金メモ"+moreAdded+"件":"")+"を追加しました"+((r.dup+rf.dup)?"("+(r.dup+rf.dup)+"件は重複のため取り込みませんでした)":"")+"。");
+      say("backupMsg",r.added+"件"+(rf.added?"と固定費"+rf.added+"件":"")+(moreAdded?"と残高メモ"+moreAdded+"件":"")+"を追加しました"+((r.dup+rf.dup)?"("+(r.dup+rf.dup)+"件は重複のため取り込みませんでした)":"")+"。");
     }
     ui.plan=null; ui.replaceArmed=false; render();
   }
