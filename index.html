@@ -445,11 +445,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
         <span class="big" id="sumTotal">¥0</span>
         <span class="range-text" id="rangeText"></span>
       </div>
-      <dl class="stats">
-        <div><dt>件数</dt><dd id="sCount">0件</dd></div>
-        <div><dt>1日あたり</dt><dd id="sAvg">—</dd></div>
-        <div class="max"><dt>最高</dt><dd id="sMax">—</dd><dd class="sub" id="sMaxName"></dd></div>
-      </dl>
     </div>
   </section>
 
@@ -1391,10 +1386,6 @@ const Core=(function(){
     const label=(ui.from||ui.to)?((ui.from?fmt(ui.from):"最初")+" 〜 "+(ui.to?fmt(ui.to):"最新")):"全期間";
     const pm=ui.methods.length?" / 支払方法: "+ui.methods.map(pmLabel).join("・"):"";
     $("rangeText").textContent=label+pm+((ui.from&&ui.to&&ui.from>ui.to)?"(開始日が終了日より後になっています)":"");
-    $("sCount").textContent=S.count+"件";
-    $("sAvg").textContent=S.avg===null?"—":yen(S.avg);
-    $("sMax").textContent=S.largest?yen(S.largest.amount):"—";
-    $("sMaxName").textContent=S.largest?S.largest.name:"";
   }
   function bar(w,cls){return '<div class="track"><i class="'+(cls||"")+'" style="width:'+w+'%"></i></div>';}
   function renderBreakdown(S){
