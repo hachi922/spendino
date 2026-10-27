@@ -19,7 +19,7 @@
   /* 支払方法の色(文字でも区別できるよう、必ずラベルと一緒に使う) */
   --pm1-bg:#e3edfa; --pm1-fill:#2a78d6;   /* クレカ */
   --pm2-bg:#fce8df; --pm2-fill:#eb6834;   /* 現金 */
-  --pm3-bg:#dcf4ea; --pm3-fill:#1baf7a;   /* 生計費用クレカ */
+  --pm3-bg:#dcf4ea; --pm3-fill:#1baf7a;   /* (欠番) */
   --pm4-bg:#fdf0cf; --pm4-fill:#eda100; --pm5-bg:#fbe6ee; --pm5-fill:#e87ba4; --pm6-bg:#dcefdc; --pm6-fill:#008300; --pm7-bg:#e6e2f8; --pm7-fill:#6250d6; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --on4:#0b0b0b; --other:#898781;   /* デビッドカード */
   --font-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
   --font-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
@@ -59,6 +59,7 @@ body{
 }
 .app{max-width:1040px; margin:0 auto}
 .top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
+.top h1 a{color:inherit; text-decoration:none; cursor:pointer}
 .top h1{font-family:Pacifico,var(--font-display),cursive; font-weight:400; font-size:1.45rem; line-height:1.3; margin:0; letter-spacing:.01em}
 
 .layout{display:grid; gap:10px; grid-template-columns:minmax(0,1fr)}
@@ -424,7 +425,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 
 <div class="app">
   <header class="top">
-    <h1>Spendino</h1>
+    <h1><a href="#records" id="logoLink" aria-label="記録に戻る">Spendino</a></h1>
     <button type="button" class="gear" id="tabSettings" aria-label="設定" title="設定"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="badge" id="tabBadge" hidden></span></button>
   </header>
 
@@ -734,10 +735,10 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   </main>
   <nav class="btabs" aria-label="画面の切り替え">
     <button type="button" id="tabRecords" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
-    <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
-    <button type="button" id="tabChart"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
     <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">資金</span></button>
+    <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
     <button type="button" id="tabAssets"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 18.5l5.5-6 4 3.5 7-8.5"/><path d="M15 7.5h5v5"/></svg><span class="tl">資産</span></button>
+    <button type="button" id="tabChart"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
   </nav>
 </div>
 
@@ -1259,8 +1260,8 @@ const Core=(function(){
   const $=id=>document.getElementById(id);
   const KEY="kaimono-shukei:v1";
   const DEFAULT_CATS=["食費","外食","日用品","衣類","趣味","ゲーム","本","サブスク","固定費","貯金類","交通","医療","その他"];
-  const PM_DEFAULTS=["クレカ","現金","生計費用クレカ","デビッドカード","銀行振込","振替","銀行引落"];
-  const PM_CLASS={"クレカ":"pm1","現金":"pm2","生計費用クレカ":"pm3","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6","銀行引落":"pm7"};
+  const PM_DEFAULTS=["クレカ","現金","デビッドカード","銀行振込","振替","銀行引落"];
+  const PM_CLASS={"クレカ":"pm1","現金":"pm2","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6","銀行引落":"pm7"};
   const WD="日月火水木金土";
   const pad=n=>String(n).padStart(2,"0");
   const today=()=>Core.ymd(new Date());
@@ -1318,9 +1319,9 @@ const Core=(function(){
   }
   function makeSamples(){
     const t=today();
-    const rows=[[0,"コーヒー豆",1280,"食費","現金"],[-1,"洗剤のつめかえ",398,"日用品","生計費用クレカ"],[-2,"ランチ(定食)",950,"外食","現金"],
-      [-4,"文庫本",748,"趣味","クレカ"],[-6,"Tシャツ",2990,"衣類","クレカ"],[-9,"スーパーのまとめ買い",5420,"食費","生計費用クレカ"],
-      [-13,"ICカードのチャージ",3000,"交通","デビッドカード"],[-20,"ティッシュ・トイレットペーパー",1180,"日用品","生計費用クレカ"],
+    const rows=[[0,"コーヒー豆",1280,"食費","現金"],[-1,"洗剤のつめかえ",398,"日用品","クレカ"],[-2,"ランチ(定食)",950,"外食","現金"],
+      [-4,"文庫本",748,"趣味","クレカ"],[-6,"Tシャツ",2990,"衣類","クレカ"],[-9,"スーパーのまとめ買い",5420,"食費","クレカ"],
+      [-13,"ICカードのチャージ",3000,"交通","デビッドカード"],[-20,"ティッシュ・トイレットペーパー",1180,"日用品","クレカ"],
       [-27,"映画のチケット",1900,"趣味","デビッドカード"]];
     return rows.map((r,i)=>({id:Core.newId(),date:Core.addDays(t,r[0]),name:r[1],amount:r[2],method:r[4],category:r[3],memo:"",createdAt:Date.now()+i,sample:true}));
   }
@@ -1573,7 +1574,7 @@ const Core=(function(){
     } else state.fixed.push({id:Core.newId(),month:month,name:name,amount:amount,method:method,memo:memo,createdAt:Date.now(),updatedAt:Date.now()});
     ui.fxOpen[month]=true; X.month.value=month;
     changed(1); resetFx(); render();
-    say("xMsg",wasEdit?"更新しました。":"追加しました。"); X.name.focus();
+    say("xMsg",wasEdit?"更新しました。":"追加しました。"); if(!wasEdit) X.name.focus();
   });
   $("xCancel").addEventListener("click",()=>{endFxEdit();resetFx();render();say("xMsg","編集をやめました。");});
   $("xCopy").addEventListener("click",()=>{
@@ -1944,13 +1945,13 @@ const Core=(function(){
     const name=A.name.value.trim(), bal=Core.parseAmount(A.bal.value);
     if(!name) return say("aMsg","口座名を入力してください。",true);
     if(bal===null) return say("aMsg","残高は数字で入力してください(マイナスも可)。",true);
-    const memo=A.memo.value.trim(), now=Date.now();
+    const memo=A.memo.value.trim(), now=Date.now(), wasEditAc=!!ui.acEditing;
     if(ui.acEditing){
       const a=state.accounts.find(x=>x.id===ui.acEditing);
       if(a){ if(a.balance!==bal) a.balanceAt=today(); a.name=name;a.balance=bal;a.memo=memo;a.updatedAt=now; }
       endAc(); say("aMsg","更新しました。");
     } else { state.accounts.push({id:Core.newId(),name:name,balance:bal,balanceAt:today(),memo:memo,createdAt:now,updatedAt:now}); endAc(); say("aMsg","口座を追加しました。"); }
-    changed(1); render(); A.name.focus();
+    changed(1); render(); if(!wasEditAc) A.name.focus();
   });
   $("aCancel").addEventListener("click",()=>{endAc();say("aMsg","編集をやめました。");});
   $("diForm").addEventListener("submit",e=>{
@@ -1964,7 +1965,7 @@ const Core=(function(){
       const d=state.debits.find(x=>x.id===ui.diEditing);
       if(d){d.date=date;d.card=card;d.amount=amount;d.account=acct;d.memo=memo;d.updatedAt=now;}
     } else state.debits.push({id:Core.newId(),date:date,card:card,amount:amount,account:acct,memo:memo,createdAt:now,updatedAt:now});
-    endDi(); changed(1); render(); say("dMsg",wasEdit?"更新しました。":"追加しました。"); D.card.focus();
+    endDi(); changed(1); render(); say("dMsg",wasEdit?"更新しました。":"追加しました。"); if(!wasEdit) D.card.focus();
   });
   $("dCancel").addEventListener("click",()=>{endDi();say("dMsg","編集をやめました。");});
   $("inForm").addEventListener("submit",e=>{
@@ -2012,7 +2013,7 @@ const Core=(function(){
     if(ui.chartMode==="method"){
       const map=new Map(S.byMethod.map(m=>[m.key,m]));
       const segs=[];
-      PM_DEFAULTS.forEach((k,i)=>{const m=map.get(k); if(m&&m.total>0) segs.push({name:k,total:m.total,count:m.count,cls:"km"+(i+1)});});
+      PM_DEFAULTS.forEach((k,i)=>{const m=map.get(k); if(m&&m.total>0) segs.push({name:k,total:m.total,count:m.count,cls:"km"+(PM_CLASS[k]||"pm0").slice(2)});});
       const rest=S.byMethod.filter(m=>PM_DEFAULTS.indexOf(m.key)<0&&m.total>0);
       if(rest.length) segs.push({name:rest.length===1?pmLabel(rest[0].key):"ほか("+rest.length+"種類)",total:rest.reduce((a,m)=>a+m.total,0),count:rest.reduce((a,m)=>a+m.count,0),cls:"k0"});
       const base=segs.reduce((a,x)=>a+x.total,0);
@@ -2099,7 +2100,7 @@ const Core=(function(){
     if(ui.methods.length&&ui.methods.indexOf(method)<0) hidden.push("支払方法");
     render();
     say("formMsg",(wasEdit?"更新しました。":"記録しました。")+(hidden.length?" 表示中の"+hidden.join("・")+"の条件に合わないため、一覧には出ません。":""));
-    F.name.focus();
+    if(!wasEdit) F.name.focus();
   });
   F.name.addEventListener("change",()=>{
     if(ui.editingId||F.amount.value.trim()) return;
@@ -2508,6 +2509,7 @@ const Core=(function(){
   }
   Object.keys(VIEWS).forEach(k=>$(VIEWS[k][1]).addEventListener("click",()=>showView(k,true)));
   window.addEventListener("hashchange",()=>showView(viewFromHash()));
+  $("logoLink").addEventListener("click",e=>{e.preventDefault(); showView("records",true);});
   /* 画面の一番上で下に引っ張ると、ページを再読み込みする(データは端末に保存済みなので消えません) */
   {
     const el=document.createElement("div"); el.id="ptr"; el.setAttribute("aria-hidden","true"); el.textContent="↓ 引っ張って再読み込み"; document.body.appendChild(el);
@@ -2535,7 +2537,7 @@ const Core=(function(){
 
   /* 横にスワイプして、画面(タブ)を切り替える。入力欄・グラフ・横に動く表の上では動かさない */
   {
-    const ORDER=["records","fixed","chart","money","assets"]; let st=null;
+    const ORDER=["records","money","fixed","assets","chart"]; let st=null;
     const blocked=el=>{
       for(let n=el;n&&n!==document.body;n=n.parentElement){
         if(/^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName)||(n.classList&&(n.classList.contains("achart")||n.classList.contains("ibox")))) return true;
