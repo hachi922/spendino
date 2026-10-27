@@ -2419,7 +2419,8 @@ const Core=(function(){
     if(e instanceof TypeError) return "通信できませんでした。ネット接続を確認してください。";
     return msg||"同期できませんでした。";
   }
-  async function syncNow(){
+  async function syncNow(auto){
+    auto=(auto===true);
     if(syncing) return;
     if(!/^https?:$/.test(location.protocol)) return say("syncMsg","同期は、GitHub Pagesなど https のページで使えます。",true);
     if(!cfg.clientId){showView("settings");$("syncDetails").open=true;return say("syncMsg","先にクライアントIDを入力してください。",true);}
@@ -2454,21 +2455,44 @@ const Core=(function(){
       const parts=[];
       if(m.pulled) parts.push("ほかの端末の変更を "+m.pulled+"件取り込み");
       if(m.removed) parts.push("削除を "+m.removed+"件反映");
+      autoFailed=false; lastAuto=Date.now();
       say("syncMsg","同期しました"+(parts.length?"("+parts.join("、")+")":"")+"。");
     }catch(e){
-      say("syncMsg",syncError(e),true);
+      if(auto){autoFailed=true; say("syncMsg","自動で同期できませんでした。設定の「同期する」を押してください。("+syncError(e)+")",true);}
+      else say("syncMsg",syncError(e),true);
+      if(e&&e.message==="auth") armAuto();
     }finally{
       syncing=false; renderSync();
     }
   }
   function scheduleSync(){
-    if(!cfg.connected||!tokenOk()) return;
+    if(!cfg.connected) return;
+    if(!tokenOk()){armAuto(); return;}
     clearTimeout(syncTimer); syncTimer=setTimeout(syncNow,1500);
   }
+  /* 自動同期: ログインの有効期限が切れている間は、次に画面を触ったとき(ログインに必要な操作)に、自動で同期する */
+  let autoArmed=false, autoFailed=false, lastAuto=0;
+  function armAuto(){
+    if(autoArmed||!cfg.connected||autoFailed) return;
+    autoArmed=true;
+    const go=()=>{
+      document.removeEventListener("pointerdown",go,true); document.removeEventListener("keydown",go,true); autoArmed=false;
+      if(!cfg.connected||syncing) return;
+      syncNow(true);
+    };
+    document.addEventListener("pointerdown",go,true); document.addEventListener("keydown",go,true);
+    renderSync();
+  }
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState!=="visible"||!cfg.connected) return;
+    if(tokenOk()){ if(!syncing&&Date.now()-lastAuto>30000){lastAuto=Date.now(); syncNow();} }
+    else armAuto();
+  });
+  setInterval(()=>{if(document.visibilityState==="visible"&&cfg.connected&&tokenOk()&&!syncing) syncNow();},300000);
   function renderSync(){
     const m=state.meta;
     const st=!cfg.clientId?"未設定(クライアントIDが必要です)":(cfg.connected?"Googleドライブに接続済み":"未接続");
-    $("syncStatus").textContent=st+" / 最終同期: "+(m.lastSyncAt?stamp(m.lastSyncAt):"まだありません")+(m.pending?" / 未同期の変更 "+m.pending+"件":"");
+    $("syncStatus").textContent=st+" / 最終同期: "+(m.lastSyncAt?stamp(m.lastSyncAt):"まだありません")+(m.pending?" / 未同期の変更 "+m.pending+"件":"")+(cfg.connected&&!tokenOk()&&!autoFailed?" / 自動同期: 画面を最初に触ったときに同期します":"");
     $("btnSync").disabled=syncing; $("btnSync").textContent=syncing?"同期中…":"同期する";
     $("btnDisconnect").hidden=!cfg.connected;
     const bd=$("tabBadge"); bd.hidden=!(cfg.connected&&m.pending); bd.textContent=m.pending||""; bd.title="未同期の変更 "+(m.pending||0)+"件";
@@ -2561,6 +2585,7 @@ const Core=(function(){
   const had=load();
   if(!had){state.items=makeSamples();save();}
   loadCfg();
+  if(cfg.connected) armAuto();
   F.date.value=today(); X.month.value=curYm(); D.date.value=today(); I.month.value=curYm(); R_.month.value=today().slice(0,7); W_.month.value=today().slice(0,7);
   const r0=presetRange("month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
   render();
