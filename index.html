@@ -528,8 +528,8 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <p class="note" id="mNote"></p>
     </section>
 
-    <details class="panel fold" id="acFold" open>
-      <summary><h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span></h2></summary>
+    <section class="panel" id="acFold" aria-labelledby="h-ac">
+      <h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span></h2>
       <div class="secbody">
       <form id="acForm" class="mform" novalidate autocomplete="off" hidden>
         <p class="note" style="margin:0 0 6px"><b>口座の編集</b></p>
@@ -543,7 +543,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       </form>
       <div id="acBody"></div>
       </div>
-    </details>
+    </section>
 
     <details class="panel fold" open>
       <summary><h2 id="h-di"><span>カード引落予定 <small id="diCount"></small></span><button type="button" class="small tg" data-form="di" id="diToggle" aria-expanded="false">＋ 追加</button></h2></summary>
