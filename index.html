@@ -490,6 +490,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
         <label class="f">金額(円)<input type="text" id="xAmount" inputmode="numeric" placeholder="7800"></label>
         <label class="f full">項目<input type="text" id="xName" list="fxNames" maxlength="200" placeholder="家賃・電気・スマホ代など"></label>
         <label class="f">支払方法<select id="xMethod"></select></label>
+        <label class="f">カテゴリ<input type="text" id="xCat" list="cats" maxlength="50" placeholder="固定費"></label>
         <label class="f">メモ(任意)<input type="text" id="xMemo" maxlength="200" placeholder="契約先など"></label>
       </div>
       <datalist id="fxNames"></datalist>
@@ -1029,6 +1030,7 @@ const Core=(function(){
       id:String(o.id==null?"":o.id).trim()||newId(),
       month:month, name:name, amount:amount,
       method:normMethod(o.method),
+      category:String(o.category==null?"":o.category).trim().slice(0,50),
       memo:String(o.memo==null?"":o.memo).trim().slice(0,200),
       createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),
       updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)
@@ -1142,7 +1144,7 @@ const Core=(function(){
   }
 
   /* JSON */
-  function fixedOut(f){return {id:f.id,month:f.month,name:f.name,amount:f.amount,method:f.method||"",memo:f.memo,createdAt:f.createdAt,updatedAt:f.updatedAt};}
+  function fixedOut(f){return {id:f.id,month:f.month,name:f.name,amount:f.amount,method:f.method||"",category:f.category||"",memo:f.memo,createdAt:f.createdAt,updatedAt:f.updatedAt};}
   function toJSON(items,fixed,more){
     fixed=fixed||[]; more=more||{};
     return JSON.stringify({
@@ -1462,7 +1464,7 @@ const Core=(function(){
     $("banners").innerHTML=h;
   }
   function renderCats(){
-    const set=new Set(DEFAULT_CATS); state.items.forEach(i=>{if(i.category) set.add(i.category);});
+    const set=new Set(DEFAULT_CATS); state.items.forEach(i=>{if(i.category) set.add(i.category);}); state.fixed.forEach(i=>{if(i.category) set.add(i.category);});
     $("cats").innerHTML=Array.from(set).map(c=>'<option value="'+esc(c)+'"></option>').join("");
   }
   function renderBackup(){
@@ -1511,9 +1513,9 @@ const Core=(function(){
   function fxMonthHtml(g,cur,paid){
     const open=isOpen(g.ym,g.ym===cur);
     const rows=g.items.map(f=>{
-      const armed=ui.fxPendingDelete===f.id, pd=paid.has(f.id);
+      const armed=ui.fxPendingDelete===f.id, pd=paid.has(f.id), subF=[f.category].concat(f.memo?[f.memo]:[]).filter(Boolean).join(" · ");
       return '<li class="frow'+(pd?' paid':'')+'"><div class="r-name">'+esc(f.name)+tagHtml(f.method||"")+(pd?'<span class="paid-tag">支払済</span>':'')+'</div><div class="r-amt">'+yen(f.amount)+'</div>'+
-        '<div class="r-meta"><span class="r-sub" title="'+esc(f.memo||"")+'">'+esc(f.memo||"")+'</span></div>'+
+        '<div class="r-meta"><span class="r-sub" title="'+esc(subF)+'">'+esc(subF)+'</span></div>'+
         '<div class="r-act">'+(pd?'':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
         '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="fx-del" data-id="'+esc(f.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
     }).join("");
@@ -1563,21 +1565,21 @@ const Core=(function(){
     const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.fxOpen[d.dataset.key]=d.open;
   },true);
 
-  const X={month:$("xMonth"),amount:$("xAmount"),name:$("xName"),method:$("xMethod"),memo:$("xMemo")};
+  const X={month:$("xMonth"),amount:$("xAmount"),name:$("xName"),method:$("xMethod"),cat:$("xCat"),memo:$("xMemo")};
   function endFxEdit(){ui.fxEditing=null;ui.fxEditingBlank=false;$("fxTitle").textContent="固定費を追加";$("xSubmit").textContent="追加";$("xCancel").hidden=true;}
-  function resetFx(){X.name.value="";X.amount.value="";X.memo.value="";}
+  function resetFx(){X.name.value="";X.amount.value="";X.memo.value="";X.cat.value="";}
   $("fxForm").addEventListener("submit",e=>{
     e.preventDefault();
     const month=Core.normMonth(X.month.value), name=X.name.value.trim(), amount=Core.parseAmount(X.amount.value);
     if(!month) return say("xMsg","月を選んでください(例 2026-10)。",true);
     if(!name) return say("xMsg","項目を入力してください。",true);
     if(amount===null) return say("xMsg","金額は数字で入力してください。",true);
-    const method=X.method.value, memo=X.memo.value.trim(), wasEdit=!!ui.fxEditing;
+    const method=X.method.value, category=X.cat.value.trim(), memo=X.memo.value.trim(), wasEdit=!!ui.fxEditing;
     if(ui.fxEditing){
       const f=state.fixed.find(i=>i.id===ui.fxEditing);
-      if(f){f.month=month;f.name=name;f.amount=amount;f.method=method;f.memo=memo;f.updatedAt=Date.now();}
+      if(f){f.month=month;f.name=name;f.amount=amount;f.method=method;f.category=category;f.memo=memo;f.updatedAt=Date.now();}
       endFxEdit();
-    } else state.fixed.push({id:Core.newId(),month:month,name:name,amount:amount,method:method,memo:memo,createdAt:Date.now(),updatedAt:Date.now()});
+    } else state.fixed.push({id:Core.newId(),month:month,name:name,amount:amount,method:method,category:category,memo:memo,createdAt:Date.now(),updatedAt:Date.now()});
     ui.fxOpen[month]=true; X.month.value=month;
     changed(1); resetFx(); render();
     say("xMsg",wasEdit?"更新しました。":"追加しました。"); if(!wasEdit) X.name.focus();
@@ -1592,7 +1594,7 @@ const Core=(function(){
     const have=new Set(state.fixed.filter(f=>f.month===month).map(f=>f.name));
     const now=Date.now();
     const add=state.fixed.filter(f=>f.month===src&&!have.has(f.name)).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))
-      .map((f,i)=>({id:Core.newId(),month:month,name:f.name,amount:f.amount,method:f.method||"",memo:f.memo||"",createdAt:now+i,updatedAt:now+i}));
+      .map((f,i)=>({id:Core.newId(),month:month,name:f.name,amount:f.amount,method:f.method||"",category:f.category||"",memo:f.memo||"",createdAt:now+i,updatedAt:now+i}));
     if(!add.length) return say("xMsg",ymLabel(src)+"の項目はすべて "+ymLabel(month)+" に入っています。",true);
     state.fixed=state.fixed.concat(add); ui.fxOpen[month]=true; changed(add.length); render();
     say("xMsg",ymLabel(src)+"から"+add.length+"件をコピーしました。金額が変わる項目は「編集」で直してください。");
@@ -1808,15 +1810,11 @@ const Core=(function(){
     }
     $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
     // まとめ
-    $("mSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">銀行口座残高の合計'+(M.accountCount&&M.selectedCount<M.accountCount?'(選んだ'+M.selectedCount+'口座 / 全'+M.accountCount+'口座)':'')+'</span><span class="big">'+yenS(M.total)+'</span></div>'+allow+'</div>'+
-      '<dl class="msum3"><div><dt>これからの引落</dt><dd>'+(M.upcomingTotal?"−"+yen(M.upcomingTotal):yen(0))+'</dd></div>'+
-      '<div class="hl"><dt>引落後の見込み</dt><dd>'+yenS(M.projected)+'</dd></div>'+
-      '<div><dt>'+Number(curYm().slice(5,7))+'月分の給与</dt><dd>'+(M.incomeNow?yen(M.incomeNow):"—")+'</dd></div></dl>';
+    $("mSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">銀行口座残高の合計'+(M.accountCount&&M.selectedCount<M.accountCount?'(選んだ'+M.selectedCount+'口座 / 全'+M.accountCount+'口座)':'')+'</span><span class="big">'+yenS(M.total)+'</span></div>'+allow+'</div>';
     const notes=[];
     if(state.accounts.length&&M.selectedCount===0) notes.push("合計に含める口座にチェックを入れてください");
     if(M.unassigned>0&&state.accounts.length) notes.push("引落口座が未指定の予定が "+yen(M.unassigned)+" あります");
-    notes.push("引落予定は今日以降の分のみ。給与の入金は含みません");
-    $("mNote").textContent=notes.join("。")+"。";
+    $("mNote").textContent=notes.length?notes.join("。")+"。":""; $("mNote").hidden=!notes.length;
     // 口座
     $("acCount").textContent=state.accounts.length?(M.selectedCount<M.accountCount?"合計に含む "+M.selectedCount+" / ":"")+state.accounts.length+"口座":"";
     const acRow=a=>{
@@ -2231,13 +2229,13 @@ const Core=(function(){
       const t=today(), pp=periods.of(f.month);
       const date=t<pp.from?pp.from:(t>pp.to?pp.to:t);
       const now=Date.now();
-      state.items.push({id:Core.newId(),date:date,name:f.name,amount:f.amount,method:f.method||"",category:"固定費",memo:f.memo||"",createdAt:now,updatedAt:now});
+      state.items.push({id:Core.newId(),date:date,name:f.name,amount:f.amount,method:f.method||"",category:f.category||"固定費",memo:f.memo||"",createdAt:now,updatedAt:now});
       changed(1); render();
       say("xMsg","「"+f.name+"」を記録に追加しました("+fmt(date)+")。");
     } else if(act==="fx-edit"){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
       ui.fxEditing=id; ui.fxEditingBlank=!f.method; renderFxSelect();
-      X.month.value=f.month; X.name.value=f.name; X.amount.value=String(f.amount); X.method.value=f.method||""; X.memo.value=f.memo||"";
+      X.month.value=f.month; X.name.value=f.name; X.amount.value=String(f.amount); X.method.value=f.method||""; X.cat.value=f.category||""; X.memo.value=f.memo||"";
       $("fxTitle").textContent="固定費を編集"; $("xSubmit").textContent="更新"; $("xCancel").hidden=false; setBody("xToggle","xBody",true);
       $("fxForm").scrollIntoView({block:"nearest",behavior:"smooth"}); X.name.focus();
     } else if(act==="fx-del"){
