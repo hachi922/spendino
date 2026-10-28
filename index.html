@@ -143,11 +143,6 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .stats dd.sub{font-family:var(--font-body); font-size:.74rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; min-width:0}
 
 #period{margin-bottom:10px}
-@media (min-width:760px){
-  #period{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); align-items:start}
-  #period > :not(.summary){grid-column:1; margin-right:20px}
-  #period > .summary{grid-column:2; grid-row:1 / span 3; margin-top:0; padding:0 0 0 20px; border-top:0; border-left:1px solid var(--line)}
-}
 
 /* 入力フォーム */
 .fields{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px}
@@ -439,13 +434,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <input type="date" id="to" aria-label="終了日">
     </div>
     <div class="chips" id="methodChips" role="group" aria-label="支払方法で絞り込む(複数えらべます)"></div>
-    <div class="summary">
-      <div class="total">
-        <span class="lbl">合計</span>
-        <span class="big" id="sumTotal">¥0</span>
-        <span class="range-text" id="rangeText"></span>
-      </div>
-    </div>
   </section>
 
   <main class="layout" id="viewRecords">
@@ -1400,12 +1388,7 @@ const Core=(function(){
     const S=Core.summarize(state.items,ui.from,ui.to,today(),ui.methods);
     renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderMoney(); renderAssets(); renderPayday(); renderBackup(); renderBanners(); renderCats();
   }
-  function renderSummary(S){
-    $("sumTotal").textContent=yen(S.total);
-    const label=(ui.from||ui.to)?((ui.from?fmt(ui.from):"最初")+" 〜 "+(ui.to?fmt(ui.to):"最新")):"全期間";
-    const pm=ui.methods.length?" / 支払方法: "+ui.methods.map(pmLabel).join("・"):"";
-    $("rangeText").textContent=label+pm+((ui.from&&ui.to&&ui.from>ui.to)?"(開始日が終了日より後になっています)":"");
-  }
+  function renderSummary(S){}
   function bar(w,cls){return '<div class="track"><i class="'+(cls||"")+'" style="width:'+w+'%"></i></div>';}
   function renderBreakdown(S){
     if(!S.periodCount){$("breakBody").innerHTML='<p class="empty">この期間の記録がありません。</p>';return;}
