@@ -437,6 +437,11 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   </section>
 
   <main class="layout" id="viewRecords">
+    <details class="panel fold" id="breakdown" open>
+      <summary><h2 id="h-break">内訳</h2></summary>
+      <div id="breakBody"></div>
+    </details>
+
     <form class="panel" id="form" novalidate autocomplete="off" aria-labelledby="formTitle">
       <h2><span id="formTitle">購入品・支払済サービスを追加</span><button type="button" class="small tg" id="fToggle" aria-expanded="false" aria-controls="fBody">＋ 追加</button></h2>
       <div class="fbody" id="fBody" hidden>
@@ -456,11 +461,6 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <p class="msg" id="formMsg" role="status" aria-live="polite"></p>
       </div>
     </form>
-
-    <details class="panel fold" id="breakdown" open>
-      <summary><h2 id="h-break">内訳</h2></summary>
-      <div id="breakBody"></div>
-    </details>
 
     <section class="panel" id="listPanel" aria-labelledby="h-list">
       <h2 id="h-list">購入一覧 <small id="listCount"></small></h2>
@@ -1586,7 +1586,7 @@ const Core=(function(){
     if(!state.fixed.length) return say("xMsg","書き出す固定費がありません。",true);
     try{
       const url=URL.createObjectURL(new Blob([Core.fixedToCSV(state.fixed)],{type:"text/csv;charset=utf-8"}));
-      const a=document.createElement("a"); a.href=url; a.download="spendino_fixed_"+today()+".csv"; document.body.appendChild(a); a.click(); a.remove();
+      const a=document.createElement("a"); a.href=url; a.download=today().replace(/-/g,"")+"_Spendino_fixed.csv"; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),2000);
       say("xMsg","書き出しました。");
     }catch(err){say("xMsg","書き出せませんでした。",true);}
@@ -2254,12 +2254,12 @@ const Core=(function(){
     const base=realItems();
     const items=scope==="period"?Core.summarize(base,ui.from,ui.to,today(),ui.methods).list:base;
     if(!items.length) return say("backupMsg","書き出す記録がありません。",true);
-    deliver("kaimono_"+today()+(scope==="period"?"_filtered":"")+".csv",Core.toCSV(items),"text/csv;charset=utf-8",scope==="all");
+    deliver(today().replace(/-/g,"")+"_Spendino"+(scope==="period"?"_filtered":"")+".csv",Core.toCSV(items),"text/csv;charset=utf-8",scope==="all");
   });
   $("btnJson").addEventListener("click",()=>{
     const items=realItems();
     if(!items.length&&!state.fixed.length&&!state.accounts.length&&!state.debits.length&&!state.income.length&&!state.assets.length) return say("backupMsg","書き出す記録がありません。",true);
-    deliver("kaimono_"+today()+".json",Core.toJSON(items,state.fixed,{income:state.income,accounts:state.accounts,debits:state.debits,assets:state.assets}),"application/json",true);
+    deliver(today().replace(/-/g,"")+"_Spendino.json",Core.toJSON(items,state.fixed,{income:state.income,accounts:state.accounts,debits:state.debits,assets:state.assets}),"application/json",true);
   });
 
   /* 読み込み */
@@ -2591,7 +2591,7 @@ const Core=(function(){
   loadCfg();
   if(cfg.connected) armAuto();
   F.date.value=today(); X.month.value=curYm(); D.date.value=today(); I.month.value=curYm(); R_.month.value=today().slice(0,7); W_.month.value=today().slice(0,7);
-  const r0=presetRange("month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
+  const r0=presetRange(cfg.payday?"pay":"month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
   render();
   $("originText").textContent=location.origin;
   const wideScr=!!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches);
