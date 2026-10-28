@@ -63,12 +63,6 @@ body{
 .top h1{font-family:Pacifico,var(--font-display),cursive; font-weight:400; font-size:1.45rem; line-height:1.3; margin:0; letter-spacing:.01em}
 
 .layout{display:grid; gap:10px; grid-template-columns:minmax(0,1fr)}
-@media (min-width:900px){
-  .layout{grid-template-columns:minmax(0,1fr) 320px; align-items:start}
-  #breakdown{grid-column:1; grid-row:1}
-  #listPanel{grid-column:1; grid-row:2}
-  #form{grid-column:2; grid-row:1 / span 2}
-}
 
 .panel{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:10px 12px; min-width:0}
 .panel h2{font-family:var(--font-display); font-size:.92rem; margin:0 0 8px; display:flex; align-items:baseline; justify-content:space-between; gap:8px}
