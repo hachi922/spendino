@@ -529,15 +529,16 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     </section>
 
     <details class="panel fold" id="acFold">
-      <summary><h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span><button type="button" class="small tg" data-form="ac" id="acToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+      <summary><h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span></h2></summary>
       <div class="secbody">
       <form id="acForm" class="mform" novalidate autocomplete="off" hidden>
+        <p class="note" style="margin:0 0 6px"><b>口座の編集</b></p>
         <div class="fields">
           <label class="f full">口座名<input type="text" id="aName" maxlength="100" placeholder="○○銀行(普通)"></label>
           <label class="f">残高(円)<input type="text" id="aBal" inputmode="numeric" placeholder="350000"></label>
           <label class="f">メモ(任意)<input type="text" id="aMemo" maxlength="200" placeholder="生活費用など"></label>
         </div>
-        <div class="actions"><button type="submit" class="primary" id="aSubmit">口座を追加</button><button type="button" id="aCancel" hidden>編集をやめる</button></div>
+        <div class="actions"><button type="submit" class="primary" id="aSubmit">更新</button><button type="button" id="aCancel">編集をやめる</button></div>
         <p class="msg" id="aMsg" role="status" aria-live="polite"></p>
       </form>
       <div id="acBody"></div>
@@ -726,6 +727,22 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 
       <p class="msg" id="backupMsg" role="status" aria-live="polite"></p>
     </section>
+
+    <details class="panel fold" id="acAddFold">
+      <summary><h2 id="h-acadd"><span>銀行口座を追加</span></h2></summary>
+      <div class="secbody">
+      <form id="acAddForm" class="mform" novalidate autocomplete="off">
+        <div class="fields">
+          <label class="f full">口座名<input type="text" id="sAcName" maxlength="100" placeholder="○○銀行(普通)"></label>
+          <label class="f">残高(円)<input type="text" id="sAcBal" inputmode="numeric" placeholder="350000"></label>
+          <label class="f">メモ(任意)<input type="text" id="sAcMemo" maxlength="200" placeholder="生活費用など"></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary">口座を追加</button></div>
+        <p class="msg" id="sAcMsg" role="status" aria-live="polite"></p>
+      </form>
+      <p class="note">追加した口座は「残高」タブに並びます。残高の更新は、「残高」タブの口座の「編集」から行います。</p>
+      </div>
+    </details>
   </main>
   <nav class="btabs" aria-label="画面の切り替え">
     <button type="button" id="tabRecords" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
@@ -1802,12 +1819,16 @@ const Core=(function(){
     $("mNote").textContent=notes.join("。")+"。";
     // 口座
     $("acCount").textContent=state.accounts.length?(M.selectedCount<M.accountCount?"合計に含む "+M.selectedCount+" / ":"")+state.accounts.length+"口座":"";
-    $("acBody").innerHTML=state.accounts.length?'<ul class="rows">'+state.accounts.map(a=>{
+    const acRow=a=>{
       const dbt=M.byAcct[a.id]||0;
       const sub=[a.memo].filter(Boolean).concat(["更新 "+shortD(a.balanceAt)]).concat(dbt?['引落 −'+yen(dbt).replace("-","")+' → '+yen(a.balance-dbt)]:[]).join(" · ");
       return '<li class="frow'+(a.inTotal===false?' off':'')+'"><div class="r-name"><label class="ck" title="残高合計に含める"><input type="checkbox" data-ac-sel="'+esc(a.id)+'"'+(a.inTotal===false?'':' checked')+' aria-label="'+esc(a.name)+'を残高合計に含める"></label>'+esc(a.name)+'</div><div class="r-amt">'+yenS(a.balance)+'</div><div class="r-meta"><span class="r-sub" title="'+esc(sub)+'">'+esc(sub)+'</span></div>'+
         '<div class="r-act"><button type="button" class="small" data-act="ac-edit" data-id="'+esc(a.id)+'">編集</button>'+delBtn("ac-del",a.id)+'</div></li>';
-    }).join("")+'</ul>':'<p class="empty">まだ口座がありません。「＋ 追加」から登録できます。口座は何口座でも追加・削除できます。</p>';
+    };
+    const acOn=state.accounts.filter(a=>a.inTotal!==false), acOff=state.accounts.filter(a=>a.inTotal===false);
+    let acH=acOn.length?'<ul class="rows">'+acOn.map(acRow).join("")+'</ul>':'';
+    if(acOff.length) acH+='<details class="mfold" data-key="ac-off" style="margin-top:8px"'+(ui.mOpen["ac-off"]===true?' open':'')+'><summary><span class="m-name">合計に含めない口座</span><span class="m-meta">'+acOff.length+'口座</span><span class="m-total">'+yenS(acOff.reduce((t,a)=>t+a.balance,0))+'</span></summary><div class="mbody"><ul class="rows">'+acOff.map(acRow).join("")+'</ul></div></details>';
+    $("acBody").innerHTML=state.accounts.length?acH:'<p class="empty">まだ口座がありません。「設定」の「銀行口座を追加」から登録できます。</p>';
     // 引落予定
     const upc=state.debits.filter(d=>d.date>=t).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.createdAt||0)-(b.createdAt||0));
     const past=state.debits.filter(d=>d.date<t).sort((a,b)=>a.date<b.date?1:-1);
@@ -1907,6 +1928,7 @@ const Core=(function(){
   });
   $("asKinds").addEventListener("click",e=>{const b=e.target.closest("[data-ak]"); if(!b) return; ui.asKind=b.dataset.ak; renderAssets();});
   $("rcBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
+  $("acBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
   $("acBody").addEventListener("change",e=>{
     const c=e.target.closest("[data-ac-sel]"); if(!c) return;
     const a=state.accounts.find(x=>x.id===c.dataset.acSel); if(!a) return;
@@ -1918,7 +1940,7 @@ const Core=(function(){
   function showForm(k,on){
     const f=$({ac:"acForm",di:"diForm","in":"inForm",rc:"rcForm",fl:"flForm"}[k]), b=$(k+"Toggle");
     if(on&&k==="ac") $("acFold").open=true;
-    f.hidden=!on; b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));
+    f.hidden=!on; if(b){b.textContent=on?"閉じる":"＋ 追加"; b.setAttribute("aria-expanded",String(on));}
   }
   document.querySelectorAll(".tg[data-form]").forEach(b=>b.addEventListener("click",e=>{
     e.preventDefault(); e.stopPropagation();
@@ -1926,11 +1948,21 @@ const Core=(function(){
     showForm(k,on);
     if(on) f.querySelector("input").focus();
   }));
-  function endAc(){ui.acEditing=null;$("aSubmit").textContent="口座を追加";$("aCancel").hidden=true;A.name.value="";A.bal.value="";A.memo.value="";}
+  function endAc(){ui.acEditing=null;$("aSubmit").textContent="更新";A.name.value="";A.bal.value="";A.memo.value="";}
   function endDi(){ui.diEditing=null;$("dSubmit").textContent="引落予定を追加";$("dCancel").hidden=true;D.card.value="";D.amount.value="";D.memo.value="";}
   function endIn(){ui.inEditing=null;$("iSubmit").textContent="給与を追加";$("iCancel").hidden=true;I.amount.value="";I.name.value="";I.memo.value="";}
+  $("acAddForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const name=$("sAcName").value.trim(), bal=Core.parseAmount($("sAcBal").value), memo=$("sAcMemo").value.trim(), now=Date.now();
+    if(!name) return say("sAcMsg","口座名を入力してください。",true);
+    if(bal===null) return say("sAcMsg","残高は数字で入力してください(マイナスも可)。",true);
+    state.accounts.push({id:Core.newId(),name:name,balance:bal,balanceAt:today(),memo:memo,createdAt:now,updatedAt:now});
+    $("sAcName").value="";$("sAcBal").value="";$("sAcMemo").value="";
+    changed(1); render(); say("sAcMsg","「"+name+"」を追加しました。「残高」タブに並びます。");
+  });
   $("acForm").addEventListener("submit",e=>{
     e.preventDefault();
+    if(!ui.acEditing) return;
     const name=A.name.value.trim(), bal=Core.parseAmount(A.bal.value);
     if(!name) return say("aMsg","口座名を入力してください。",true);
     if(bal===null) return say("aMsg","残高は数字で入力してください(マイナスも可)。",true);
@@ -1940,9 +1972,9 @@ const Core=(function(){
       if(a){ if(a.balance!==bal) a.balanceAt=today(); a.name=name;a.balance=bal;a.memo=memo;a.updatedAt=now; }
       endAc(); say("aMsg","更新しました。");
     } else { state.accounts.push({id:Core.newId(),name:name,balance:bal,balanceAt:today(),memo:memo,createdAt:now,updatedAt:now}); endAc(); say("aMsg","口座を追加しました。"); }
-    changed(1); render(); if(!wasEditAc) A.name.focus();
+    changed(1); render(); showForm("ac",false);
   });
-  $("aCancel").addEventListener("click",()=>{endAc();say("aMsg","編集をやめました。");});
+  $("aCancel").addEventListener("click",()=>{endAc();showForm("ac",false);});
   $("diForm").addEventListener("submit",e=>{
     e.preventDefault();
     const date=Core.normDate(D.date.value), card=D.card.value.trim(), amount=Core.parseAmount(D.amount.value);
