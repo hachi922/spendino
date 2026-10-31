@@ -446,6 +446,8 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
         <label class="f">支払方法<select id="fMethod"></select></label>
         <label class="f">カテゴリ<input type="text" id="fCat" list="cats" maxlength="50" placeholder="食費"></label>
         <label class="f full">メモ(任意)<input type="text" id="fMemo" autocomplete="off" maxlength="200" placeholder="お店の名前など"></label>
+        <label class="f full" id="fAcctWrap" hidden>残高から差し引く口座<select id="fAcct"></select></label>
+        <label class="f full" id="fCardWrap" hidden>カードの引落予定に足す(翌月払い)<select id="fCard"></select></label>
       </div>
       <datalist id="cats"></datalist>
       <div class="actions">
@@ -870,6 +872,19 @@ const Core=(function(){
     if(!month||amount===null) return null;
     return Object.assign({id:idOf(o),month:month,name:cleanStr(o.name,100)||"給与",amount:amount,memo:cleanStr(o.memo,200)},stampsOf(o));
   }
+  /* クレカで払った分を、そのカードの「購入月の翌月」の引落予定に足す。
+     引落日と口座は、そのカードの直近の引落予定と同じにする。その月の予定が無ければ新しく作る */
+  function cardCharge(debits,card,date,amount,now){
+    const mine=debits.filter(d=>d.card===card);
+    if(!mine.length||!normDate(date)||!(amount>0)) return null;
+    const ref=mine.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0))[0];
+    const ym=ymAdd(date.slice(0,7),1), last=new Date(Number(ym.slice(0,4)),Number(ym.slice(5,7)),0).getDate();
+    const dd=ym+"-"+String(Math.min(Number(ref.date.slice(8,10)),last)).padStart(2,"0");
+    const ex=mine.find(d=>d.date.slice(0,7)===ym);
+    if(ex){ex.amount+=amount;ex.updatedAt=now;return {debit:ex,created:false};}
+    const nd=makeDebit({date:dd,card:card,amount:amount,account:ref.account,memo:Number(date.slice(5,7))+"月利用分",createdAt:now,updatedAt:now});
+    debits.push(nd); return {debit:nd,created:true};
+  }
   function makeDebit(o){
     const date=normDate(o.date), card=cleanStr(o.card,100), amount=parseAmount(o.amount);
     if(!date||!card||amount===null) return null;
@@ -1245,7 +1260,7 @@ const Core=(function(){
     return {list:list,count:count,total:total,days:days,avg:avg,largest:largest,cats:cats,months:months,byMethod:byMethod,periodTotal:periodTotal,periodCount:periodList.length};
   }
 
-  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,makeAsset,simulate,drawdown,sumSeries,actualSeries,ASSET_KINDS,ASSET_NAMES,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
+  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,cardCharge,makeAsset,simulate,drawdown,sumSeries,actualSeries,ASSET_KINDS,ASSET_NAMES,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
 })();
 </script>
 
@@ -1380,7 +1395,7 @@ const Core=(function(){
   /* 描画 */
   function render(){
     const S=Core.summarize(state.items,ui.from,ui.to,today(),ui.methods);
-    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderMoney(); renderAssets(); renderPayday(); renderBackup(); renderBanners(); renderCats();
+    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderMoney(); renderAssets(); renderPayday(); renderBackup(); renderBanners(); renderCats(); renderPayLink();
   }
   function renderSummary(S){}
   function bar(w,cls){return '<div class="track"><i class="'+(cls||"")+'" style="width:'+w+'%"></i></div>';}
@@ -2069,9 +2084,32 @@ const Core=(function(){
 
   /* フォーム */
   const F={date:$("fDate"),amount:$("fAmount"),name:$("fName"),method:$("fMethod"),cat:$("fCat"),memo:$("fMemo")};
+  const PAY_ACCT=["デビッドカード","現金"], PAY_CARD=["クレカ"];
+  F.acct=$("fAcct"); F.card=$("fCard");
+  /* 支払方法に応じて「残高から差し引く口座」「引落予定に足すカード」を出す(新規追加のときだけ) */
+  function renderPayLink(){
+    const m=F.method.value, adding=!ui.editingId;
+    const showA=adding&&PAY_ACCT.indexOf(m)>=0&&state.accounts.length>0;
+    const cards=Array.from(new Set(state.debits.slice().sort((a,b)=>a.date<b.date?1:-1).map(d=>d.card)));
+    const showC=adding&&PAY_CARD.indexOf(m)>=0&&cards.length>0;
+    $("fAcctWrap").hidden=!showA; $("fCardWrap").hidden=!showC;
+    if(showA){
+      const keep=F.acct.dataset.m===m?F.acct.value:null;
+      F.acct.innerHTML='<option value="">差し引かない</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'(¥'+a.balance.toLocaleString("ja-JP")+')</option>').join("");
+      let v=keep!=null?keep:(cfg.payTo[m]||""); if(!v&&m==="現金"){const c=state.accounts.find(a=>/現金/.test(a.name)); if(c) v=c.id;}
+      F.acct.value=state.accounts.some(a=>a.id===v)?v:""; F.acct.dataset.m=m;
+    }
+    if(showC){
+      const keep=F.card.dataset.on?F.card.value:null;
+      F.card.innerHTML='<option value="">足さない</option>'+cards.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join("");
+      let v=keep!=null?keep:(cfg.payTo.card!==undefined?cfg.payTo.card:cards[0]);
+      F.card.value=cards.indexOf(v)>=0||v===""?v:cards[0]; F.card.dataset.on="1";
+    }
+  }
+  F.method.addEventListener("change",renderPayLink);
   function resetEntry(){F.name.value="";F.amount.value="";F.memo.value="";}
   function endEdit(){
-    ui.editingId=null; ui.editingBlank=false; $("formTitle").textContent="購入品・支払済サービスを追加"; $("fSubmit").textContent="追加"; $("fCancel").hidden=true;
+    ui.editingId=null; ui.editingBlank=false; $("formTitle").textContent="購入品・支払済サービスを追加"; $("fSubmit").textContent="追加"; $("fCancel").hidden=true; renderPayLink();
   }
   $("form").addEventListener("submit",e=>{
     e.preventDefault();
@@ -2080,7 +2118,7 @@ const Core=(function(){
     if(!name) return say("formMsg","品名を入力してください。",true);
     if(amount===null) return say("formMsg","金額は数字で入力してください。",true);
     const method=F.method.value, category=F.cat.value.trim(), memo=F.memo.value.trim();
-    let item;
+    let item; const link=[];
     const wasEdit=!!ui.editingId;
     if(ui.editingId){
       item=state.items.find(i=>i.id===ui.editingId);
@@ -2089,13 +2127,25 @@ const Core=(function(){
     } else {
       item={id:Core.newId(),date:date,name:name,amount:amount,method:method,category:category,memo:memo,createdAt:Date.now(),updatedAt:Date.now()};
       state.items.push(item);
+      // 残高・引落予定への反映(新規のときだけ)
+      if(!$("fAcctWrap").hidden&&F.acct.value){
+        const a=state.accounts.find(x=>x.id===F.acct.value);
+        if(a){a.balance-=amount;a.balanceAt=today();a.updatedAt=Date.now();cfg.payTo[method]=a.id;saveCfg();link.push("「"+a.name+"」の残高から¥"+amount.toLocaleString("ja-JP")+"を差し引きました(→¥"+a.balance.toLocaleString("ja-JP")+")");}
+      } else if(!$("fAcctWrap").hidden&&PAY_ACCT.indexOf(method)>=0){cfg.payTo[method]="";saveCfg();}
+      if(!$("fCardWrap").hidden){
+        const card=F.card.value; cfg.payTo.card=card; saveCfg();
+        if(card){
+          const r=Core.cardCharge(state.debits,card,date,amount,Date.now());
+          if(r) link.push("「"+card+"」の"+fmt(r.debit.date)+"の引落予定に¥"+amount.toLocaleString("ja-JP")+"を"+(r.created?"新しく作りました":"足しました(→¥"+r.debit.amount.toLocaleString("ja-JP")+")"));
+        }
+      }
     }
     changed(1); resetEntry();
     const hidden=[];
     if((ui.from&&date<ui.from)||(ui.to&&date>ui.to)) hidden.push("期間");
     if(ui.methods.length&&ui.methods.indexOf(method)<0) hidden.push("支払方法");
     render();
-    say("formMsg",(wasEdit?"更新しました。":"記録しました。")+(hidden.length?" 表示中の"+hidden.join("・")+"の条件に合わないため、一覧には出ません。":""));
+    say("formMsg",(wasEdit?"更新しました。":"記録しました。")+(link.length?" "+link.join("。")+"。":"")+(hidden.length?" 表示中の"+hidden.join("・")+"の条件に合わないため、一覧には出ません。":""));
     if(!wasEdit) F.name.focus();
   });
   F.name.addEventListener("change",()=>{
@@ -2103,7 +2153,7 @@ const Core=(function(){
     const ym=periods.monthOf(Core.normDate(F.date.value)||today()), paid=Core.matchPaid(state.fixed,realItems(),periods);
     const f=state.fixed.find(x=>x.month===ym&&!paid.has(x.id)&&x.name.replace(/\s+/g,"")===F.name.value.trim().replace(/\s+/g,""));
     if(!f) return;
-    F.amount.value=String(f.amount); F.method.value=f.method||""; if(!F.cat.value.trim()) F.cat.value="固定費";
+    F.amount.value=String(f.amount); F.method.value=f.method||""; if(!F.cat.value.trim()) F.cat.value="固定費"; renderPayLink();
   });
   $("fCancel").addEventListener("click",()=>{endEdit();resetEntry();render();say("formMsg","編集をやめました。");});
 
@@ -2143,7 +2193,7 @@ const Core=(function(){
       renderMethodSelect();
       F.date.value=it.date; F.name.value=it.name; F.amount.value=String(it.amount); F.method.value=it.method||""; F.cat.value=it.category; F.memo.value=it.memo||"";
       $("formTitle").textContent="記録を編集"; $("fSubmit").textContent="更新"; $("fCancel").hidden=false; setBody("fToggle","fBody",true);
-      $("form").scrollIntoView({block:"nearest",behavior:"smooth"}); F.name.focus();
+      renderPayLink(); $("form").scrollIntoView({block:"nearest",behavior:"smooth"}); F.name.focus();
     } else if(act==="del"){
       if(ui.pendingDelete===id){
         const gone=state.items.find(i=>i.id===id);
@@ -2317,7 +2367,7 @@ const Core=(function(){
   const PRESET_CLIENT_ID=""; // ここにクライアントIDを貼っておくと、スマホとPCで入力しなくて済みます
   const SYNC_FILE="kaimono-shukei.json";
   const SCOPE="https://www.googleapis.com/auth/drive.appdata";
-  let cfg={clientId:"",connected:false,payday:25,pOver:{}};
+  let cfg={clientId:"",connected:false,payday:25,pOver:{},payTo:{}};
   let periods=Core.makePeriods(25,{});
   function rebuildPeriods(){periods=Core.makePeriods(cfg.payday,cfg.pOver);}
   let token=null, tokenExp=0, syncing=false, fileId=null, syncTimer=null;
@@ -2329,7 +2379,8 @@ const Core=(function(){
     cfg.connected=!!o.connected;
     const pd=Number(o.payday);
     cfg.payday=(o.payday===undefined||o.payday===null||!Number.isFinite(pd)||pd<0||pd>31)?25:Math.floor(pd);
-    cfg.pOver={};
+    cfg.pOver={}; cfg.payTo={};
+    if(o.payTo&&typeof o.payTo==="object") Object.keys(o.payTo).forEach(k=>{if(typeof o.payTo[k]==="string") cfg.payTo[String(k).slice(0,50)]=o.payTo[k].slice(0,100);});
     if(o.pOver&&typeof o.pOver==="object") Object.keys(o.pOver).forEach(k=>{const v=o.pOver[k]; if(/^\d{4}-\d{2}$/.test(k)&&v&&Core.validDate(String(v.from))&&Core.validDate(String(v.to))&&v.from<=v.to) cfg.pOver[k]={from:v.from,to:v.to};});
     rebuildPeriods();
   }
