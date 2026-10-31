@@ -2670,8 +2670,7 @@ const Core=(function(){
   const r0=presetRange(cfg.payday?"pay":"month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
   render();
   $("originText").textContent=location.origin;
-  const wideScr=!!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches);
-  $("breakdown").open=false; setBody("fToggle","fBody",wideScr); setBody("xToggle","xBody",wideScr);
+  $("breakdown").open=false; setBody("fToggle","fBody",false); setBody("xToggle","xBody",false);
   showView(viewFromHash());
 })();
 </script>
