@@ -460,6 +460,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 
     <section class="panel" id="listPanel" aria-labelledby="h-list">
       <h2 id="h-list">購入一覧 <small id="listCount"></small></h2>
+      <p class="msg" id="listMsg" role="status" aria-live="polite"></p>
       <div id="listBody"></div>
     </section>
 
@@ -775,7 +776,7 @@ const Core=(function(){
     const name=String(o.name==null?"":o.name).trim().slice(0,200);
     const amount=parseAmount(o.amount);
     if(!date||!name||amount===null) return null;
-    return {
+    const it={
       id:String(o.id==null?"":o.id).trim()||newId(),
       date:date, name:name, amount:amount,
       method:normMethod(o.method),
@@ -784,6 +785,10 @@ const Core=(function(){
       createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),
       updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)
     };
+    // 追加したときに残高(acct)や引落予定(debit)へ反映した分。削除すると元に戻す
+    const l=o.link&&typeof o.link==="object"?o.link:null;
+    if(l&&(l.t==="acct"||l.t==="debit")){const lid=String(l.id==null?"":l.id).trim().slice(0,100), lamt=parseAmount(l.amt); if(lid&&lamt!==null&&lamt>0) it.link={t:l.t,id:lid,amt:lamt};}
+    return it;
   }
 
   /* 日本の祝日(内蔵の計算。通信は不要)。国民の祝日に関する法律にもとづく。1990〜2099年に対応 */
@@ -1146,7 +1151,7 @@ const Core=(function(){
     fixed=fixed||[]; more=more||{};
     return JSON.stringify({
       app:"kaimono-shukei", version:2, exportedAt:new Date().toISOString(), count:items.length, fixedCount:fixed.length,
-      items:sortAsc(items).map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,createdAt:it.createdAt,updatedAt:it.updatedAt})),
+      items:sortAsc(items).map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,link:it.link||undefined,createdAt:it.createdAt,updatedAt:it.updatedAt})),
       fixed:fixed.map(fixedOut),
       income:(more.income||[]).map(x=>Object.assign({},x)),
       accounts:(more.accounts||[]).map(x=>Object.assign({},x)),
@@ -2108,6 +2113,22 @@ const Core=(function(){
     }
   }
   F.method.addEventListener("change",renderPayLink);
+  /* 記録を削除したとき、追加時に残高・引落予定へ反映した分を元に戻す */
+  function undoLink(it){
+    const l=it.link; if(!l) return "";
+    const yen0=n=>"¥"+n.toLocaleString("ja-JP"), now=Date.now();
+    if(l.t==="acct"){
+      const a=state.accounts.find(x=>x.id===l.id);
+      if(!a) return "差し引いた口座が見つからないため、残高は戻していません。";
+      a.balance+=l.amt; a.balanceAt=today(); a.updatedAt=now;
+      return "「"+a.name+"」の残高に"+yen0(l.amt)+"を戻しました(→"+yen0(a.balance)+")。";
+    }
+    const dd=state.debits.find(x=>x.id===l.id);
+    if(!dd) return "足した引落予定が見つからないため、引落予定は戻していません。";
+    dd.amount-=l.amt; dd.updatedAt=now;
+    if(dd.amount<=0){state.debits=state.debits.filter(x=>x.id!==dd.id); tombstone(dd.id); return "「"+dd.card+"」の"+fmt(dd.date)+"の引落予定は、この分だけだったので取り消しました。";}
+    return "「"+dd.card+"」の"+fmt(dd.date)+"の引落予定から"+yen0(l.amt)+"を引きました(→"+yen0(dd.amount)+")。";
+  }
   function resetEntry(){F.name.value="";F.amount.value="";F.memo.value="";}
   function endEdit(){
     ui.editingId=null; ui.editingBlank=false; $("formTitle").textContent="購入品・支払済サービスを追加"; $("fSubmit").textContent="追加"; $("fCancel").hidden=true; renderPayLink();
@@ -2131,12 +2152,13 @@ const Core=(function(){
       // 残高・引落予定への反映(新規のときだけ)
       if(!$("fAcctWrap").hidden&&F.acct.value){
         const a=state.accounts.find(x=>x.id===F.acct.value);
-        if(a){a.balance-=amount;a.balanceAt=today();a.updatedAt=Date.now();cfg.payTo[method]=a.id;saveCfg();link.push("「"+a.name+"」の残高から¥"+amount.toLocaleString("ja-JP")+"を差し引きました(→¥"+a.balance.toLocaleString("ja-JP")+")");}
+        if(a){a.balance-=amount;a.balanceAt=today();a.updatedAt=Date.now();cfg.payTo[method]=a.id;saveCfg();item.link={t:"acct",id:a.id,amt:amount};link.push("「"+a.name+"」の残高から¥"+amount.toLocaleString("ja-JP")+"を差し引きました(→¥"+a.balance.toLocaleString("ja-JP")+")");}
       } else if(!$("fAcctWrap").hidden&&PAY_ACCT.indexOf(method)>=0){cfg.payTo[method]="";saveCfg();}
       if(!$("fCardWrap").hidden){
         const card=F.card.value; cfg.payTo.card=card; saveCfg();
         if(card){
           const r=Core.cardCharge(state.debits,card,date,amount,Date.now());
+          if(r) item.link={t:"debit",id:r.debit.id,amt:amount};
           if(r) link.push("「"+card+"」の"+fmt(r.debit.date)+"の引落予定に¥"+amount.toLocaleString("ja-JP")+"を"+(r.created?"新しく作りました":"足しました(→¥"+r.debit.amount.toLocaleString("ja-JP")+")"));
         }
       }
@@ -2201,7 +2223,9 @@ const Core=(function(){
         state.items=state.items.filter(i=>i.id!==id); ui.pendingDelete=null;
         if(gone&&!gone.sample) tombstone(id);
         if(ui.editingId===id){endEdit();resetEntry();}
+        const undone=gone?undoLink(gone):"";
         changed(1); render();
+        if(undone) say("listMsg",undone);
       } else {
         ui.pendingDelete=id; render();
         clearTimeout(timers.del); timers.del=setTimeout(()=>{ui.pendingDelete=null;render();},4000);
@@ -2450,7 +2474,7 @@ const Core=(function(){
   async function uploadRemote(id,m){
     const body=JSON.stringify({
       app:"kaimono-shukei",version:2,updatedAt:new Date().toISOString(),
-      items:m.items.map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,createdAt:it.createdAt,updatedAt:it.updatedAt})),
+      items:m.items.map(it=>({id:it.id,date:it.date,name:it.name,amount:it.amount,method:it.method||"",category:it.category,memo:it.memo,link:it.link||undefined,createdAt:it.createdAt,updatedAt:it.updatedAt})),
       fixed:m.fixed.map(Core.fixedOut),
       income:m.income, accounts:m.accounts, debits:m.debits, assets:m.assets,
       deleted:m.deleted
