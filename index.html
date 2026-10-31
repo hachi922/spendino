@@ -1270,8 +1270,8 @@ const Core=(function(){
   const $=id=>document.getElementById(id);
   const KEY="kaimono-shukei:v1";
   const DEFAULT_CATS=["食費","外食","日用品","衣類","趣味","ゲーム","本","サブスク","固定費","貯金類","交通","医療","その他"];
-  const PM_DEFAULTS=["クレカ","現金","デビッドカード","銀行振込","振替","銀行引落"];
-  const PM_CLASS={"クレカ":"pm1","現金":"pm2","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6","銀行引落":"pm7"};
+  const PM_DEFAULTS=["クレカ","現金","Suica","デビッドカード","銀行振込","振替","銀行引落"];
+  const PM_CLASS={"クレカ":"pm1","現金":"pm2","Suica":"pm3","デビッドカード":"pm4","銀行振込":"pm5","振替":"pm6","銀行引落":"pm7"};
   const WD="日月火水木金土";
   const pad=n=>String(n).padStart(2,"0");
   const today=()=>Core.ymd(new Date());
@@ -1818,7 +1818,8 @@ const Core=(function(){
     const acOn=state.accounts.filter(a=>a.inTotal!==false), acOff=state.accounts.filter(a=>a.inTotal===false);
     let acH=acOn.length?'<ul class="rows">'+acOn.map(acRow).join("")+'</ul>':'';
     if(acOff.length) acH+='<details class="mfold" data-key="ac-off" style="margin-top:8px"'+(ui.mOpen["ac-off"]===true?' open':'')+'><summary><span class="m-name">合計に含めない口座</span><span class="m-meta">'+acOff.length+'口座</span><span class="m-total">'+yenS(acOff.reduce((t,a)=>t+a.balance,0))+'</span></summary><div class="mbody"><ul class="rows">'+acOff.map(acRow).join("")+'</ul></div></details>';
-    $("acBody").innerHTML=state.accounts.length?acH:'<p class="empty">まだ口座がありません。「設定」の「銀行口座を追加」から登録できます。</p>';
+    const quick=["現金","Suica"].filter(n=>!state.accounts.some(a=>a.name.trim().toLowerCase()===n.toLowerCase())).map(n=>'<button type="button" class="small" data-act="ac-quick" data-name="'+n+'">＋ '+n+'を追加</button>').join("");
+    $("acBody").innerHTML=(state.accounts.length?acH:'<p class="empty">まだ口座がありません。下のボタンか、「設定」の「銀行口座を追加」から登録できます。</p>')+(quick?'<div class="actions acquick">'+quick+'</div>':'');
     // 引落予定
     const upc=state.debits.filter(d=>d.date>=t).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.createdAt||0)-(b.createdAt||0));
     const past=state.debits.filter(d=>d.date<t).sort((a,b)=>a.date<b.date?1:-1);
@@ -2084,7 +2085,7 @@ const Core=(function(){
 
   /* フォーム */
   const F={date:$("fDate"),amount:$("fAmount"),name:$("fName"),method:$("fMethod"),cat:$("fCat"),memo:$("fMemo")};
-  const PAY_ACCT=["デビッドカード","現金"], PAY_CARD=["クレカ"];
+  const PAY_ACCT=["デビッドカード","現金","Suica"], PAY_DEF={"現金":/現金/,"Suica":/suica|スイカ/i}, PAY_CARD=["クレカ"];
   F.acct=$("fAcct"); F.card=$("fCard");
   /* 支払方法に応じて「残高から差し引く口座」「引落予定に足すカード」を出す(新規追加のときだけ) */
   function renderPayLink(){
@@ -2096,7 +2097,7 @@ const Core=(function(){
     if(showA){
       const keep=F.acct.dataset.m===m?F.acct.value:null;
       F.acct.innerHTML='<option value="">差し引かない</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'(¥'+a.balance.toLocaleString("ja-JP")+')</option>').join("");
-      let v=keep!=null?keep:(cfg.payTo[m]||""); if(!v&&m==="現金"){const c=state.accounts.find(a=>/現金/.test(a.name)); if(c) v=c.id;}
+      let v=keep!=null?keep:(cfg.payTo[m]||""); if(!v&&PAY_DEF[m]){const c=state.accounts.find(a=>PAY_DEF[m].test(a.name)); if(c) v=c.id;}
       F.acct.value=state.accounts.some(a=>a.id===v)?v:""; F.acct.dataset.m=m;
     }
     if(showC){
@@ -2205,6 +2206,12 @@ const Core=(function(){
         ui.pendingDelete=id; render();
         clearTimeout(timers.del); timers.del=setTimeout(()=>{ui.pendingDelete=null;render();},4000);
       }
+    } else if(act==="ac-quick"){
+      const name=b.dataset.name; if(!name||state.accounts.some(a=>a.name.trim().toLowerCase()===name.toLowerCase())) return;
+      const now=Date.now(), na={id:Core.newId(),name:name,balance:0,balanceAt:today(),memo:"",createdAt:now,updatedAt:now};
+      state.accounts.push(na); changed(1); render();
+      ui.acEditing=na.id; A.name.value=na.name; A.bal.value="0"; A.memo.value="";
+      $("aSubmit").textContent="更新"; $("aCancel").hidden=false; showForm("ac",true); $("acForm").scrollIntoView({block:"nearest",behavior:"smooth"}); A.bal.focus(); A.bal.select();
     } else if(act==="ac-edit"){
       const a=state.accounts.find(x=>x.id===id); if(!a) return;
       ui.acEditing=id; A.name.value=a.name; A.bal.value=String(a.balance); A.memo.value=a.memo||"";
