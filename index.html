@@ -431,7 +431,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   </section>
 
   <main class="layout" id="viewRecords">
-    <details class="panel fold" id="breakdown" open>
+    <details class="panel fold" id="breakdown">
       <summary><h2 id="h-break">内訳</h2></summary>
       <div id="breakBody"></div>
     </details>
@@ -2671,7 +2671,7 @@ const Core=(function(){
   render();
   $("originText").textContent=location.origin;
   const wideScr=!!(window.matchMedia&&window.matchMedia("(min-width:900px)").matches);
-  $("breakdown").open=wideScr; setBody("fToggle","fBody",wideScr); setBody("xToggle","xBody",wideScr);
+  $("breakdown").open=false; setBody("fToggle","fBody",wideScr); setBody("xToggle","xBody",wideScr);
   showView(viewFromHash());
 })();
 </script>
