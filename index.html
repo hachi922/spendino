@@ -399,6 +399,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 }
 .frow.paid{opacity:.55}
 .frow.paid .r-name,.frow.paid .r-amt{color:var(--muted)}
+.frow.paid button:disabled{opacity:1; background:var(--surface-2); color:var(--muted); border-color:var(--line); cursor:default}
 .paid-tag{display:inline-block; font-size:.66rem; padding:0 6px; margin-left:6px; border-radius:4px; border:1px solid var(--line); color:var(--muted); vertical-align:1px}
 .ytable{width:100%; border-collapse:collapse; font-size:.82rem}
 .ytable th,.ytable td{text-align:left; padding:3px 4px; border-top:1px solid var(--line)}
@@ -1621,7 +1622,7 @@ const Core=(function(){
       const armed=ui.fxPendingDelete===f.id, pd=paid.has(f.id), subF=[f.category].concat(f.memo?[f.memo]:[]).filter(Boolean).join(" · ");
       return '<li class="frow'+(pd?' paid':'')+'"><div class="r-name">'+esc(f.name)+tagHtml(f.method||"")+(pd?'<span class="paid-tag">支払済</span>':'')+'</div><div class="r-amt">'+yen(f.amount)+'</div>'+
         '<div class="r-meta"><span class="r-sub" title="'+esc(subF)+'">'+esc(subF)+'</span></div>'+
-        '<div class="r-act">'+(pd?'':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
+        '<div class="r-act">'+(pd?'<button type="button" class="small" disabled>支払済</button>':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
         '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="fx-del" data-id="'+esc(f.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
     }).join("");
     const incs=salaryOf().filter(i=>i.month===g.ym), incSum=incs.reduce((t,i)=>t+i.amount,0);
