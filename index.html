@@ -1139,8 +1139,8 @@ const Core=(function(){
     const name=String(o.name==null?"":o.name).trim().slice(0,200);
     const amount=parseAmount(o.amount);
     if(!month||!name||amount===null) return null;
-    const ord=Number(o.order);
-    return Object.assign(Number.isFinite(ord)&&o.order!==""&&o.order!==null?{order:ord}:{},{
+    const ord=Number(o.order), ign=Math.floor(Number(o.ign));
+    return Object.assign(Number.isFinite(ord)&&o.order!==""&&o.order!==null?{order:ord}:{},ign>0?{ign:ign}:{},{
       id:String(o.id==null?"":o.id).trim()||newId(),
       month:month, name:name, amount:amount,
       method:normMethod(o.method),
@@ -1170,7 +1170,7 @@ const Core=(function(){
     items.forEach(it=>{const k=per.monthOf(it.date)+"\u0001"+nameKey(it.name); pool.set(k,(pool.get(k)||0)+1);});
     const paid=new Set();
     fixed.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(f=>{
-      const k=f.month+"\u0001"+nameKey(f.name), n=pool.get(k)||0;
+      const k=f.month+"\u0001"+nameKey(f.name), n=(pool.get(k)||0)-(f.ign||0);
       if(n>0){paid.add(f.id);pool.set(k,n-1);}
     });
     return paid;
@@ -1623,6 +1623,7 @@ const Core=(function(){
     return h;
   }
   /* 表示順: 未払いが上、支払済みが下。それぞれの中では手動で並べた順 */
+  const nameKeyUi=s=>String(s==null?"":s).normalize("NFKC").replace(/\s+/g,"").toLowerCase();
   const fxShown=(items,paid)=>items.filter(f=>!paid.has(f.id)).concat(items.filter(f=>paid.has(f.id)));
   function fxMonthHtml(g,cur,paid){
     const open=isOpen(g.ym,g.ym===cur);
@@ -1631,7 +1632,7 @@ const Core=(function(){
       const armed=ui.fxPendingDelete===f.id, pd=paid.has(f.id), subF=[f.category].concat(f.memo?[f.memo]:[]).filter(Boolean).join(" · ");
       return '<li class="frow'+(pd?' paid':'')+'"><div class="r-name">'+esc(f.name)+tagHtml(f.method||"")+(pd?'<span class="paid-tag">支払済</span>':'')+'</div><div class="r-amt">'+yen(f.amount)+'</div>'+
         '<div class="r-meta"><span class="r-sub" title="'+esc(subF)+'">'+esc(subF)+'</span></div>'+
-        '<div class="r-act"><span class="mv"><button type="button" class="small" data-act="fx-up" data-id="'+esc(f.id)+'" aria-label="上へ"'+(ri===0?' disabled':'')+'>↑</button><button type="button" class="small" data-act="fx-down" data-id="'+esc(f.id)+'" aria-label="下へ"'+(ri===shown.length-1?' disabled':'')+'>↓</button></span>'+(pd?'<button type="button" class="small" disabled>支払済</button>':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
+        '<div class="r-act"><span class="mv"><button type="button" class="small" data-act="fx-up" data-id="'+esc(f.id)+'" aria-label="上へ"'+(ri===0?' disabled':'')+'>↑</button><button type="button" class="small" data-act="fx-down" data-id="'+esc(f.id)+'" aria-label="下へ"'+(ri===shown.length-1?' disabled':'')+'>↓</button></span>'+(pd?'<button type="button" class="small" disabled>支払済</button>':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="押すと記録に支払いを追加して、支払済にします">未払い</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
         '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="fx-del" data-id="'+esc(f.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
     }).join("");
     const incs=salaryOf().filter(i=>i.month===g.ym), incSum=incs.reduce((t,i)=>t+i.amount,0);
@@ -1692,7 +1693,13 @@ const Core=(function(){
     const method=X.method.value, category=X.cat.value.trim(), memo=X.memo.value.trim(), wasEdit=!!ui.fxEditing;
     if(ui.fxEditing){
       const f=state.fixed.find(i=>i.id===ui.fxEditing);
-      if(f){f.month=month;f.name=name;f.amount=amount;f.method=method;f.category=category;f.memo=memo;f.updatedAt=Date.now();}
+      if(f){
+        f.month=month;f.name=name;f.amount=amount;f.method=method;f.category=category;f.memo=memo;f.updatedAt=Date.now();
+        // 更新すると未払いに戻す: いま記録にある同じ月・同じ名前の分は、支払済の判定に数えない(あとで「未払い」を押して記録すれば、また支払済になる)
+        delete f.ign; const kk=nameKeyUi(name); let cnt=0;
+        realItems().forEach(it=>{if(periods.monthOf(it.date)===month&&nameKeyUi(it.name)===kk) cnt++;});
+        if(cnt>0) f.ign=cnt;
+      }
       endFxEdit();
     } else state.fixed.push({id:Core.newId(),month:month,name:name,amount:amount,method:method,category:category,memo:memo,createdAt:Date.now(),updatedAt:Date.now()});
     ui.fxOpen[month]=true; X.month.value=month;
