@@ -1622,13 +1622,16 @@ const Core=(function(){
     }
     return h;
   }
+  /* 表示順: 未払いが上、支払済みが下。それぞれの中では手動で並べた順 */
+  const fxShown=(items,paid)=>items.filter(f=>!paid.has(f.id)).concat(items.filter(f=>paid.has(f.id)));
   function fxMonthHtml(g,cur,paid){
     const open=isOpen(g.ym,g.ym===cur);
-    const rows=g.items.map((f,ri)=>{
+    const shown=fxShown(g.items,paid);
+    const rows=shown.map((f,ri)=>{
       const armed=ui.fxPendingDelete===f.id, pd=paid.has(f.id), subF=[f.category].concat(f.memo?[f.memo]:[]).filter(Boolean).join(" · ");
       return '<li class="frow'+(pd?' paid':'')+'"><div class="r-name">'+esc(f.name)+tagHtml(f.method||"")+(pd?'<span class="paid-tag">支払済</span>':'')+'</div><div class="r-amt">'+yen(f.amount)+'</div>'+
         '<div class="r-meta"><span class="r-sub" title="'+esc(subF)+'">'+esc(subF)+'</span></div>'+
-        '<div class="r-act"><span class="mv"><button type="button" class="small" data-act="fx-up" data-id="'+esc(f.id)+'" aria-label="上へ"'+(ri===0?' disabled':'')+'>↑</button><button type="button" class="small" data-act="fx-down" data-id="'+esc(f.id)+'" aria-label="下へ"'+(ri===g.items.length-1?' disabled':'')+'>↓</button></span>'+(pd?'<button type="button" class="small" disabled>支払済</button>':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
+        '<div class="r-act"><span class="mv"><button type="button" class="small" data-act="fx-up" data-id="'+esc(f.id)+'" aria-label="上へ"'+(ri===0?' disabled':'')+'>↑</button><button type="button" class="small" data-act="fx-down" data-id="'+esc(f.id)+'" aria-label="下へ"'+(ri===shown.length-1?' disabled':'')+'>↓</button></span>'+(pd?'<button type="button" class="small" disabled>支払済</button>':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
         '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="fx-del" data-id="'+esc(f.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
     }).join("");
     const incs=salaryOf().filter(i=>i.month===g.ym), incSum=incs.reduce((t,i)=>t+i.amount,0);
@@ -2603,7 +2606,7 @@ const Core=(function(){
       fxPayDo(f);
     } else if(act==="fx-up"||act==="fx-down"){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
-      const list=state.fixed.filter(i=>i.month===f.month).sort(Core.fixedCmp), k=list.findIndex(i=>i.id===id), j=act==="fx-up"?k-1:k+1;
+      const list=fxShown(state.fixed.filter(i=>i.month===f.month).sort(Core.fixedCmp),Core.matchPaid(state.fixed,realItems(),periods)), k=list.findIndex(i=>i.id===id), j=act==="fx-up"?k-1:k+1;
       if(j<0||j>=list.length) return;
       const t=list[k]; list[k]=list[j]; list[j]=t; const now=Date.now();
       list.forEach((i,n)=>{if(i.order!==n){i.order=n;i.updatedAt=now;}});
