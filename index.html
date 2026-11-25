@@ -397,6 +397,9 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   .frow{grid-template-columns:minmax(0,2fr) minmax(0,1.2fr) 5.4rem auto; grid-template-areas:"name sub amt act"; padding:3px 0}
   .frow .r-sub{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.78rem; color:var(--muted)}
 }
+.r-act .mv{display:inline-flex; gap:2px}
+.r-act .mv button{min-width:30px; padding:1px 4px}
+.r-act .mv button:disabled{opacity:.35}
 .frow.paid{opacity:.55}
 .frow.paid .r-name,.frow.paid .r-amt{color:var(--muted)}
 .frow.paid button:disabled{opacity:1; background:var(--surface-2); color:var(--muted); border-color:var(--line); cursor:default}
@@ -1136,7 +1139,8 @@ const Core=(function(){
     const name=String(o.name==null?"":o.name).trim().slice(0,200);
     const amount=parseAmount(o.amount);
     if(!month||!name||amount===null) return null;
-    return {
+    const ord=Number(o.order);
+    return Object.assign(Number.isFinite(ord)&&o.order!==""&&o.order!==null?{order:ord}:{},{
       id:String(o.id==null?"":o.id).trim()||newId(),
       month:month, name:name, amount:amount,
       method:normMethod(o.method),
@@ -1144,8 +1148,10 @@ const Core=(function(){
       memo:String(o.memo==null?"":o.memo).trim().slice(0,200),
       createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),
       updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)
-    };
+    });
   }
+  /* 固定費の並び順: 手動で並べた(order あり)ものを先に、まだ並べていないものは入力順 */
+  const fixedCmp=(a,b)=>{const ha=typeof a.order==="number", hb=typeof b.order==="number"; if(ha&&hb&&a.order!==b.order) return a.order-b.order; if(ha!==hb) return ha?-1:1; return (a.createdAt||0)-(b.createdAt||0);};
   const fixedKey=f=>[f.month,f.name,f.amount,f.method||"",f.memo].join("\u0001");
   function mergeFixed(existing,incoming){
     const ids=new Set(existing.map(i=>i.id)), keys=new Set(existing.map(fixedKey));
@@ -1181,7 +1187,7 @@ const Core=(function(){
     const byMonth=new Map();
     list.forEach(f=>{let g=byMonth.get(f.month); if(!g){g={ym:f.month,items:[],total:0};byMonth.set(f.month,g);} g.items.push(f); g.total+=f.amount;});
     byMonth.forEach(g=>{
-      g.items.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+      g.items.sort(fixedCmp);
       const pm=byMonth.get(prevMonth(g.ym)); g.delta=pm?g.total-pm.total:null;
     });
     const byYear=new Map();
@@ -1373,7 +1379,7 @@ const Core=(function(){
     return {list:list,count:count,total:total,days:days,avg:avg,largest:largest,cats:cats,months:months,byMethod:byMethod,periodTotal:periodTotal,periodCount:periodList.length};
   }
 
-  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,cardCharge,makeAsset,simulate,drawdown,sumSeries,actualSeries,ASSET_KINDS,ASSET_NAMES,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
+  return {ymd,addDays,daysBetween,validDate,normDate,parseAmount,newId,makeItem,makeAccount,makeIncome,makeDebit,cardCharge,makeAsset,simulate,drawdown,sumSeries,actualSeries,ASSET_KINDS,ASSET_NAMES,COL_KEYS,mergeList,moneySummary,normMethod,normMonth,matchPaid,isHoliday,payday,ymAdd,makePeriods,makeFixed,fixedCmp,mergeFixed,fixedToCSV,fixedGroups,fixedOut,toCSV,parseCSV,csvToItems,toJSON,jsonToItems,mergeItems,uniqueIds,mergeSync,signature,pieSegments,summarize};
 })();
 </script>
 
@@ -1618,11 +1624,11 @@ const Core=(function(){
   }
   function fxMonthHtml(g,cur,paid){
     const open=isOpen(g.ym,g.ym===cur);
-    const rows=g.items.map(f=>{
+    const rows=g.items.map((f,ri)=>{
       const armed=ui.fxPendingDelete===f.id, pd=paid.has(f.id), subF=[f.category].concat(f.memo?[f.memo]:[]).filter(Boolean).join(" · ");
       return '<li class="frow'+(pd?' paid':'')+'"><div class="r-name">'+esc(f.name)+tagHtml(f.method||"")+(pd?'<span class="paid-tag">支払済</span>':'')+'</div><div class="r-amt">'+yen(f.amount)+'</div>'+
         '<div class="r-meta"><span class="r-sub" title="'+esc(subF)+'">'+esc(subF)+'</span></div>'+
-        '<div class="r-act">'+(pd?'<button type="button" class="small" disabled>支払済</button>':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
+        '<div class="r-act"><span class="mv"><button type="button" class="small" data-act="fx-up" data-id="'+esc(f.id)+'" aria-label="上へ"'+(ri===0?' disabled':'')+'>↑</button><button type="button" class="small" data-act="fx-down" data-id="'+esc(f.id)+'" aria-label="下へ"'+(ri===g.items.length-1?' disabled':'')+'>↓</button></span>'+(pd?'<button type="button" class="small" disabled>支払済</button>':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'" title="記録に支払いを追加して、支払済にします">支払った</button>')+'<button type="button" class="small" data-act="fx-edit" data-id="'+esc(f.id)+'">編集</button>'+
         '<button type="button" class="small danger'+(armed?' armed':'')+'" data-act="fx-del" data-id="'+esc(f.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
     }).join("");
     const incs=salaryOf().filter(i=>i.month===g.ym), incSum=incs.reduce((t,i)=>t+i.amount,0);
@@ -2595,6 +2601,13 @@ const Core=(function(){
     } else if(act==="fx-pay"){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
       fxPayDo(f);
+    } else if(act==="fx-up"||act==="fx-down"){
+      const f=state.fixed.find(i=>i.id===id); if(!f) return;
+      const list=state.fixed.filter(i=>i.month===f.month).sort(Core.fixedCmp), k=list.findIndex(i=>i.id===id), j=act==="fx-up"?k-1:k+1;
+      if(j<0||j>=list.length) return;
+      const t=list[k]; list[k]=list[j]; list[j]=t; const now=Date.now();
+      list.forEach((i,n)=>{if(i.order!==n){i.order=n;i.updatedAt=now;}});
+      ui.fxOpen[f.month]=true; changed(1); renderFixed();
     } else if(act==="fx-edit"){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
       ui.fxEditing=id; ui.fxEditingBlank=!f.method; renderFxSelect();
