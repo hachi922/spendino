@@ -391,7 +391,8 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 .unpaid-amt{white-space:nowrap}
 
 /* 固定費 */
-.fixedview{max-width:760px; display:grid; gap:10px}
+.fixedview,.pocketview{max-width:760px; display:grid; gap:10px}
+.pocketview[hidden]{display:none}
 #fxBody{container-type:inline-size}
 .yh{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin:14px 0 6px; font-family:var(--font-display); font-size:.9rem}
 .yh:first-child{margin-top:0}
@@ -421,6 +422,15 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
 .r-act .mv{display:inline-flex; gap:2px}
 .r-act .mv button{min-width:30px; padding:1px 4px}
 .r-act .mv button:disabled{opacity:.35}
+.frow.fx{grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"name amt" "sub sub" "act act"; padding:8px 0}
+.frow.fx .r-name{overflow-wrap:anywhere; font-size:.95rem}
+.frow.fx .r-act{grid-column:1/-1; justify-content:flex-end; padding-top:6px; flex-wrap:wrap}
+.frow.fx .r-meta{grid-column:1/-1}
+.pkrow{display:grid; grid-template-columns:auto minmax(0,1fr) auto auto; gap:8px; align-items:center; padding:8px 0; border-top:1px solid var(--line)}
+.pkrow:first-child{border-top:0}
+.pkrow .pd{font-size:.76rem; color:var(--muted)}
+.pkrow .pn{overflow-wrap:anywhere; font-size:.92rem}
+.pkrow .pa{font-family:var(--font-num)}
 .frow.paid{opacity:.55}
 .frow.paid .r-name,.frow.paid .r-amt{color:var(--muted)}
 .frow.paid button:disabled{opacity:1; background:var(--surface-2); color:var(--muted); border-color:var(--line); cursor:default}
@@ -553,6 +563,28 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     </form>
     <section class="panel" aria-label="書き出し">
       <div class="actions"><button type="button" id="btnFixedCsv" class="small">固定費をCSVで書き出す</button></div>
+    </section>
+  </main>
+
+  <main class="pocketview" id="viewPocket" hidden>
+    <section class="panel" id="pkTop" aria-labelledby="h-pktop">
+      <div class="fxnav"><button type="button" class="small" data-act="pk-m-prev" aria-label="前の月">◀</button><h2 id="h-pktop">月分</h2><button type="button" class="small" data-act="pk-m-next" aria-label="次の月">▶</button></div>
+      <p class="note" id="pkPeriod" style="margin:0 0 8px"></p>
+      <div class="allow" id="pkAllow"></div>
+    </section>
+    <form class="panel" id="pkForm" novalidate autocomplete="off" aria-labelledby="h-pkform">
+      <h2 id="h-pkform">買ったものを入れる</h2>
+      <div class="fields">
+        <label class="f">金額(円)<input type="text" id="pkAmount" inputmode="numeric" autocomplete="off" placeholder="1280"></label>
+        <label class="f">日付<input type="date" id="pkDate"></label>
+        <label class="f full">買ったもの<input type="text" id="pkName" autocomplete="off" maxlength="200" placeholder="コーヒー豆(空でもOK)"></label>
+      </div>
+      <div class="actions"><button type="submit" class="primary">小遣いから引く</button></div>
+      <p class="msg" id="pkMsg" role="status" aria-live="polite"></p>
+    </form>
+    <section class="panel" aria-labelledby="h-pklist">
+      <h2 id="h-pklist">使ったもの <small id="pkCount"></small></h2>
+      <div id="pkBody"></div>
     </section>
   </main>
 
@@ -841,6 +873,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     <button type="button" id="tabRecords" hidden aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
     <button type="button" id="tabMoney" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">袋</span></button>
     <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
+    <button type="button" id="tabPocket"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v10M9.3 9.6c0-1 1.2-1.6 2.7-1.6s2.7.6 2.7 1.6c0 2.4-5.4 1.2-5.4 3.8 0 1 1.2 1.6 2.7 1.6s2.7-.6 2.7-1.6"/></svg><span class="tl">小遣い</span></button>
     <button type="button" id="tabAssets"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 18.5l5.5-6 4 3.5 7-8.5"/><path d="M15 7.5h5v5"/></svg><span class="tl">資産</span></button>
     <button type="button" id="tabChart" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
   </nav>
@@ -918,6 +951,7 @@ const Core=(function(){
       createdAt:typeof o.createdAt==="number"?o.createdAt:Date.now()+(seq++),
       updatedAt:typeof o.updatedAt==="number"?o.updatedAt:Date.now()+(seq++)
     };
+    if(o.pk===true) it.pk=true;
     // 追加したときに残高(acct)や引落予定(debit)へ反映した分。削除すると元に戻す
     const l=o.link&&typeof o.link==="object"?o.link:null;
     if(l&&(l.t==="acct"||l.t==="debit")){const lid=String(l.id==null?"":l.id).trim().slice(0,100), lamt=parseAmount(l.amt); if(lid&&lamt!==null&&lamt>0) it.link={t:l.t,id:lid,amt:lamt};}
@@ -1443,7 +1477,7 @@ const Core=(function(){
 
   let state={items:[],fixed:[],income:[],accounts:[],debits:[],assets:[],deleted:[],meta:{lastBackupAt:null,changes:0,lastSyncAt:null,pending:0}};
   let storageOk=true;
-  const ui={fxMonth:"",acEditing:null,diEditing:null,inEditing:null,mPending:null,mOpen:{},fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,wdDirty:false,asKind:"all",rcEditing:null,flEditing:null,plDirty:false,fxPendingDelete:null,exPending:null,fxPay:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
+  const ui={fxMonth:"",pkMonth:"",pkPending:null,acEditing:null,diEditing:null,inEditing:null,mPending:null,mOpen:{},fxPerEdit:null,brkOpen:{},fxEditing:null,fxEditingBlank:false,wdDirty:false,asKind:"all",rcEditing:null,flEditing:null,plDirty:false,fxPendingDelete:null,exPending:null,fxPay:null,fxOpen:{},from:"",to:"",methods:[],chartMode:"cat",editingId:null,pendingDelete:null,plan:null,replaceArmed:false};
   const timers={};
 
   /* 保存 */
@@ -1552,7 +1586,7 @@ const Core=(function(){
   /* 描画 */
   function render(){
     const S=Core.summarize(state.items,ui.from,ui.to,today(),ui.methods);
-    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderMoney(); renderCardUse(); renderExtra(); renderAssets(); renderPayday(); renderBackup(); renderBanners(); renderCats(); renderPayLink(); renderLinks(); renderAuto(); renderXfer();
+    renderPresets(); renderMethodChips(); renderMethodSelect(); renderSummary(S); renderBreakdown(S); renderList(S); renderChart(S); renderFixed(); renderPocket(); renderMoney(); renderCardUse(); renderExtra(); renderAssets(); renderPayday(); renderBackup(); renderBanners(); renderCats(); renderPayLink(); renderLinks(); renderAuto(); renderXfer();
   }
   function renderSummary(S){}
   function bar(w,cls){return '<div class="track"><i class="'+(cls||"")+'" style="width:'+w+'%"></i></div>';}
@@ -1680,10 +1714,34 @@ const Core=(function(){
     const meta=perTxt+(np?"支払済 "+np+"/":"")+g.items.length+"件"+(g.items.length>np?'<span class="unpaid-amt"> · 未払分 '+yen(unpaidAmt)+'</span>':' · すべて支払済')+(g.delta===null?"":'<span class="delta"> · 前月比 '+sgn(g.delta)+'</span>');
     return '<details class="mfold" data-key="'+g.ym+'"'+(open?' open':'')+'><summary><span class="m-name">'+Number(g.ym.slice(5,7))+'月</span><span class="m-meta">'+meta+'</span><span class="m-total">'+yen(g.total)+allow+'</span></summary><div class="mbody">'+perHtml(g.ym)+'<ul class="rows">'+rows+'</ul></div></details>';
   }
+  /* ---- 小遣いタブ: 給料 − 固定費 = 小遣い。買ったものを入れて、そこから引いていく ---- */
+  const pkMonthItems=ym=>state.items.filter(i=>i.pk===true&&!i.sample&&periods.monthOf(i.date)===ym);
+  function renderPocket(){
+    const ym=ui.pkMonth||(ui.pkMonth=curYm()), per=periods.of(ym);
+    $("h-pktop").textContent=ymLabel(ym)+(ym===curYm()?'(今)':'');
+    $("pkPeriod").textContent=fmt(per.from)+" 〜 "+fmt(per.to);
+    const fx=state.fixed.filter(f=>f.month===ym).reduce((t,f)=>t+f.amount,0);
+    const sal=salaryOf().filter(i=>i.month===ym).reduce((t,i)=>t+i.amount,0), has=salaryOf().some(i=>i.month===ym);
+    const base=sal-fx, list=pkMonthItems(ym).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0));
+    const used=list.reduce((t,i)=>t+i.amount,0), left=base-used;
+    $("pkAllow").innerHTML=has?'<div class="al">あと使える小遣い</div><div class="ab'+(left<0?' neg':'')+'">'+yenS(left)+'</div><div class="as">小遣い '+yenS(base)+'(給料 '+yen(sal)+' − 固定費 '+yen(fx)+') − 使った '+yen(used)+'</div>':'<div class="al">小遣い</div><div class="as">先に「固定費」タブで、この月の給料を入れてください。</div>';
+    $("pkCount").textContent=list.length?list.length+"件 · "+yen(used):"";
+    $("pkBody").innerHTML=list.length?list.map(i=>'<div class="pkrow"><span class="pd">'+esc(fmt(i.date).slice(5))+'</span><span class="pn">'+esc(i.name)+'</span><span class="pa">'+yen(i.amount)+'</span><button type="button" class="small danger'+(ui.pkPending===i.id?' armed':'')+'" data-act="pk-del" data-id="'+esc(i.id)+'">'+(ui.pkPending===i.id?'削除する?':'削除')+'</button></div>').join(""):'<p class="empty">この月に使ったものはまだありません。</p>';
+  }
+  $("pkForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const date=Core.normDate($("pkDate").value), amount=Core.parseAmount($("pkAmount").value), name=$("pkName").value.trim()||"買い物";
+    if(!date) return say("pkMsg","日付を選んでください。",true);
+    if(amount===null||amount<=0) return say("pkMsg","金額は1円以上の数字で入力してください。",true);
+    const now=Date.now();
+    state.items.push({id:Core.newId(),date:date,name:name,amount:amount,method:"",category:"",memo:"",pk:true,createdAt:now,updatedAt:now});
+    $("pkAmount").value=""; $("pkName").value=""; changed(1);
+    ui.pkMonth=periods.monthOf(date); render(); say("pkMsg","「"+name+"」"+yen(amount)+"を小遣いから引きました。"); $("pkAmount").focus();
+  });
   const fixedPaidSet=()=>new Set(state.fixed.filter(f=>f.paid===true).map(f=>f.id));
   function fxRowHtml(f,ri,shown){
     const armed=ui.fxPendingDelete===f.id, pd=f.paid===true, subF=[f.memo].filter(Boolean).join(" · ");
-    return '<li class="frow'+(pd?' paid':'')+'"><div class="r-name">'+esc(f.name)+'</div><div class="r-amt">'+yen(f.amount)+'</div>'+
+    return '<li class="frow fx'+(pd?' paid':'')+'"><div class="r-name">'+esc(f.name)+'</div><div class="r-amt">'+yen(f.amount)+'</div>'+
       (subF?'<div class="r-meta"><span class="r-sub">'+esc(subF)+'</span></div>':'')+
       '<div class="r-act"><span class="mv"><button type="button" class="small" data-act="fx-up" data-id="'+esc(f.id)+'" aria-label="上へ"'+(ri===0?' disabled':'')+'>↑</button><button type="button" class="small" data-act="fx-down" data-id="'+esc(f.id)+'" aria-label="下へ"'+(ri===shown.length-1?' disabled':'')+'>↓</button></span>'+
       '<button type="button" class="small fxpay'+(pd?' on':'')+'" data-act="fx-pay" data-id="'+esc(f.id)+'" title="押すと'+(pd?'未払い':'支払済')+'に切り替えます">'+(pd?'支払済':'未払い')+'</button>'+
@@ -2673,6 +2731,12 @@ const Core=(function(){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
       if(f.paid===true) delete f.paid; else f.paid=true;
       f.updatedAt=Date.now(); changed(1); renderFixed();
+    } else if(act==="pk-m-prev"||act==="pk-m-next"){
+      ui.pkMonth=Core.ymAdd(ui.pkMonth||curYm(),act==="pk-m-next"?1:-1); renderPocket();
+    } else if(act==="pk-del"){
+      if(ui.pkPending===id){
+        state.items=state.items.filter(i=>i.id!==id); ui.pkPending=null; tombstone(id); changed(1); render();
+      } else { ui.pkPending=id; renderPocket(); clearTimeout(timers.pkdel); timers.pkdel=setTimeout(()=>{ui.pkPending=null;renderPocket();},4000); }
     } else if(act==="fx-m-prev"||act==="fx-m-next"){
       ui.fxMonth=Core.ymAdd(ui.fxMonth||curYm(),act==="fx-m-next"?1:-1);
       if(!ui.fxEditing) X.month.value=ui.fxMonth;
@@ -2988,9 +3052,9 @@ const Core=(function(){
   });
 
   /* 画面の切り替え(記録 / グラフ / 設定)。期間・支払方法の欄は、記録とグラフで共有 */
-  const VIEWS={records:["viewRecords","tabRecords"],fixed:["viewFixed","tabFixed"],chart:["viewChart","tabChart"],money:["viewMoney","tabMoney"],assets:["viewAssets","tabAssets"],settings:["viewSettings","tabSettings"]};
+  const VIEWS={records:["viewRecords","tabRecords"],fixed:["viewFixed","tabFixed"],chart:["viewChart","tabChart"],money:["viewMoney","tabMoney"],pocket:["viewPocket","tabPocket"],assets:["viewAssets","tabAssets"],settings:["viewSettings","tabSettings"]};
   /* 記録・袋・グラフのタブは、いったん外している(データは残してある)。使えるのは固定費・資産・設定 */
-  const SHOWN=["fixed","assets","settings"];
+  const SHOWN=["fixed","pocket","assets","settings"];
   const viewFromHash=()=>{const h=location.hash.slice(1);return SHOWN.indexOf(h)>=0?h:"fixed";};
   function showView(v,fromUser){
     Object.keys(VIEWS).forEach(k=>{
@@ -2998,7 +3062,7 @@ const Core=(function(){
       const t=$(VIEWS[k][1]);
       if(k===v) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current");
     });
-    $("period").hidden=(v==="settings"||v==="fixed"||v==="money"||v==="assets");
+    $("period").hidden=(v==="settings"||v==="pocket"||v==="fixed"||v==="money"||v==="assets");
     $("fab").hidden=true;
     if(v==="settings"&&!cfg.clientId) $("syncDetails").open=true;
     if(fromUser){
@@ -3036,7 +3100,7 @@ const Core=(function(){
 
   /* 横にスワイプして、画面(タブ)を切り替える。入力欄・グラフ・横に動く表の上では動かさない */
   {
-    const ORDER=["fixed","assets"]; let st=null;
+    const ORDER=["fixed","pocket","assets"]; let st=null;
     const blocked=el=>{
       for(let n=el;n&&n!==document.body;n=n.parentElement){
         if(/^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName)||(n.classList&&(n.classList.contains("achart")||n.classList.contains("ibox")||n.classList.contains("sheet")))) return true;
@@ -3063,7 +3127,7 @@ const Core=(function(){
   if(!had){state.items=makeSamples();save();}
   loadCfg();
   if(cfg.connected) armAuto();
-  F.date.value=today(); EX.date.value=today(); $("xfDate").value=today(); X.month.value=curYm(); D.date.value=today(); I.month.value=curYm(); R_.month.value=today().slice(0,7); W_.month.value=today().slice(0,7);
+  F.date.value=today(); EX.date.value=today(); $("pkDate").value=today(); $("xfDate").value=today(); X.month.value=curYm(); D.date.value=today(); I.month.value=curYm(); R_.month.value=today().slice(0,7); W_.month.value=today().slice(0,7);
   const r0=presetRange(cfg.payday?"pay":"month"); ui.from=r0[0]; ui.to=r0[1]; $("from").value=ui.from; $("to").value=ui.to;
   render();
   $("originText").textContent=location.origin;
