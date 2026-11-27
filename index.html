@@ -1743,6 +1743,8 @@ const Core=(function(){
     $("pkAmount").value=""; $("pkName").value=""; changed(1);
     render(); say("pkMsg","「"+name+"」"+yen(amount)+"を小遣いから引きました。"); $("pkAmount").focus();
   });
+  /* 画面を作り直しても、スクロール位置を保つ */
+  function keepScroll(fn){const y=window.scrollY; fn(); window.scrollTo(0,y); requestAnimationFrame(()=>window.scrollTo(0,y));}
   const fixedPaidSet=()=>new Set(state.fixed.filter(f=>f.paid===true).map(f=>f.id));
   function fxRowHtml(f,ri,shown){
     const armed=ui.fxPendingDelete===f.id, pd=f.paid===true, subF=[f.memo].filter(Boolean).join(" · ");
@@ -2735,7 +2737,7 @@ const Core=(function(){
     } else if(act==="fx-pay"){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
       if(f.paid===true) delete f.paid; else f.paid=true;
-      f.updatedAt=Date.now(); changed(1); renderFixed();
+      f.updatedAt=Date.now(); keepScroll(()=>{changed(1); renderFixed();});
     } else if(act==="pk-m-prev"||act==="pk-m-next"){
       return;
     } else if(act==="pk-del"){
@@ -2752,7 +2754,7 @@ const Core=(function(){
       if(j<0||j>=list.length) return;
       const t=list[k]; list[k]=list[j]; list[j]=t; const now=Date.now();
       list.forEach((i,n)=>{if(i.order!==n){i.order=n;i.updatedAt=now;}});
-      ui.fxOpen[f.month]=true; changed(1); renderFixed();
+      ui.fxOpen[f.month]=true; keepScroll(()=>{changed(1); renderFixed();});
     } else if(act==="fx-edit"){
       const f=state.fixed.find(i=>i.id===id); if(!f) return;
       ui.fxEditing=id; ui.fxEditingBlank=!f.method; renderFxSelect();
@@ -2763,10 +2765,13 @@ const Core=(function(){
       if(ui.fxPendingDelete===id){
         state.fixed=state.fixed.filter(i=>i.id!==id); ui.fxPendingDelete=null; tombstone(id);
         if(ui.fxEditing===id){endFxEdit();resetFx();}
-        changed(1); render();
+        keepScroll(()=>{changed(1); render();});
       } else {
-        ui.fxPendingDelete=id; render();
-        clearTimeout(timers.fxdel); timers.fxdel=setTimeout(()=>{ui.fxPendingDelete=null;render();},4000);
+        // 1回目は画面を作り直さず、押したボタンの表示だけ「削除する?」に変える(スマホで先頭に戻らないように)
+        ui.fxPendingDelete=id;
+        const reset=()=>document.querySelectorAll('[data-act="fx-del"].armed').forEach(x=>{x.classList.remove("armed");x.textContent="削除";});
+        reset(); b.classList.add("armed"); b.textContent="削除する?";
+        clearTimeout(timers.fxdel); timers.fxdel=setTimeout(()=>{ui.fxPendingDelete=null;reset();},4000);
       }
     } else if(act==="clear-samples"){
       state.items=state.items.filter(i=>!i.sample); save(); render();
