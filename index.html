@@ -1720,7 +1720,7 @@ const Core=(function(){
   const bankAcct=()=>state.accounts.find(a=>a.id===BANK_ID)||null;
   function pocketCalc(){
     const b=bankAcct(), cy=curYm(), paid=fixedPaidSet();
-    const un=state.fixed.filter(f=>f.month<=cy&&!paid.has(f.id)).reduce((t,f)=>t+f.amount,0);
+    const un=state.fixed.filter(f=>f.month===cy&&!paid.has(f.id)).reduce((t,f)=>t+f.amount,0);
     const list=b?state.items.filter(i=>i.pk===true&&!i.sample&&(i.createdAt||0)>(b.updatedAt||0)).sort((x,y)=>x.date<y.date?1:x.date>y.date?-1:(y.createdAt||0)-(x.createdAt||0)):[];
     const used=list.reduce((t,i)=>t+i.amount,0);
     return {b:b,un:un,list:list,used:used,base:b?b.balance-un:0,left:b?b.balance-un-used:0};
@@ -1767,7 +1767,7 @@ const Core=(function(){
     const P=pocketCalc();
     if(document.activeElement!==$("fxSal")) $("fxSal").value=P.b?String(P.b.balance):"";
     $("fxBalAt").textContent=P.b?fmt(P.b.balanceAt)+" に入れた金額です":"";
-    $("fxAllow").innerHTML='<div class="al">小遣い(銀行残高 − 未払いの固定費)</div><div class="ab'+(P.base<0?' neg':'')+'">'+(P.b?yenS(P.base):"—")+'</div><div class="as">'+(P.b?'銀行残高 '+yenS(P.b.balance)+' − 未払いの固定費 '+yen(P.un)+'(今の月まで)':'銀行残高を入れると出ます')+'</div>';
+    $("fxAllow").innerHTML='<div class="al">小遣い(銀行残高 − 未払いの固定費)</div><div class="ab'+(P.base<0?' neg':'')+'">'+(P.b?yenS(P.base):"—")+'</div><div class="as">'+(P.b?'銀行残高 '+yenS(P.b.balance)+' − 未払いの固定費 '+yen(P.un)+'(今の月の分)':'銀行残高を入れると出ます')+'</div>';
     $("fxCount").textContent=items.length?"未払い "+(items.length-items.filter(f=>paid.has(f.id)).length)+"件 / 全"+items.length+"件":"";
     const paidSum=total-unpaid;
     $("fxSummary").hidden=!items.length;
