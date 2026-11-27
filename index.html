@@ -538,9 +538,9 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     <section class="panel" aria-labelledby="h-fx">
       <div class="fxnav"><button type="button" class="small" data-act="fx-m-prev" aria-label="前の月">◀</button><h2 id="h-fxtop">月分</h2><button type="button" class="small" data-act="fx-m-next" aria-label="次の月">▶</button></div>
       <p class="note" id="fxPeriod" style="margin:0 0 6px"></p>
+      <dl class="fxsum" id="fxSummary" hidden></dl>
       <h2 id="h-fx" style="font-size:.85rem">固定費 <small id="fxCount"></small></h2>
       <div id="fxBody"></div>
-      <dl class="fxsum" id="fxSummary" hidden></dl>
     </section>
     <form class="panel" id="fxForm" novalidate autocomplete="off" aria-labelledby="fxTitle">
       <h2><span id="fxTitle">固定費を追加</span><button type="button" class="small tg" id="xToggle" aria-expanded="false" aria-controls="xBody">＋ 追加</button></h2>
@@ -1769,7 +1769,9 @@ const Core=(function(){
     $("fxBalAt").textContent=P.b?fmt(P.b.balanceAt)+" に入れた金額です":"";
     $("fxAllow").innerHTML='<div class="al">小遣い(銀行残高 − 未払いの固定費)</div><div class="ab'+(P.base<0?' neg':'')+'">'+(P.b?yenS(P.base):"—")+'</div><div class="as">'+(P.b?'銀行残高 '+yenS(P.b.balance)+' − 未払いの固定費 '+yen(P.un)+'(今の月まで)':'銀行残高を入れると出ます')+'</div>';
     $("fxCount").textContent=items.length?"未払い "+(items.length-items.filter(f=>paid.has(f.id)).length)+"件 / 全"+items.length+"件":"";
-    $("fxSummary").hidden=true;
+    const paidSum=total-unpaid;
+    $("fxSummary").hidden=!items.length;
+    $("fxSummary").innerHTML=items.length?'<div class="unpaid'+(unpaid?'':' zero')+'"><dt>未払い合計</dt><dd>'+yen(unpaid)+'</dd></div><div><dt>支払済</dt><dd>'+yen(paidSum)+'</dd></div><div><dt>固定費の合計</dt><dd>'+yen(total)+'</dd></div>':"";
     $("btnFixedCsv").hidden=!state.fixed.length;
     $("fxBody").innerHTML=items.length?'<ul class="rows">'+shown.map((f,i)=>fxRowHtml(f,i,shown)).join("")+'</ul>':'<p class="empty">この月の固定費はまだありません。下の「固定費を追加」から入れるか、「前の月からコピー」で引き継げます。</p>';
   }
