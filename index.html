@@ -526,18 +526,19 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   </main>
 
   <main class="fixedview" id="viewFixed" hidden>
-    <section class="panel" id="fxTop" aria-labelledby="h-fxtop">
-      <div class="fxnav"><button type="button" class="small" data-act="fx-m-prev" aria-label="前の月">◀</button><h2 id="h-fxtop">月分</h2><button type="button" class="small" data-act="fx-m-next" aria-label="次の月">▶</button></div>
-      <p class="note" id="fxPeriod" style="margin:0 0 8px"></p>
+    <section class="panel" id="fxTop" aria-label="銀行残高と小遣い">
       <form id="fxSalForm" class="salrow" novalidate autocomplete="off">
-        <label class="f">給料(円)<input type="text" id="fxSal" inputmode="numeric" autocomplete="off" placeholder="280000"></label>
+        <label class="f">銀行残高(円)<input type="text" id="fxSal" inputmode="numeric" autocomplete="off" placeholder="350000"></label>
         <button type="submit" class="primary">保存</button>
       </form>
       <p class="msg" id="fxSalMsg" role="status" aria-live="polite"></p>
+      <p class="note" id="fxBalAt" style="margin:2px 0 0"></p>
       <div class="allow" id="fxAllow"></div>
     </section>
     <section class="panel" aria-labelledby="h-fx">
-      <h2 id="h-fx">固定費 <small id="fxCount"></small></h2>
+      <div class="fxnav"><button type="button" class="small" data-act="fx-m-prev" aria-label="前の月">◀</button><h2 id="h-fxtop">月分</h2><button type="button" class="small" data-act="fx-m-next" aria-label="次の月">▶</button></div>
+      <p class="note" id="fxPeriod" style="margin:0 0 6px"></p>
+      <h2 id="h-fx" style="font-size:.85rem">固定費 <small id="fxCount"></small></h2>
       <div id="fxBody"></div>
       <dl class="fxsum" id="fxSummary" hidden></dl>
     </section>
@@ -567,10 +568,9 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   </main>
 
   <main class="pocketview" id="viewPocket" hidden>
-    <section class="panel" id="pkTop" aria-labelledby="h-pktop">
-      <div class="fxnav"><button type="button" class="small" data-act="pk-m-prev" aria-label="前の月">◀</button><h2 id="h-pktop">月分</h2><button type="button" class="small" data-act="pk-m-next" aria-label="次の月">▶</button></div>
-      <p class="note" id="pkPeriod" style="margin:0 0 8px"></p>
-      <div class="allow" id="pkAllow"></div>
+    <section class="panel" id="pkTop" aria-label="あと使える小遣い">
+      <div class="allow" id="pkAllow" style="margin-top:0"></div>
+      <p class="note" id="pkNote" style="margin:6px 0 0"></p>
     </section>
     <form class="panel" id="pkForm" novalidate autocomplete="off" aria-labelledby="h-pkform">
       <h2 id="h-pkform">買ったものを入れる</h2>
@@ -1715,28 +1715,33 @@ const Core=(function(){
     return '<details class="mfold" data-key="'+g.ym+'"'+(open?' open':'')+'><summary><span class="m-name">'+Number(g.ym.slice(5,7))+'月</span><span class="m-meta">'+meta+'</span><span class="m-total">'+yen(g.total)+allow+'</span></summary><div class="mbody">'+perHtml(g.ym)+'<ul class="rows">'+rows+'</ul></div></details>';
   }
   /* ---- 小遣いタブ: 給料 − 固定費 = 小遣い。買ったものを入れて、そこから引いていく ---- */
-  const pkMonthItems=ym=>state.items.filter(i=>i.pk===true&&!i.sample&&periods.monthOf(i.date)===ym);
+  /* 銀行残高(入力した金額そのもの)。小遣い = 銀行残高 − 未払いの固定費。残高を入れたあとに「小遣いから引く」で入れた分を、さらに引いていく */
+  const BANK_ID="bank-main";
+  const bankAcct=()=>state.accounts.find(a=>a.id===BANK_ID)||null;
+  function pocketCalc(){
+    const b=bankAcct(), cy=curYm(), paid=fixedPaidSet();
+    const un=state.fixed.filter(f=>f.month<=cy&&!paid.has(f.id)).reduce((t,f)=>t+f.amount,0);
+    const list=b?state.items.filter(i=>i.pk===true&&!i.sample&&(i.createdAt||0)>(b.updatedAt||0)).sort((x,y)=>x.date<y.date?1:x.date>y.date?-1:(y.createdAt||0)-(x.createdAt||0)):[];
+    const used=list.reduce((t,i)=>t+i.amount,0);
+    return {b:b,un:un,list:list,used:used,base:b?b.balance-un:0,left:b?b.balance-un-used:0};
+  }
   function renderPocket(){
-    const ym=ui.pkMonth||(ui.pkMonth=curYm()), per=periods.of(ym);
-    $("h-pktop").textContent=ymLabel(ym)+(ym===curYm()?'(今)':'');
-    $("pkPeriod").textContent=fmt(per.from)+" 〜 "+fmt(per.to);
-    const fx=state.fixed.filter(f=>f.month===ym).reduce((t,f)=>t+f.amount,0);
-    const sal=salaryOf().filter(i=>i.month===ym).reduce((t,i)=>t+i.amount,0), has=salaryOf().some(i=>i.month===ym);
-    const base=sal-fx, list=pkMonthItems(ym).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0));
-    const used=list.reduce((t,i)=>t+i.amount,0), left=base-used;
-    $("pkAllow").innerHTML=has?'<div class="al">あと使える小遣い</div><div class="ab'+(left<0?' neg':'')+'">'+yenS(left)+'</div><div class="as">小遣い '+yenS(base)+'(給料 '+yen(sal)+' − 固定費 '+yen(fx)+') − 使った '+yen(used)+'</div>':'<div class="al">小遣い</div><div class="as">先に「固定費」タブで、この月の給料を入れてください。</div>';
-    $("pkCount").textContent=list.length?list.length+"件 · "+yen(used):"";
-    $("pkBody").innerHTML=list.length?list.map(i=>'<div class="pkrow"><span class="pd">'+esc(fmt(i.date).slice(5))+'</span><span class="pn">'+esc(i.name)+'</span><span class="pa">'+yen(i.amount)+'</span><button type="button" class="small danger'+(ui.pkPending===i.id?' armed':'')+'" data-act="pk-del" data-id="'+esc(i.id)+'">'+(ui.pkPending===i.id?'削除する?':'削除')+'</button></div>').join(""):'<p class="empty">この月に使ったものはまだありません。</p>';
+    const P=pocketCalc();
+    $("pkAllow").innerHTML=P.b?'<div class="al">あと使える小遣い</div><div class="ab'+(P.left<0?' neg':'')+'">'+yenS(P.left)+'</div><div class="as">銀行残高 '+yenS(P.b.balance)+' − 未払いの固定費 '+yen(P.un)+(P.used?' − 使った '+yen(P.used):'')+'</div>':'<div class="al">小遣い</div><div class="as">先に「固定費」タブで、銀行残高を入れてください。</div>';
+    $("pkNote").textContent=P.b?"銀行残高は "+fmt(P.b.balanceAt)+" に入れた金額です。残高を入れ直すと、「使ったもの」は空になります(使った分は、その残高に含まれているため)。":"";
+    $("pkCount").textContent=P.list.length?P.list.length+"件 · "+yen(P.used):"";
+    $("pkBody").innerHTML=P.list.length?P.list.map(i=>'<div class="pkrow"><span class="pd">'+esc(fmt(i.date).slice(5))+'</span><span class="pn">'+esc(i.name)+'</span><span class="pa">'+yen(i.amount)+'</span><button type="button" class="small danger'+(ui.pkPending===i.id?' armed':'')+'" data-act="pk-del" data-id="'+esc(i.id)+'">'+(ui.pkPending===i.id?'削除する?':'削除')+'</button></div>').join(""):'<p class="empty">銀行残高を入れてから使ったものは、まだありません。</p>';
   }
   $("pkForm").addEventListener("submit",e=>{
     e.preventDefault();
     const date=Core.normDate($("pkDate").value), amount=Core.parseAmount($("pkAmount").value), name=$("pkName").value.trim()||"買い物";
+    if(!bankAcct()) return say("pkMsg","先に「固定費」タブで、銀行残高を入れてください。",true);
     if(!date) return say("pkMsg","日付を選んでください。",true);
     if(amount===null||amount<=0) return say("pkMsg","金額は1円以上の数字で入力してください。",true);
     const now=Date.now();
     state.items.push({id:Core.newId(),date:date,name:name,amount:amount,method:"",category:"",memo:"",pk:true,createdAt:now,updatedAt:now});
     $("pkAmount").value=""; $("pkName").value=""; changed(1);
-    ui.pkMonth=periods.monthOf(date); render(); say("pkMsg","「"+name+"」"+yen(amount)+"を小遣いから引きました。"); $("pkAmount").focus();
+    render(); say("pkMsg","「"+name+"」"+yen(amount)+"を小遣いから引きました。"); $("pkAmount").focus();
   });
   const fixedPaidSet=()=>new Set(state.fixed.filter(f=>f.paid===true).map(f=>f.id));
   function fxRowHtml(f,ri,shown){
@@ -1757,10 +1762,10 @@ const Core=(function(){
     const items=state.fixed.filter(f=>f.month===ym).sort(Core.fixedCmp), paid=fixedPaidSet();
     const shown=items.filter(f=>!paid.has(f.id)).concat(items.filter(f=>paid.has(f.id)));
     const sum=a=>a.reduce((t,f)=>t+f.amount,0), total=sum(items), unpaid=sum(items.filter(f=>!paid.has(f.id)));
-    const sal=salaryOf().filter(i=>i.month===ym), salSum=sal.reduce((t,i)=>t+i.amount,0);
-    if(document.activeElement!==$("fxSal")) $("fxSal").value=sal.length?String(salSum):"";
-    const left=salSum-total;
-    $("fxAllow").innerHTML='<div class="al">小遣い(給料 − 固定費の合計)</div><div class="ab'+(left<0?' neg':'')+'">'+yenS(left)+'</div><div class="as">給料 '+yen(salSum)+' − 固定費 '+yen(total)+(items.length?' / 未払い '+yen(unpaid):'')+'</div>';
+    const P=pocketCalc();
+    if(document.activeElement!==$("fxSal")) $("fxSal").value=P.b?String(P.b.balance):"";
+    $("fxBalAt").textContent=P.b?fmt(P.b.balanceAt)+" に入れた金額です":"";
+    $("fxAllow").innerHTML='<div class="al">小遣い(銀行残高 − 未払いの固定費)</div><div class="ab'+(P.base<0?' neg':'')+'">'+(P.b?yenS(P.base):"—")+'</div><div class="as">'+(P.b?'銀行残高 '+yenS(P.b.balance)+' − 未払いの固定費 '+yen(P.un)+'(今の月まで)':'銀行残高を入れると出ます')+'</div>';
     $("fxCount").textContent=items.length?"未払い "+(items.length-items.filter(f=>paid.has(f.id)).length)+"件 / 全"+items.length+"件":"";
     $("fxSummary").hidden=true;
     $("btnFixedCsv").hidden=!state.fixed.length;
@@ -1793,12 +1798,12 @@ const Core=(function(){
   });
   $("fxSalForm").addEventListener("submit",e=>{
     e.preventDefault();
-    const amt=Core.parseAmount($("fxSal").value), ym=ui.fxMonth||curYm();
-    if(amt===null||amt<0) return say("fxSalMsg","給料は0円以上の数字で入力してください。",true);
-    const sal=salaryOf().filter(i=>i.month===ym).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)), now=Date.now();
-    if(sal.length){const others=sal.slice(1).reduce((t,i)=>t+i.amount,0); sal[0].amount=amt-others; sal[0].updatedAt=now;}
-    else state.income.push({id:Core.newId(),month:ym,name:"給与",amount:amt,memo:"",createdAt:now,updatedAt:now});
-    changed(1); render(); say("fxSalMsg",ymLabel(ym)+"の給料を "+yen(amt)+" にしました。");
+    const amt=Core.parseAmount($("fxSal").value), now=Date.now();
+    if(amt===null) return say("fxSalMsg","銀行残高は数字で入力してください(マイナスも可)。",true);
+    const b=bankAcct();
+    if(b){b.balance=amt;b.balanceAt=today();b.updatedAt=now;}
+    else state.accounts.push({id:BANK_ID,name:"銀行残高",balance:amt,balanceAt:today(),memo:"",inTotal:true,createdAt:now,updatedAt:now});
+    changed(1); render(); say("fxSalMsg","銀行残高を "+yen(amt)+" にしました。");
   });
   $("xCancel").addEventListener("click",()=>{endFxEdit();resetFx();render();say("xMsg","編集をやめました。");});
   $("xCopy").addEventListener("click",()=>{
@@ -2732,7 +2737,7 @@ const Core=(function(){
       if(f.paid===true) delete f.paid; else f.paid=true;
       f.updatedAt=Date.now(); changed(1); renderFixed();
     } else if(act==="pk-m-prev"||act==="pk-m-next"){
-      ui.pkMonth=Core.ymAdd(ui.pkMonth||curYm(),act==="pk-m-next"?1:-1); renderPocket();
+      return;
     } else if(act==="pk-del"){
       if(ui.pkPending===id){
         state.items=state.items.filter(i=>i.id!==id); ui.pkPending=null; tombstone(id); changed(1); render();
