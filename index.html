@@ -182,6 +182,15 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 
 /* 画面の切り替え(記録 / 設定) */
 /* 画面の切り替え: 下に固定したアイコンのタブ */
+.bag-hero .big{font-size:2rem}
+.bag-hero .mhero{grid-column:1/-1}
+.bag-sub{margin:4px 0 0; font-size:.8rem; color:var(--muted)}
+.bag-row{display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line)}
+.bag-row:first-child{border-top:0}
+.bag-row .bn{font-size:.9rem; min-width:0; overflow-wrap:anywhere}
+.bag-row .ba{font-family:var(--font-num); font-size:.92rem}
+.bag-row.done{opacity:.55}
+.bag-row button:disabled{opacity:1; background:var(--surface-2); color:var(--muted); border-color:var(--line)}
 .chk{display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--fg); padding:8px 10px; background:var(--accent-soft); border-radius:8px}
 .chk input{width:18px; height:18px; flex:none; accent-color:var(--accent)}
 .chk[hidden]{display:none}
@@ -456,26 +465,26 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       <span class="sep" aria-hidden="true">〜</span>
       <input type="date" id="to" aria-label="終了日">
     </div>
-    <div class="chips" id="methodChips" role="group" aria-label="支払方法で絞り込む(複数えらべます)"></div>
+    <div class="chips" id="methodChips" role="group" aria-label="支払方法で絞り込む(複数えらべます)" hidden></div>
   </section>
 
   <main class="layout" id="viewRecords">
-    <details class="panel fold" id="breakdown">
+    <details class="panel fold" id="breakdown" hidden>
       <summary><h2 id="h-break">内訳</h2></summary>
       <div id="breakBody"></div>
     </details>
 
     <form class="panel sh-form" id="form" novalidate autocomplete="off" aria-labelledby="formTitle">
-      <h2><span id="formTitle">購入品・支払済サービスを追加</span><button type="button" class="small tg" id="fToggle" aria-expanded="false" aria-controls="fBody">＋ 追加</button></h2>
+      <h2><span id="formTitle">使ったお金を記録</span><button type="button" class="small tg" id="fToggle" aria-expanded="false" aria-controls="fBody">＋ 追加</button></h2>
       <div class="fbody" id="fBody" hidden>
       <div class="fields">
         <label class="f">日付<input type="date" id="fDate"></label>
         <label class="f">金額(円)<input type="text" id="fAmount" autocomplete="off" inputmode="numeric" placeholder="1280"></label>
         <label class="f full">品名<input type="text" id="fName" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="コーヒー豆"></label>
-        <label class="f">支払方法<select id="fMethod"></select></label>
+        <label class="f" id="fMethodWrap" hidden>支払方法<select id="fMethod"></select></label>
         <label class="f">カテゴリ<input type="text" id="fCat" list="cats" maxlength="50" placeholder="食費"></label>
-        <label class="f full">メモ(任意)<input type="text" id="fMemo" autocomplete="off" maxlength="200" placeholder="お店の名前など"></label>
-        <label class="chk full" id="fLinkWrap" hidden><input type="checkbox" id="fLink" checked><span id="fLinkTxt"></span></label>
+        <label class="f full" id="fMemoWrap" hidden>メモ(任意)<input type="text" id="fMemo" autocomplete="off" maxlength="200" placeholder="お店の名前など"></label>
+        <label class="f full" id="fSrcWrap">何から払う?<select id="fSrc"></select></label>
       </div>
       <datalist id="cats"></datalist>
       <div class="actions">
@@ -486,25 +495,8 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       </div>
     </form>
 
-    <details class="panel fold" id="extraFold">
-      <summary><h2 id="h-ex"><span>臨時収入 <small id="exCount"></small></span></h2></summary>
-      <div class="secbody">
-      <form id="exForm" class="mform sh-form" novalidate autocomplete="off">
-        <div class="fields">
-          <label class="f">日付<input type="date" id="exDate"></label>
-          <label class="f">金額(円)<input type="text" id="exAmount" autocomplete="off" inputmode="numeric" placeholder="10000"></label>
-          <label class="f full">内容<input type="text" id="exName" autocomplete="off" maxlength="100" placeholder="お祝い・臨時ボーナスなど"></label>
-          <label class="chk full" id="exLinkWrap" hidden><input type="checkbox" id="exLink" checked><span id="exLinkTxt"></span></label>
-        </div>
-        <div class="actions"><button type="submit" class="primary">臨時収入を追加</button></div>
-        <p class="msg" id="exMsg" role="status" aria-live="polite"></p>
-      </form>
-      <div id="exBody"></div>
-      </div>
-    </details>
-
     <section class="panel" id="listPanel" aria-labelledby="h-list">
-      <h2 id="h-list">購入一覧 <small id="listCount"></small></h2>
+      <h2 id="h-list">使った記録 <small id="listCount"></small></h2>
       <p class="msg" id="listMsg" role="status" aria-live="polite"></p>
       <div id="listBody"></div>
     </section>
@@ -553,14 +545,19 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   </main>
 
   <main class="moneyview" id="viewMoney" hidden>
-    <section class="panel" aria-labelledby="h-msum">
-      <h2 id="h-msum">ざっくり残高</h2>
+    <section class="panel bag-hero" aria-labelledby="h-msum">
+      <h2 id="h-msum">小遣いの袋</h2>
       <div id="mSum"></div>
-      <p class="note" id="mNote"></p>
+      <p class="note" id="mNote" hidden></p>
+    </section>
+
+    <section class="panel" id="fbPanel" aria-labelledby="h-fb">
+      <h2 id="h-fb"><span>固定費の袋 <small id="fbCount"></small></span></h2>
+      <div id="fbBody"></div>
     </section>
 
     <section class="panel" id="acFold" aria-labelledby="h-ac">
-      <h2 id="h-ac"><span>銀行口座残高 <small id="acCount"></small></span></h2>
+      <h2 id="h-ac"><span>口座(お金の置き場所) <small id="acCount"></small></span></h2>
       <div class="secbody">
       <form id="acForm" class="mform" novalidate autocomplete="off" hidden>
         <p class="note" style="margin:0 0 6px"><b>口座の編集</b></p>
@@ -576,7 +573,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       </div>
     </section>
 
-    <details class="panel fold" open>
+    <details class="panel fold">
       <summary><h2 id="h-di"><span>カード引落予定 <small id="diCount"></small></span><button type="button" class="small tg" data-form="di" id="diToggle" aria-expanded="false">＋ 追加</button></h2></summary>
       <div class="secbody">
       <form id="diForm" class="mform" novalidate autocomplete="off" hidden>
@@ -595,7 +592,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       </div>
     </details>
 
-    <details class="panel fold" id="cuFold">
+    <details class="panel fold" id="cuFold" hidden>
       <summary><h2 id="h-cu"><span>カード利用履歴 <small id="cuCount"></small></span></h2></summary>
       <div class="secbody">
       <p class="note">支払方法が「クレカ」の記録を、利用した月ごとにまとめています(翌月払いの月末締めとして見ています)。</p>
@@ -603,8 +600,8 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       </div>
     </details>
 
-    <details class="panel fold" open>
-      <summary><h2 id="h-in"><span>給与額 <small id="inCount"></small></span><button type="button" class="small tg" data-form="in" id="inToggle" aria-expanded="false">＋ 追加</button></h2></summary>
+    <details class="panel fold">
+      <summary><h2 id="h-in"><span>給与の履歴 <small id="inCount"></small></span><button type="button" class="small tg" data-form="in" id="inToggle" aria-expanded="false">＋ 追加</button></h2></summary>
       <div class="secbody">
       <form id="inForm" class="mform sh-form" novalidate autocomplete="off">
         <div class="fields">
@@ -612,7 +609,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
           <label class="f">金額(円)<input type="text" id="iAmount" inputmode="numeric" placeholder="280000"></label>
           <label class="f">項目<input type="text" id="iName" maxlength="100" placeholder="給与(賞与・手当など)"></label>
           <label class="f">メモ(任意)<input type="text" id="iMemo" maxlength="200"></label>
-          <label class="chk full" id="iLinkWrap" hidden><input type="checkbox" id="iLink" checked><span id="iLinkTxt"></span></label>
+          <label class="f full" id="iAcctWrap" hidden>入れる口座<select id="iAcct"></select></label>
         </div>
         <div class="actions"><button type="submit" class="primary" id="iSubmit">給与を追加</button><button type="button" id="iCancel" hidden>編集をやめる</button></div>
         <p class="msg" id="iMsg" role="status" aria-live="polite"></p>
@@ -621,8 +618,25 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
       </div>
     </details>
 
+    <details class="panel fold" id="extraFold">
+      <summary><h2 id="h-ex"><span>臨時収入の履歴 <small id="exCount"></small></span></h2></summary>
+      <div class="secbody">
+      <form id="exForm" class="mform sh-form" novalidate autocomplete="off">
+        <div class="fields">
+          <label class="f">日付<input type="date" id="exDate"></label>
+          <label class="f">金額(円)<input type="text" id="exAmount" autocomplete="off" inputmode="numeric" placeholder="10000"></label>
+          <label class="f full">内容<input type="text" id="exName" autocomplete="off" maxlength="100" placeholder="お祝い・臨時ボーナスなど"></label>
+          <label class="f full" id="exAcctWrap" hidden>入れる口座<select id="exAcct"></select></label>
+        </div>
+        <div class="actions"><button type="submit" class="primary">臨時収入を追加</button></div>
+        <p class="msg" id="exMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div id="exBody"></div>
+      </div>
+    </details>
+
     <details class="panel fold" id="xfFold">
-      <summary><h2 id="h-xf"><span>資金の移動履歴 <small id="xfCount"></small></span></h2></summary>
+      <summary><h2 id="h-xf"><span>口座の移動履歴 <small id="xfCount"></small></span></h2></summary>
       <div class="secbody">
         <div id="xfBody"></div>
         <p class="msg" id="xfMsg" role="status" aria-live="polite"></p>
@@ -777,9 +791,9 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     </section>
 
     <details class="panel fold" id="autoFold">
-      <summary><h2 id="h-auto"><span>口座との自動連動</span></h2></summary>
+      <summary><h2 id="h-auto"><span>固定費の支払いと入金先の初期設定</span></h2></summary>
       <div class="secbody">
-        <p class="note" style="margin-top:0">支払方法ごとに「どの口座と連動するか」を決めておくと、入力のたびに口座を選ばなくて済みます。入力画面では、チェックを外すとその1件だけ連動しません。同じ項目を複数の口座に付けたときは、最後に付けた口座になります。</p>
+        <p class="note" style="margin-top:0">固定費の「未払い」ボタンで残高を動かす口座と、給与・臨時収入を入れる口座の、最初の選び方を決めます。記録の入力では、そのつど「何から払う?」を選べます。</p>
         <div id="autoBody"></div>
       </div>
     </details>
@@ -802,7 +816,7 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
   </main>
   <nav class="btabs" aria-label="画面の切り替え">
     <button type="button" id="tabRecords" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
-    <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">残高</span></button>
+    <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">袋</span></button>
     <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
     <button type="button" id="tabAssets"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 18.5l5.5-6 4 3.5 7-8.5"/><path d="M15 7.5h5v5"/></svg><span class="tl">資産</span></button>
     <button type="button" id="tabChart"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
@@ -813,10 +827,10 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     <div class="sh-panel">
       <div class="sh-head"><b>入力</b><button type="button" class="small" id="shClose">閉じる</button></div>
       <div class="sh-tabs" role="group" aria-label="入力の種類">
-        <button type="button" data-sh="exp">支出</button>
-        <button type="button" data-sh="ex">臨時収入</button>
+        <button type="button" data-sh="exp">使った</button>
         <button type="button" data-sh="sal">給与</button>
-        <button type="button" data-sh="xf">資金移動</button>
+        <button type="button" data-sh="ex">臨時収入</button>
+        <button type="button" data-sh="xf">口座移動</button>
       </div>
       <div id="shBody">
         <form id="xfForm" class="mform sh-form" novalidate autocomplete="off" hidden>
@@ -1922,21 +1936,19 @@ const Core=(function(){
     const sel=$("dAcct"), keep=sel.value;
     sel.innerHTML='<option value="">未指定</option>'+state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");
     if(keep&&state.accounts.some(a=>a.id===keep)) sel.value=keep;
-    // 小遣い = チェックを入れた口座の残高合計 − 未払いの固定費(今月と以前の月)
-    let allow;
-    if(!state.accounts.length||!M.selectedCount) allow='<div class="mcell"><span class="lbl">小遣い</span><span class="big muted">—</span><span class="sub">'+(state.accounts.length?'口座にチェックを':'口座を追加すると出ます')+'</span></div>';
-    else{
-      const paidSet=Core.matchPaid(state.fixed,realItems(),periods), cy=curYm(), sm=a=>a.reduce((t,f)=>t+f.amount,0);
-      const un=sm(state.fixed.filter(f=>f.month<=cy&&!paidSet.has(f.id)));
-      allow='<div class="mcell" title="チェックした口座の残高 '+yen(M.total)+' − 未払いの固定費 '+yen(un)+'(今月と以前の月。未来の月は含みません)"><span class="lbl">小遣い</span><span class="big">'+yenS(M.total-un)+'</span><span class="sub">未払いの固定費 −'+yen(un).replace("-","")+'</span></div>';
-    }
-    $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
+    // 小遣いの袋 = 口座の合計 − 固定費の袋(未払い) − これからのクレカ引落
+    const paidSet=Core.matchPaid(state.fixed,realItems(),periods), cy=curYm(), sm=a=>a.reduce((t,f)=>t+f.amount,0);
+    const bagFx=state.fixed.filter(f=>f.month<cy||f.month===cy).sort((x,y)=>x.month<y.month?-1:x.month>y.month?1:Core.fixedCmp(x,y));
+    const unpaidFx=bagFx.filter(f=>!paidSet.has(f.id)), un=sm(unpaidFx), cardTotal=M.upcomingAllTotal||0;
+        $("dCards").innerHTML=Array.from(new Set(state.debits.map(d=>d.card))).sort().map(n=>'<option value="'+esc(n)+'">').join("");
     // まとめ
-    $("mSum").innerHTML='<div class="mtop"><div class="mcell mhero"><span class="lbl">銀行口座残高の合計'+(M.accountCount&&M.selectedCount<M.accountCount?'(選んだ'+M.selectedCount+'口座 / 全'+M.accountCount+'口座)':'')+'</span><span class="big">'+yenS(M.total)+'</span></div>'+allow+'</div>';
-    const notes=[];
-    if(state.accounts.length&&M.selectedCount===0) notes.push("合計に含める口座にチェックを入れてください");
-    if(M.unassigned>0&&state.accounts.length) notes.push("引落口座が未指定の予定が "+yen(M.unassigned)+" あります");
-    $("mNote").textContent=notes.length?notes.join("。")+"。":""; $("mNote").hidden=!notes.length;
+    const pocket=M.total-un-cardTotal;
+    $("mSum").innerHTML=state.accounts.length?'<div class="mcell mhero"><span class="big'+(pocket<0?' neg':'')+'">'+yenS(pocket)+'</span></div><p class="bag-sub">口座の合計 '+yenS(M.total)+' − 固定費の袋 '+yen(un)+(cardTotal?' − クレカの引落予定 '+yen(cardTotal):'')+'</p>':'<p class="empty">まず下の「口座」に、お金のある場所(銀行・現金など)を追加してください。</p>';
+    $("mNote").hidden=true;
+    // 固定費の袋: 今期間の月までの固定費。未払いは袋に取り分けてある状態、支払済はグレー
+    const bagShow=unpaidFx.concat(bagFx.filter(f=>paidSet.has(f.id)&&f.month===cy));
+    $("fbCount").textContent=bagFx.length?"未払い "+unpaidFx.length+"件 · "+yen(un):"";
+    $("fbBody").innerHTML=bagShow.length?bagShow.map(f=>{const pd=paidSet.has(f.id); return '<div class="bag-row'+(pd?' done':'')+'"><span class="bn">'+(f.month!==cy?'<span class="dchip">'+Number(f.month.slice(5,7))+'月分</span>':'')+esc(f.name)+'</span><span class="ba">'+yen(f.amount)+'</span>'+(pd?'<button type="button" class="small" disabled>支払済</button>':'<button type="button" class="small" data-act="fx-pay" data-id="'+esc(f.id)+'">未払い</button>')+'</div>';}).join(""):'<p class="empty">今期間の固定費はありません。「固定費」タブで追加できます。</p>';
     // 口座
     $("acCount").textContent=state.accounts.length?(M.selectedCount<M.accountCount?"合計に含む "+M.selectedCount+" / ":"")+state.accounts.length+"口座":"";
     const acRow=a=>{
@@ -2221,8 +2233,8 @@ const Core=(function(){
       if(i){i.month=month;i.name=name;i.amount=amount;i.memo=memo;i.updatedAt=now;}
     } else {
       const rec={id:Core.newId(),month:month,name:name,amount:amount,memo:memo,createdAt:now,updatedAt:now}; let extra="";
-      const a=autoAcct(AUTO_IN);
-      if(a&&!$("iLinkWrap").hidden&&$("iLink").checked){a.balance+=amount;a.balanceAt=today();a.updatedAt=now;rec.link={t:"acct",id:a.id,amt:amount};extra=" 「"+a.name+"」の残高に"+yen0(amount)+"を足しました(→"+yen0(a.balance)+")。";}
+      const a=!$("iAcctWrap").hidden&&$("iAcct").value?state.accounts.find(x=>x.id===$("iAcct").value):null;
+      if(a){lsSet("spendino:in",a.id);a.balance+=amount;a.balanceAt=today();a.updatedAt=now;rec.link={t:"acct",id:a.id,amt:amount};extra=" 「"+a.name+"」の残高に"+yen0(amount)+"を足しました(→"+yen0(a.balance)+")。";}
       state.income.push(rec); ui.inExtra=extra;
     }
     const keepMonth=month; endIn(); I.month.value=keepMonth; changed(1); render(); say("iMsg",(wasEdit?"更新しました。":"追加しました。")+(wasEdit?"":(ui.inExtra||""))); ui.inExtra="";
@@ -2337,11 +2349,22 @@ const Core=(function(){
     const t=payTarget(m); if(!t) return "";
     return t.acct?"「"+t.acct.name+"」の残高から差し引く":"「"+t.card+"」の翌月の引落予定に足す";
   }
-  /* 記録フォーム: 反映先があるときだけチェック欄を出す(新規追加のときだけ) */
+  /* 記録フォーム: 新規は「何から払う?」(口座 or クレカ)を選ぶ。編集のときは支払方法とメモを出す */
+  const lsGet=k=>{try{return localStorage.getItem(k)||"";}catch(e){return "";}}, lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+  function methodFor(a){
+    const m=(a.auto||[]).find(x=>AUTO_METHODS.indexOf(x)>=0); if(m) return m;
+    if(/現金/.test(a.name)) return "現金"; if(/suica|スイカ/i.test(a.name)) return "Suica";
+    return "デビッドカード";
+  }
   function renderPayLink(){
-    const t=ui.editingId?null:payTarget(F.method.value);
-    $("fLinkWrap").hidden=!t;
-    if(t) $("fLinkTxt").textContent=targetText(F.method.value);
+    const ed=!!ui.editingId;
+    $("fSrcWrap").hidden=ed; $("fMethodWrap").hidden=!ed; $("fMemoWrap").hidden=!ed;
+    if(ed) return;
+    const sel=$("fSrc"), keep=sel.dataset.on?sel.value:(lsGet("spendino:src")||"");
+    const cs=cardNames();
+    sel.innerHTML=state.accounts.map(a=>'<option value="a:'+esc(a.id)+'">'+esc(a.name)+'(¥'+a.balance.toLocaleString("ja-JP")+')</option>').join("")+
+      cs.map(c=>'<option value="c:'+esc(c)+'">'+esc(c)+'(クレカ・翌月払い)</option>').join("")+'<option value="n">どこからも引かない(記録だけ)</option>';
+    sel.value=[].some.call(sel.options,o=>o.value===keep)?keep:(sel.options[0]?sel.options[0].value:""); sel.dataset.on="1";
   }
   F.method.addEventListener("change",renderPayLink);
   /* 記録を追加したとき、反映先(t)へ反映する */
@@ -2377,13 +2400,21 @@ const Core=(function(){
     const t=today(), pp=periods.of(f.month);
     const date=t<pp.from?pp.from:(t>pp.to?pp.to:t), now=Date.now();
     const item={id:Core.newId(),date:date,name:f.name,amount:f.amount,method:f.method||"",category:f.category||"固定費",memo:f.memo||"",createdAt:now,updatedAt:now};
-    const msgs=applyLink(item,payTarget(f.method||""));
+    // 連動先が決まっていないときも、小遣いの計算がずれないよう、前回使った口座(なければ先頭の口座・カード)から払う
+    let tg=payTarget(f.method||"");
+    if(!tg){
+      if((f.method||"")==="クレカ"&&cardNames().length) tg={card:cardNames()[0]};
+      else if(state.accounts.length){const a=state.accounts.find(x=>x.id===lsGet("spendino:fx"))||state.accounts[0]; tg={acct:a};}
+    }
+    if(tg&&tg.acct) lsSet("spendino:fx",tg.acct.id);
+    const msgs=applyLink(item,tg);
     state.items.push(item); ui.fxPay=null;
     changed(1); render();
     say("xMsg","「"+f.name+"」を記録に追加しました("+fmt(date)+")。"+(msgs.length?" "+msgs.join("。")+"。":""));
+    toast("「"+f.name+"」を支払済にしました。"+(msgs.length?msgs.join("。")+"。":""));
   }
   /* ---- 臨時収入(記録タブ) ---- */
-  const EX={date:$("exDate"),amt:$("exAmount"),name:$("exName"),link:$("exLink")};
+  const EX={date:$("exDate"),amt:$("exAmount"),name:$("exName")};
   /* 臨時収入・給与・資金移動を取り消す(削除する)とき、口座の残高を元に戻す */
   function undoIncome(i){
     const now=Date.now();
@@ -2403,19 +2434,22 @@ const Core=(function(){
     return "";
   }
   /* 給与・臨時収入の「残高に足す」チェック欄。連動先が決まっているときだけ出す */
+  function fillAcctSelect(sel,wrap,key,show){
+    wrap.hidden=!show||!state.accounts.length; if(wrap.hidden) return;
+    const keep=sel.dataset.on?sel.value:(lsGet(key)||(autoAcct(AUTO_IN)||{}).id||"");
+    sel.innerHTML=state.accounts.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'(¥'+a.balance.toLocaleString("ja-JP")+')</option>').join("")+'<option value="">口座には足さない</option>';
+    sel.value=[].some.call(sel.options,o=>o.value===keep)?keep:state.accounts[0].id; sel.dataset.on="1";
+  }
   function renderLinks(){
-    const a=autoAcct(AUTO_IN);
-    $("exLinkWrap").hidden=!a; $("iLinkWrap").hidden=!a||!!ui.inEditing;
-    if(a){ $("exLinkTxt").textContent="「"+a.name+"」の残高に足す"; $("iLinkTxt").textContent="「"+a.name+"」の残高に足す"; }
+    fillAcctSelect($("exAcct"),$("exAcctWrap"),"spendino:in",true);
+    fillAcctSelect($("iAcct"),$("iAcctWrap"),"spendino:in",!ui.inEditing);
   }
   function renderExtra(){
     const all=state.income.filter(i=>i.kind==="extra");
-    const inRange=x=>(!ui.from||x>=ui.from)&&(!ui.to||x<=ui.to);
-    const list=all.filter(i=>inRange(i.date)).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0));
+    const list=all.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0));
     const sum=list.reduce((t,i)=>t+i.amount,0);
     $("exCount").textContent=list.length?list.length+"件 · "+yen(sum):"";
     if(!all.length){$("exBody").innerHTML='<p class="empty">まだ臨時収入の記録がありません。</p>';return;}
-    if(!list.length){$("exBody").innerHTML='<p class="empty">この期間の臨時収入はありません。期間を変えると見られます(全部で'+all.length+'件)。</p>';return;}
     $("exBody").innerHTML='<ul class="rows">'+list.map(i=>{
       const armed=ui.exPending===i.id, a=i.link?state.accounts.find(x=>x.id===i.link.id):null;
       return '<li class="frow"><span class="r-name"><span class="tag">'+esc(fmt(i.date).slice(5))+'</span> '+esc(i.name)+'</span><span class="r-amt">+'+yen(i.amount)+'</span><span class="r-meta r-sub">'+esc(a?"入金先: "+a.name:"")+'</span><div class="r-act"><button type="button" class="small danger'+(armed?' armed':'')+'" data-act="ex-del" data-id="'+esc(i.id)+'">'+(armed?'削除する?':'削除')+'</button></div></li>';
@@ -2428,12 +2462,11 @@ const Core=(function(){
     if(amount===null||amount<=0) return say("exMsg","金額は1円以上の数字で入力してください。",true);
     const rec={id:Core.newId(),kind:"extra",month:date.slice(0,7),date:date,name:name||"臨時収入",amount:amount,memo:"",createdAt:now,updatedAt:now};
     let msg="「"+rec.name+"」"+yen(amount)+"を記録しました。";
-    const ea=autoAcct(AUTO_IN);
-    if(ea&&!$("exLinkWrap").hidden&&EX.link.checked){ea.balance+=amount;ea.balanceAt=today();ea.updatedAt=now;rec.link={t:"acct",id:ea.id,amt:amount};msg+=" 「"+ea.name+"」の残高に足しました(→"+yen(ea.balance)+")。";}
-    EX.link.checked=true;
+    const ea=!$("exAcctWrap").hidden&&$("exAcct").value?state.accounts.find(x=>x.id===$("exAcct").value):null;
+    if(ea){lsSet("spendino:in",ea.id);ea.balance+=amount;ea.balanceAt=today();ea.updatedAt=now;rec.link={t:"acct",id:ea.id,amt:amount};msg+=" 「"+ea.name+"」の残高に足しました(→"+yen(ea.balance)+")。";}
     state.income.push(rec);
     EX.amt.value=""; EX.name.value="";
-    changed(1); render(); say("exMsg",msg+((ui.from&&date<ui.from)||(ui.to&&date>ui.to)?" 表示中の期間の外の日付です。":""));
+    changed(1); render(); say("exMsg",msg);
   });
   $("exBody").addEventListener("click",e=>{
     const b=e.target.closest('[data-act="ex-del"]'); if(!b) return;
@@ -2467,16 +2500,22 @@ const Core=(function(){
   $("cuBody").addEventListener("toggle",e=>{const d=e.target; if(d&&d.dataset&&d.dataset.key) ui.mOpen[d.dataset.key]=d.open;},true);
   function resetEntry(){F.name.value="";F.amount.value="";F.memo.value="";}
   function endEdit(){
-    ui.editingId=null; ui.editingBlank=false; $("formTitle").textContent="購入品・支払済サービスを追加"; $("fSubmit").textContent="追加"; $("fCancel").hidden=true; renderPayLink();
+    ui.editingId=null; ui.editingBlank=false; $("formTitle").textContent="使ったお金を記録"; $("fSubmit").textContent="追加"; $("fCancel").hidden=true; renderPayLink();
   }
   $("form").addEventListener("submit",e=>{
     e.preventDefault();
     const date=Core.normDate(F.date.value), name=F.name.value.trim(), amount=Core.parseAmount(F.amount.value);
     if(!date) return say("formMsg","日付を選んでください。",true);
-    if(!name) return say("formMsg","品名を入力してください。",true);
+    if(!name) return say("formMsg","何に使ったか入力してください。",true);
     if(amount===null) return say("formMsg","金額は数字で入力してください。",true);
-    const method=F.method.value, category=F.cat.value.trim(), memo=F.memo.value.trim();
-    let item; const link=[];
+    let method=F.method.value; const category=F.cat.value.trim(), memo=F.memo.value.trim();
+    let item; const link=[]; let srcT=null;
+    if(!ui.editingId){
+      const sv=$("fSrc").value; lsSet("spendino:src",sv);
+      if(sv.slice(0,2)==="a:"){const a=state.accounts.find(x=>x.id===sv.slice(2)); if(a){srcT={acct:a}; method=methodFor(a);}}
+      else if(sv.slice(0,2)==="c:"){srcT={card:sv.slice(2)}; method="クレカ";}
+      else method="現金";
+    }
     const wasEdit=!!ui.editingId;
     if(ui.editingId){
       item=state.items.find(i=>i.id===ui.editingId);
@@ -2486,7 +2525,7 @@ const Core=(function(){
       item={id:Core.newId(),date:date,name:name,amount:amount,method:method,category:category,memo:memo,createdAt:Date.now(),updatedAt:Date.now()};
       state.items.push(item);
       // 残高・引落予定への反映(新規のときだけ)
-      if(!$("fLinkWrap").hidden&&$("fLink").checked) link.push.apply(link,applyLink(item,payTarget(method)));
+      if(srcT) link.push.apply(link,applyLink(item,srcT));
     }
     changed(1); resetEntry();
     const hidden=[];
