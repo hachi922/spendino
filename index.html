@@ -218,6 +218,7 @@ label.f{display:grid; gap:2px; font-size:.74rem; color:var(--muted); min-width:0
 .autorow label input{accent-color:var(--accent)}
 .btabs{position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; justify-content:center; gap:2px; padding:4px max(8px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px)); background:var(--surface); border-top:1px solid var(--line)}
 .btabs button{position:relative; flex:1 1 0; max-width:130px; min-width:0; min-height:50px; padding:5px 2px 4px; border:0; border-radius:10px; background:transparent; color:var(--muted); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px}
+.btabs button[hidden]{display:none}
 .btabs button:hover{background:var(--surface-2)}
 .btabs button[aria-current="page"]{color:var(--accent); background:var(--accent-soft)}
 .btabs .ic{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
@@ -815,11 +816,11 @@ form.panel:has(> .fbody[hidden]) > h2{margin-bottom:0}
     </details>
   </main>
   <nav class="btabs" aria-label="画面の切り替え">
-    <button type="button" id="tabRecords" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
-    <button type="button" id="tabMoney"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">袋</span></button>
+    <button type="button" id="tabRecords" hidden aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg><span class="tl">記録</span></button>
+    <button type="button" id="tabMoney" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.5"/><path d="M20.5 12.5h-3.7a1.8 1.8 0 0 0 0 3.6h3.7"/></svg><span class="tl">袋</span></button>
     <button type="button" id="tabFixed"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tl">固定費</span></button>
     <button type="button" id="tabAssets"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 18.5l5.5-6 4 3.5 7-8.5"/><path d="M15 7.5h5v5"/></svg><span class="tl">資産</span></button>
-    <button type="button" id="tabChart"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
+    <button type="button" id="tabChart" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4.2A8.3 8.3 0 1 0 19.8 13.5h-9.3z"/><path d="M13.5 3.3a7.3 7.3 0 0 1 7.2 7.2h-7.2z"/></svg><span class="tl">グラフ</span></button>
   </nav>
   <button type="button" class="fab" id="fab" aria-haspopup="dialog">＋ 入力</button>
   <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="入力">
@@ -1626,7 +1627,7 @@ const Core=(function(){
   function perHtml(ym){
     const p=periods.of(ym);
     let h='<div class="mper"><span class="pt">期間 '+fmt(p.from)+' 〜 '+fmt(p.to)+(p.custom?'(手動)':(cfg.payday?'(給料日から)':'(暦の月)'))+'</span>'+
-      '<button type="button" class="small" data-act="fx-view" data-key="'+ym+'">記録で見る</button>'+
+      
       '<button type="button" class="small" data-act="fx-per" data-key="'+ym+'">期間を変更</button></div>';
     if(ui.fxPerEdit===ym){
       h+='<div class="perform"><input type="date" class="per-from" value="'+p.from+'" aria-label="開始日"><span class="sep">〜</span><input type="date" class="per-to" value="'+p.to+'" aria-label="終了日">'+
@@ -2962,7 +2963,9 @@ const Core=(function(){
 
   /* 画面の切り替え(記録 / グラフ / 設定)。期間・支払方法の欄は、記録とグラフで共有 */
   const VIEWS={records:["viewRecords","tabRecords"],fixed:["viewFixed","tabFixed"],chart:["viewChart","tabChart"],money:["viewMoney","tabMoney"],assets:["viewAssets","tabAssets"],settings:["viewSettings","tabSettings"]};
-  const viewFromHash=()=>{const h=location.hash.slice(1);return VIEWS[h]?h:"records";};
+  /* 記録・袋・グラフのタブは、いったん外している(データは残してある)。使えるのは固定費・資産・設定 */
+  const SHOWN=["fixed","assets","settings"];
+  const viewFromHash=()=>{const h=location.hash.slice(1);return SHOWN.indexOf(h)>=0?h:"fixed";};
   function showView(v,fromUser){
     Object.keys(VIEWS).forEach(k=>{
       $(VIEWS[k][0]).hidden=k!==v;
@@ -2970,7 +2973,7 @@ const Core=(function(){
       if(k===v) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current");
     });
     $("period").hidden=(v==="settings"||v==="fixed"||v==="money"||v==="assets");
-    $("fab").hidden=!(v==="records"||v==="money"||v==="fixed");
+    $("fab").hidden=true;
     if(v==="settings"&&!cfg.clientId) $("syncDetails").open=true;
     if(fromUser){
       try{history.replaceState(null,"","#"+v);}catch(e){}
@@ -2979,7 +2982,7 @@ const Core=(function(){
   }
   Object.keys(VIEWS).forEach(k=>$(VIEWS[k][1]).addEventListener("click",()=>showView(k,true)));
   window.addEventListener("hashchange",()=>showView(viewFromHash()));
-  $("logoLink").addEventListener("click",e=>{e.preventDefault(); showView("records",true);});
+  $("logoLink").addEventListener("click",e=>{e.preventDefault(); showView("fixed",true);});
   /* 画面の一番上で下に引っ張ると、ページを再読み込みする(データは端末に保存済みなので消えません) */
   {
     const el=document.createElement("div"); el.id="ptr"; el.setAttribute("aria-hidden","true"); el.textContent="↓ 引っ張って再読み込み"; document.body.appendChild(el);
@@ -3007,7 +3010,7 @@ const Core=(function(){
 
   /* 横にスワイプして、画面(タブ)を切り替える。入力欄・グラフ・横に動く表の上では動かさない */
   {
-    const ORDER=["records","money","fixed","assets","chart"]; let st=null;
+    const ORDER=["fixed","assets"]; let st=null;
     const blocked=el=>{
       for(let n=el;n&&n!==document.body;n=n.parentElement){
         if(/^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName)||(n.classList&&(n.classList.contains("achart")||n.classList.contains("ibox")||n.classList.contains("sheet")))) return true;
